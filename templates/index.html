@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+</head>
+<body>
+    <h1>Welcome to the Flask App</h1>
+    {% if 'username' in session %}
+        <p>Hello, {{ session['username'] }} !</p>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('index') }}">Home</a></li>
+                <li><a href="{{ url_for('review') }}">Review Users</a></li>
+                <li><a href="{{ url_for('modify') }}">Modify User</a></li>
+                <li><a href="{{ url_for('delete') }}">Delete User</a></li>
+                <li><a href="{{ url_for('count') }}">Count Users</a></li>
+                <li><a href="{{ url_for('find') }}">Find User by ID</a></li>
+                <li><a href="{{ url_for('chat') }}">Chat</a></li>
+            </ul>
+        </nav>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    {% else %}
+        <p>Hello, Guest!</p>
+            <li><a href="{{ url_for('login') }}">Login</a></li>
+            <li><a href="{{ url_for('insert') }}">Sign Up</a></li>
+    {% endif %}
+</body>
+</html>

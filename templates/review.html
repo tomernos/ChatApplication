@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Review Users</title>
+</head>
+<body>
+    <h1>Total Users: {{ total_users }}</h1>
+    <h1>Review Users : </h1>
+    <ul>
+    {% for user in users %}
+        <li>ID: {{ user[1] }}, Username: {{ user[2] }}, Age: {{ user[5] }}, Email: {{ user[6] }}</li>
+    {% endfor %}
+    </ul>
+    <a href="/">Back to Menu</a>
+</body>
+</html>

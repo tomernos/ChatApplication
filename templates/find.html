@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head>
+    <title>Find User</title>
+</head>
+<body>
+    <h1>Find User by ID</h1>
+    <form method="post" action="/find">
+        <label for="user_id">User ID:</label><br>
+        <input type="text" id="user_id" name="user_id"><br><br>
+        <input type="submit" value="Find">
+    </form>
+    
+    {% if user %}
+        <h2>User Details</h2>
+        <ul>
+            <li>ID: {{ user[1] }}</li>
+            <li>Username: {{ user[2] }}</li>
+            <li>Password: {{ user[3] }}</li>
+            <li>Classification: {{ user[4] }}</li>
+            <li>Age: {{ user[5] }}</li>
+            <li>Email: {{ user[6] }}</li>
+        </ul>
+    {% endif %}
+    <a href="/">Back to Menu</a>
+</body>
+</html>

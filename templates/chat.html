@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+</head>
+<body>
+    <h1>Chat Box</h1>
+    <form action="/chat" method="POST">
+        <textarea name="message" rows="4" cols="50" required></textarea><br>
+        <button type="submit">Send</button>
+    </form>
+    <h2>Messages:</h2>
+    <div>
+        {% for message in messages %}
+            <p><strong>{{ message[0] }}:</strong> {{ message[1] }} <em>({{ message[2] }})</em></p>
+        {% endfor %}
+    </div>
+    <a href="{{ url_for('logout') }}">Logout</a>
+</body>
+</html>
