@@ -13,7 +13,7 @@ def home():
 def update_clock_app():
     updated_time = request.form.get('updated_time')
     os.system(f'curl -X POST {clock_app_url}/update_time -H "Content-Type: application/json" -d \'{{"time": "{updated_time}" }}\'')
-    return 'Time updated successfully', 200
+    return 'Time updated successfully!', 200
 
 
 if __name__ == '__main__':
