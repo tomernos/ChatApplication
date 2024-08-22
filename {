@@ -1,0 +1,144 @@
+Script started on 2024-08-22 15:40:58+03:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="129" LINES="7"]
+                    sh 'docker-compose build'
+                }
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                script {
+                    sh '''
+                    source venv/bin/activate
+                    pytest test_myflask.py
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    sh 'docker-compose up -d'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            sh 'docker-compose down'
+        }
+    }
+}[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$                     sh 'docker-compose build'
+[?2004lsh: 0: cannot open docker-compose build: No such file
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$                 }
+[?2004lbash: syntax error near unexpected token `}'
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$             }
+[?2004lbash: syntax error near unexpected token `}'
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$         }
+[?2004lbash: syntax error near unexpected token `}'
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ 
+[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$         stage('Run Tests') {
+[?2004lbash: syntax error near unexpected token `'Run Tests''
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$             steps {
+[?2004lCommand 'steps' not found, did you mean:
+  command 'stops' from deb vasttrafik-cli (1.5-1)
+  command 'step' from deb step (4:21.12.3-0ubuntu1)
+Try: sudo apt install <deb name>
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$                 script {
+[?2004lScript started, output log file is '{'.
+                    sh '''
+                    source venv/bin/activate
+                    pytest test_myflask.py
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    sh 'docker-compose up -d'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            sh 'docker-compose down'
+        }
+    }
+}[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$                     sh '''
+[?2004l[?2004h>                     source venv/bin/activate
+[?2004l[?2004h>                     pytest test_myflask.py
+[?2004l[?2004h>                     '''
+[?2004l^Zcannot open 
+                    source venv/bin/activate
+                    pytest test_myflask.py
+                    : No such file
+[1]+  Stopped                 sh '''
+                    source venv/bin/activate
+                    pytest test_myflask.py
+                    '''
+[?2004h]0;tomer@DESh 'docker-compose build'
+[?2004lsh: 0: cannot open docker-compose build: No such file
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$                 }
+[?2004lbash: syntax error near unexpected token `}'
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$             }
+[?2004lbash: syntax error near unexpected token `}'
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$         }
+[?2004lbash: syntax error near unexpected token `}'
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ 
+[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$         stage('Run Tests') {
+[?2004lbash: syntax error near unexpected token `'Run Tests''
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$             steps {
+[?2004lCommand 'steps' not found, did you mean:
+  command 'stops' from deb vasttrafik-cli (1.5-1)
+  command 'step' from deb step (4:21.12.3-0ubuntu1)
+Try: sudo apt install <deb name>
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$                 script {
+[?2004lScript started, output log file is '{'.
+                    sh '''
+                    source venv/bin/activate
+                    pytest test_myflask.py
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    sh 'docker-compose up -d'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            sh 'docker-compose down'
+        }
+    }
+}[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$                     sh '''
+[?2004l[?2004h>                     source venv/bin/activate
+[?2004l[?2004h>                     pytest test_myflask.py
+[?2004l[?2004h>                     '''
+[?2004l^Zcannot open 
+                    source venv/bin/activate
+                    pytest test_myflask.py
+                    : No such file
+[1]+  Stopped                 sh '''
+                    source venv/bin/activate
+                    pytest test_myflask.py
+                    '''
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ jobs
+[?2004l[1]+  Stopped                 sh '''
+                    source venv/bin/activate
+                    pytest test_myflask.py
+                    '''
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ k[Kkill $1
+[?2004lkill: usage: kill [-s sigspec | -n signum | -sigspec] pid | jobspec ... or kill -l [sigspec]
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ sto[K[K[Kki[K[Kkill -9 $1
+[?2004lkill: usage: kill [-s sigspec | -n signum | -sigspec] pid | jobspec ..
