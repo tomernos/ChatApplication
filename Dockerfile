@@ -8,7 +8,7 @@ WORKDIR /python-docker
 COPY requirements.txt requirements.txt
 
 # Install the Python dependencies specified in requirements.txt
-RUN yun install python3 -y
+RUN yum install python3 -y
 
 # Install the Python dependencies specified in requirements.txt
 RUN pip3 install -r requirements.txt
