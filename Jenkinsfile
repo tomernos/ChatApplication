@@ -66,7 +66,7 @@ pipeline {
                     sh '''
                     python3 -m venv venv
                     source venv/bin/activate
-                    pytest test_myflask.py
+                    python3 test_myflask.py
                     '''
                 }
             }
