@@ -8,10 +8,10 @@ WORKDIR /python-docker
 COPY requirements.txt requirements.txt
 
 # Install the Python dependencies specified in requirements.txt
-RUN yum install python3 -y
+RUN apt-get update && apt-get install -y python3
 
 # Install the Python dependencies specified in requirements.txt
-RUN pip install -r requirements.txt
+RUN pip3 install -r requirements.txt
 
 # Copy the rest of the application code into the container
 COPY . .
