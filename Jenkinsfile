@@ -2,14 +2,14 @@ pipeline {
     agent any
 
     environment {
-        GIT_CREDENTIALS = 'your-credentials-id' // Replace with your Jenkins credentials ID
+        GIT_CREDENTIALS = '12341234' 
     }
 
     stages {
         stage('Checkout') {
             steps {
                 script {
-                    git branch: 'main', credentialsId: env.GIT_CREDENTIALS, url: 'https://your-git-repo-url.git'
+                    git branch: 'main', credentialsId: env.GIT_CREDENTIALS, url: 'https://github.com/tomernos/python-projects.git'
                 }
             }
         }
