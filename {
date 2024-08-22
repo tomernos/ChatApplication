@@ -249,55 +249,6 @@ To https://github.com/tomernos/python-projects.git
 [?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git add .[1Ppushcommit -m "adding setup"
 [?2004l[main 33a9c41] adding setup
  2 files changed, 34 insertions(+), 2 deletions(-)
-[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git pushcommit -m "adding setup"add .[K
-[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git add .[1Ppushcommit -m "adding setup"
-[?2004l[main d4e4dcb] adding setup
- 2 files changed, 64 insertions(+), 23 deletions(-)
-[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git commit -m "adding setup"add .[K[1Ppush
-[?2004lgit: 'credential-wincred' is not a git command. See 'git --help'.
-Username for 'https://github.com': tomernos
-Password for 'https://tomernos@github.com': 
-git: 'credential-wincred' is not a git command. See 'git --help'.
-Enumerating objects: 7, done.
-Counting objects:  14% (1/7)Counting objects:  28% (2/7)Counting objects:  42% (3/7)Counting objects:  57% (4/7)Counting objects:  71% (5/7)Counting objects:  85% (6/7)Counting objects: 100% (7/7)Counting objects: 100% (7/7), done.
-Delta compression using up to 12 threads
-Compressing objects:  25% (1/4)Compressing objects:  50% (2/4)Compressing objects:  75% (3/4)Compressing objects: 100% (4/4)Compressing objects: 100% (4/4), done.
-Writing objects:  25% (1/4)Writing objects:  50% (2/4)Writing objects:  75% (3/4)Writing objects: 100% (4/4)Writing objects: 100% (4/4), 993 bytes | 993.00 KiB/s, done.
-Total 4 (delta 3), reused 0 (delta 0), pack-reused 0
-remote: Resolving deltas:   0% (0/3)[Kremote: Resolving deltas:  33% (1/3)[Kremote: Resolving deltas:  66% (2/3)[Kremote: Resolving deltas: 100% (3/3)[Kremote: Resolving deltas: 100% (3/3), completed with 3 local objects.[K
-To https://github.com/tomernos/python-projects.git
-   f8c6740..d4e4dcb  main -> main
-[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git pushcommit -m "adding setup"add .[K
-[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git add .[1Ppushcommit -m "adding setup"
-[?2004l[main 33a9c41] adding setup
- 2 files changed, 34 insertions(+), 2 deletions(-)
-[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git commit -m "adding setup"add .[K[1Ppush
-[?2004lgit: 'credential-wincred' is not a git command. See 'git --help'.
-Username for 'https://github.com': tomernos
-Password for 'https://tomernos@github.com': 
-git: 'credential-wincred' is not a git command. See 'git --help'.
-Enumerating objects: 7, done.
-Counting objects:  14% (1/7)Counting objects:  28% (2/7)Counting objects:  42% (3/7)Counting objects:  57% (4/7)Counting objects:  71% (5/7)Counting objects:  85% (6/7)Counting objects: 100% (7/7)Counting objects: 100% (7/7), done.
-Delta compression using up to 12 threads
-Compressing objects:  25% (1/4)Compressing objects:  50% (2/4)Compressing objects:  75% (3/4)Compressing objects: 100% (4/4)Compressing objects: 100% (4/4), done.
-Writing objects:  25% (1/4)Writing objects:  50% (2/4)Writing objects:  75% (3/4)Writing objects: 100% (4/4)Writing objects: 100% (4/4), 463 bytes | 463.00 KiB/s, done.
-Total 4 (delta 3), reused 0 (delta 0), pack-reused 0
-remote: Resolving deltas:   0% (0/3)[Kremote: Resolving deltas:  33% (1/3)[Kremote: Resolving deltas:  66% (2/3)[Kremote: Resolving deltas: 100% (3/3)[Kremote: Resolving deltas: 100% (3/3), completed with 3 local objects.[K
-To https://gi@github.com': 
-git: 'credential-wincred' is not a git command. See 'git --help'.
-Enumerating objects: 7, done.
-Counting objects:  14% (1/7)Counting objects:  28% (2/7)Counting objects:  42% (3/7)Counting objects:  57% (4/7)Counting objects:  71% (5/7)Counting objects:  85% (6/7)Counting objects: 100% (7/7)Counting objects: 100% (7/7), done.
-Delta compression using up to 12 threads
-Compressing objects:  25% (1/4)Compressing objects:  50% (2/4)Compressing objects:  75% (3/4)Compressing objects: 100% (4/4)Compressing objects: 100% (4/4), done.
-Writing objects:  25% (1/4)Writing objects:  50% (2/4)Writing objects:  75% (3/4)Writing objects: 100% (4/4)Writing objects: 100% (4/4), 993 bytes | 993.00 KiB/s, done.
-Total 4 (delta 3), reused 0 (delta 0), pack-reused 0
-remote: Resolving deltas:   0% (0/3)[Kremote: Resolving deltas:  33% (1/3)[Kremote: Resolving deltas:  66% (2/3)[Kremote: Resolving deltas: 100% (3/3)[Kremote: Resolving deltas: 100% (3/3), completed with 3 local objects.[K
-To https://github.com/tomernos/python-projects.git
-   f8c6740..d4e4dcb  main -> main
-[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git pushcommit -m "adding setup"add .[K
-[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git add .[1Ppushcommit -m "adding setup"
-[?2004l[main 33a9c41] adding setup
- 2 files changed, 34 insertions(+), 2 deletions(-)
 [?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git commit -m "adding setup"add .[K[1Ppush
 [?2004lgit: 'credential-wincred' is not a git command. See 'git --help'.
 Username for 'https://github.com': tomernos
@@ -317,4 +268,93 @@ To https://github.com/tomernos/python-projects.git
 [?2004l[main f5bdc70] adding setup
  2 files changed, 51 insertions(+), 56 deletions(-)
 [?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git commit -m "adding setup"add .[K[1Ppush
-[?20
+[?2004lgit: 'credential-wincred' is not a git command. See 'git --help'.
+Username for 'https://github.com': tomernos
+Password for 'https://tomernos@github.com': 
+git: 'credential-wincred' is not a git command. See 'git --help'.
+Enumerating objects: 7, done.
+Counting objects:  14% (1/7)Counting objects:  28% (2/7)Counting objects:  42% (3/7)Counting objects:  57% (4/7)Counting objects:  71% (5/7)Counting objects:  85% (6/7)Counting objects: 100% (7/7)Counting objects: 100% (7/7), done.
+Delta compression using up to 12 threads
+Compressing objects:  25% (1/4)Compressing objects:  50% (2/4)Compressing objects:  75% (3/4)Compressing objects: 100% (4/4)Compressing objects: 100% (4/4), done.
+Writing objects:  25% (1/4)Writing objects:  50% (2/4)Writing objects:  75% (3/4)Writing objects: 100% (4/4)Writing objects: 100% (4/4), 541 bytes | 541.00 KiB/s, done.
+Total 4 (delta 3), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas:   0% (0/3)[Kremote: Resolving deltas:  33% (1/3)[Kremote: Resolving deltas:  66% (2/3)[Kremote: Resolving deltas: 100% (3/3)[Kremote: Resolving deltas: 100% (3/3), completed with 3 local objects.[K
+To https://github.com/tomernos/python-projects.git
+   33a9c41..f5bdc70  main -> main
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git pushcommit -m "adding setup"add .[K
+[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git add .[1Ppushcommit -m "adding setup"
+[?2004l[main 3682cc2] adding setup
+ 2 files changed, 46 insertions(+), 12 deletions(-)
+[?2004h]0;tomer@DESKTOP-9J2H91thub.com/tomernos/python-projects.git
+   d4e4dcb..33a9c41  main -> main
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ 1[Kgit pushcommit -m "adding setup"add .[K
+[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git add .[1Ppushcommit -m "adding setup"
+[?2004l[main f5bdc70] adding setup
+ 2 files changed, 51 insertions(+), 56 deletions(-)
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git commit -m "adding setup"add .[K[1Ppush
+[?2004lgit: 'credential-wincred' is not a git command. See 'git --help'.
+Username for 'https://github.com': tomernos
+Password for 'https://tomernos@github.com': 
+git: 'credential-wincred' is not a git command. See 'git --help'.
+Enumerating objects: 7, done.
+Counting objects:  14% (1/7)Counting objects:  28% (2/7)Counting objects:  42% (3/7)Counting objects:  57% (4/7)Counting objects:  71% (5/7)Counting objects:  85% (6/7)Counting objects: 100% (7/7)Counting objects: 100% (7/7), done.
+Delta compression using up to 12 threads
+Compressing objects:  25% (1/4)Compressing objects:  50% (2/4)Compressing objects:  75% (3/4)Compressing objects: 100% (4/4)Compressing objects: 100% (4/4), done.
+Writing objects:  25% (1/4)Writing objects:  50% (2/4)Writing objects:  75% (3/4)Writing objects: 100% (4/4)Writing objects: 100% (4/4), 541 bytes | 541.00 KiB/s, done.
+Total 4 (delta 3), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas:   0% (0/3)[Kremote: Resolving deltas:  33% (1/3)[Kremote: Resolving deltas:  66% (2/3)[Kremote: Resolving deltas: 100% (3/3)[Kremote: Resolving deltas: 100% (3/3), completed with 3 local objects.[K
+To https://github.com/tomernos/python-projects.git
+   33a9c41..f5bdc70  main -> main
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git pushcommit -m "adding setup"add .[K
+[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git add .[1Ppushcommit -m "adding setup"
+[?2004l[main 3682cc2] adding setup
+ 2 files changed, 46 insertions(+), 12 deletions(-)
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git commit -m "adding setup"add .[K[1Ppushcommit -m "adding setup"push[K
+[?2004lgit: 'credential-wincred' is not a git command. See 'git --help'.
+Username for 'https://github.com': tomernos
+Password for 'https://tomernos@github.com': 
+git: 'credential-wincred' is not a git command. See 'git --help'.
+remote: Support for password authentication was removed on August 13, 2021.
+remote: Please see https://docs.github.com/get-started/getting-started-with-git/about-remote-repositories#cloning-with-https-urls for information on currently recommended modes of authentication.
+fatal: Authentication failed for 'https://github.com/tomernos/python-projects.git/'
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git push
+[?2004lgit: 'credential-wincred' is not a git command. See 'git --help'.
+Username for 'https://github.com': tomernos
+Password for 'https://tomernos@github.com': 
+git: 'credential-wincred' is04lgit: 'credential-wincred' is not a git command. See 'git --help'.
+Username for 'https://github.com': tomernos
+Password for 'https://tomernos@github.com': 
+git: 'credential-wincred' is not a git command. See 'git --help'.
+Enumerating objects: 7, done.
+Counting objects:  14% (1/7)Counting objects:  28% (2/7)Counting objects:  42% (3/7)Counting objects:  57% (4/7)Counting objects:  71% (5/7)Counting objects:  85% (6/7)Counting objects: 100% (7/7)Counting objects: 100% (7/7), done.
+Delta compression using up to 12 threads
+Compressing objects:  25% (1/4)Compressing objects:  50% (2/4)Compressing objects:  75% (3/4)Compressing objects: 100% (4/4)Compressing objects: 100% (4/4), done.
+Writing objects:  25% (1/4)Writing objects:  50% (2/4)Writing objects:  75% (3/4)Writing objects: 100% (4/4)Writing objects: 100% (4/4), 541 bytes | 541.00 KiB/s, done.
+Total 4 (delta 3), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas:   0% (0/3)[Kremote: Resolving deltas:  33% (1/3)[Kremote: Resolving deltas:  66% (2/3)[Kremote: Resolving deltas: 100% (3/3)[Kremote: Resolving deltas: 100% (3/3), completed with 3 local objects.[K
+To https://github.com/tomernos/python-projects.git
+   33a9c41..f5bdc70  main -> main
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git pushcommit -m "adding setup"add .[K
+[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git add .[1Ppushcommit -m "adding setup"
+[?2004l[main 3682cc2] adding setup
+ 2 files changed, 46 insertions(+), 12 deletions(-)
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git commit -m "adding setup"add .[K[1Ppushcommit -m "adding setup"push[K
+[?2004lgit: 'credential-wincred' is not a git command. See 'git --help'.
+Username for 'https://github.com': tomernos
+Password for 'https://tomernos@github.com': 
+git: 'credential-wincred' is not a git command. See 'git --help'.
+remote: Support for password authentication was removed on August 13, 2021.
+remote: Please see https://docs.github.com/get-started/getting-started-with-git/about-remote-repositories#cloning-with-https-urls for information on currently recommended modes of authentication.
+fatal: Authentication failed for 'https://github.com/tomernos/python-projects.git/'
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git push
+[?2004lgit: 'credential-wincred' is not a git command. See 'git --help'.
+Username for 'https://github.com': tomernos
+Password for 'https://tomernos@github.com': 
+git: 'credential-wincred' is not a git command. See 'git --help'.
+Enumerating objects: 7, done.
+Counting objects:  14% (1/7)Counting objects:  28% (2/7)Counting objects:  42% (3/7)Counting objects:  57% (4/7)Counting objects:  71% (5/7)Counting objects:  85% (6/7)Counting objects: 100% (7/7)Counting objects: 100% (7/7), done.
+Delta compression using up to 12 threads
+Compressing objects:  25% (1/4)Compressing objects:  50% (2/4)Compressing objects:  75% (3/4)Compressing objects: 100% (4/4)Compressing objects: 100% (4/4), done.
+Writing objects:  25% (1/4)Writing objects:  50% (2/4)Writing objects:  75% (3/4)Writing objects: 100% (4/4)Writing objects: 100% (4/4), 487 bytes | 487.00 KiB/s, done.
+Total 4 (delta 3), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas:   0% (0/3)[Kremote: Resolving deltas:  33% (1/3)[Kremote: Resolving deltas:  66% (2/3)[Kremote: Resolving deltas: 100% (3/3)[Kremote: Resolving deltas: 100% 

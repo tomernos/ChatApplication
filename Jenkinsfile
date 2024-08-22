@@ -55,7 +55,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    sh 'docker-compose build'
+                    sh 'sudo docker-compose build'
                 }
             }
         }
@@ -74,7 +74,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    sh 'docker-compose up -d'
+                    sh 'sudo docker-compose up -d'
                 }
             }
         }
@@ -82,7 +82,7 @@ pipeline {
 
     post {
         always {
-            sh 'docker-compose down'
+            sh 'sudo docker-compose down'
         }
     }
 }
