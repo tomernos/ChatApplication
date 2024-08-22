@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  flask-app:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+    volumes:
+      - .:/app
+    command: >
+      sh -c "python3 -m my_flask --host=0.0.0.0"
+
+  db:
+    image: sqlite3
+    volumes:
+      - ./example.db:/app/example.db
+
+  test:
+    build: .
+    depends_on:
+      - flask-app
+    command: >
+      sh -c "pytest test_myflask.py"
