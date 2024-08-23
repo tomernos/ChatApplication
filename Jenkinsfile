@@ -10,6 +10,7 @@ pipeline {
             steps {
                 script {
                     git branch: 'main', credentialsId: env.GIT_CREDENTIALS, url: 'https://github.com/tomernos/python-projects.git'
+                
                 }
             }
         }
@@ -67,7 +68,7 @@ pipeline {
                     python3 -m venv venv
                     source venv/bin/activate
                     pip install -r requirements.txt
-                    python3 test_myflask.py
+                    python -m pytest test_myflask.py
                     deactivate
                     '''
                 }
