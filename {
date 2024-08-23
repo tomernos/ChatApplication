@@ -423,28 +423,6 @@ To https://github.com/tomernos/python-projects.git
 [?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git add .[1Ppushcommit -m "adding setup"
 [?2004l[main 8cccfb8] adding setup
  2 files changed, 33 insertions(+), 1 deletion(-)
-[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/UsV[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git pushcommit -m "adding setup"add .[K
-[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git add .[1Ppushcommit -m "adding setup"
-[?2004l[main f262256] adding setup
- 2 files changed, 36 insertions(+), 38 deletions(-)
-[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git commit -m "adding setup"add .[K[1Ppush
-[?2004lgit: 'credential-wincred' is not a git command. See 'git --help'.
-Username for 'https://github.com': tomernos
-Password for 'https://tomernos@github.com': 
-git: 'credential-wincred' is not a git command. See 'git --help'.
-Enumerating objects: 7, done.
-Counting objects:  14% (1/7)Counting objects:  28% (2/7)Counting objects:  42% (3/7)Counting objects:  57% (4/7)Counting objects:  71% (5/7)Counting objects:  85% (6/7)Counting objects: 100% (7/7)Counting objects: 100% (7/7), done.
-Delta compression using up to 12 threads
-Compressing objects:  25% (1/4)Compressing objects:  50% (2/4)Compressing objects:  75% (3/4)Compressing objects: 100% (4/4)Compressing objects: 100% (4/4), done.
-Writing objects:  25% (1/4)Writing objects:  50% (2/4)Writing objects:  75% (3/4)Writing objects: 100% (4/4)Writing objects: 100% (4/4), 560 bytes | 560.00 KiB/s, done.
-Total 4 (delta 3), reused 0 (delta 0), pack-reused 0
-remote: Resolving deltas:   0% (0/3)[Kremote: Resolving deltas:  33% (1/3)[Kremote: Resolving deltas:  66% (2/3)[Kremote: Resolving deltas: 100% (3/3)[Kremote: Resolving deltas: 100% (3/3), completed with 3 local objects.[K
-To https://github.com/tomernos/python-projects.git
-   2fc5b98..f262256  main -> main
-[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git pushcommit -m "adding setup"add .[K
-[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git add .[1Ppushcommit -m "adding setup"
-[?2004l[main 8cccfb8] adding setup
- 2 files changed, 33 insertions(+), 1 deletion(-)
 [?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git commit -m "adding setup"add .[K[1Ppush
 [?2004lgit: 'credential-wincred' is not a git command. See 'git --help'.
 Username for 'https://github.com': tomernos
@@ -456,4 +434,510 @@ Delta compression using up to 12 threads
 Compressing objects:  25% (1/4)Compressing objects:  50% (2/4)Compressing objects:  75% (3/4)Compressing objects: 100% (4/4)Compressing objects: 100% (4/4), done.
 Writing objects:  25% (1/4)Writing objects:  50% (2/4)Writing objects:  75% (3/4)Writing objects: 100% (4/4)Writing objects: 100% (4/4), 475 bytes | 475.00 KiB/s, done.
 Total 4 (delta 3), reused 0 (delta 0), pack-reused 0
-remote: Resolving deltas:   0% (0/3)[Kremote: Resolving deltas:  33% (1/3)[Kremote: Resolving deltas:  66% (
+remote: Resolving deltas:   0% (0/3)[Kremote: Resolving deltas:  33% (1/3)[Kremote: Resolving deltas:  66% (2/3)[Kremote: Resolving deltas: 100% (3/3)[Kremote: Resolving deltas: 100% (3/3), completed with 3 local objects.[K
+To https://github.com/tomernos/python-projects.git
+   f262256..8cccfb8  main -> main
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git pushcommit -m "adding setup"add .[K
+[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git add .[1Ppushcommit -m "adding setup"
+[?2004l[main 078b9a6] adding setup
+ 2 files changed, 34 insertions(+), 33 deletions(-)
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git commit -m "adding setup"add .[K[1Ppush
+[?2004lgit: 'credential-wincred' is not a git command. See 'git --help'.
+Username for 'https://github.com': tomernos
+Password for 'https://tomernos@github.com': 
+git: 'credential-wincred' is not a git command. See 'git --help'.
+Enumerating objects: 7, done.
+Counting objects:  14% (1/7)Counting objects:  28% (2/7)Counting objects:  42% (3/7)Counting objects:  57% (4/7)Counting objects:  71% (5/7)Counting objects:  85% (6/7)Counting objects: 100% (7/7)Counting objects: 100% (7/7), done.
+Delta compression using up to 12 threads
+Compressing objects:  25% (1/4)Compressing objects:  50% (2/4)Compressing objects:  75% (3/4)Compressing objects: 100% (4/4)Compressing objects: 100% (4/4), done.
+Writing objects:  25% (1/4)Writing objects:  50% (2/4)Writing objects:  75% (3/4)Writing objects: 100% (4/4)Writing objects: 100% (4/4), 490 bytes | 490.00 KiB/s, done.
+Total 4 (delta 3), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas:  33% (1/3)[Kremote: Resolving deltas:  66% (2/3)[Kremote: Resolving deltas: 100% (3/3)[Kremote: Resolving deltas: 100% (3/3), completed with 3 local objects.[K
+To https://github.com/tomernos/python-projects.git
+   8cccfb8..078b9a6  main -> main
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ python3 -m venv venv
+[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ sourve[K[K[Kce [K[K[Krce ven[K[K[K[K[K[K[K[K[K[Ksource [K[K[K[K[K[K[K[7msource venv/bin/activate[27msource venv/bin/activate
+[?2004l[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [7mpip install -r requirements.txt[27mpip install -r requirements.txt[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kls
+[?2004l [0m[01;32mDockerfile[0m    [01;32mSQL.py[0m        [01;32mdocker-compose.yml[0m   [01;32mmy_flask.py[0m   [01;32mrequirements.txt[0m   [01;32mtest_myflask.py[0m   [34;42mvenv[0m
+ [01;32mJenkinsfile[0m   [34;42m__pycache__[0m   [01;32mexample.db[0m           [01;32mmyproj.txt[0m    [34;42mtemplates[0m          [01;32mtestflask.py[0m     [01;32m'{'[0m
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [7mpip install -r requirements.txt[27m[1Ppip install -r requirements.tx[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[7mpython your_script.py[27mpython your_script.py[C[1P.py[1P.py[1P.py[1P.py[1P.py[1P.py[1P.py[1P.py[1P.py[1P.py[1P.pyt.pye.py
+templates/       test_myflask.py  testflask.py     
+(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ python te.pys.pyt.py_.pymyflask.py.py
+[?2004lpython: can't open file '/mnt/c/Users/PC/Desktop/projects/python/my_project/test_myflask.py.py': [Errno 2] No such file or directory
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ python test_myflask.py.py[K[K
+[?2004lpython: can't open file '/mnt/c/Users/PC/Desktop/projects/python/my_project/test_myflask.py.': [Errno 2] No such file or directory
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ python test_myflask.py.[K
+[?2004lTraceback (most recent call last):
+  File "/mnt/c/Users/PC/Desktop/projects/python/my_project/test_myflask.py", line 2, in <module>
+    from my_flask import app, create_table, create_chat_table
+  File "/mnt/c/Users/PC/Desktop/projects/python/my_project/my_flask.py", line 3, in <module>
+    from flask import *
+ModuleNotFoundError: No module named 'flask'
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ python test_myflask.py.pyls[Ksource venv/bin/activate[4Ppython3 -m venv venvsource venv/bin/activatels[Kpython test_myflask.py.py[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[7mpip install -r requirements.txt[27mpip install -r requirements.txt
+[?2004lCollecting blinker==1.8.2
+  Using cached blinker-1.8.2-py3-none-any.whl (9.5 kB)
+Collecting click==8.1.7
+  Using cached click-8.1.7-py3-none-any.whl (97 kB)
+Collecting Flask==3.0.3
+  Using cached flask-3.0.3-py3-none-any.whl (101 kB)
+Collecting itsdangerous==2.2.0
+  Using cached itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+Collecting Jinja2==3.1.4
+  Using cached jinja2-3.1.4-py3-none-any.whl (133 kB)
+Collecting MarkupSafe==2.1.5
+  Using cached MarkupSafe-2.1.5-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (25 kB)
+Collecting Werkzeug==3.0.3
+  Using cached werkzeug-3.0.3-py3-none-any.whl (227 kB)
+Installing collected packages: MarkupSafe, itsdangerous, click, blinker, Werkzeug, Jinja2, Flask
+Successfully installed Flask-3.0.3 Jinja2-3.1.4 MarkupSafe-2.1.5 Werkzeug-3.0.3 blinker-1.8.2 click-8.1.7 itsdangerous-2.2.0
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ pip install -r requirements.txt[9Python test_myflask.pyip install -r requirements.txt[9Python test_myflask.py
+[?2004l...
+----------------------------------------------------------------------
+Ran 3 tests in 0.042s
+
+OK
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ docker ps
+[?2004lCommand 'docker' not found, but can be installed with:
+sudo apt install docker.io      # version 24.0.7-0ubuntu2~22.04.1, or
+sudo apt install podman-docker  # version 3.4.4+ds1-1ubuntu1.22.04.2
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ suao apr install dox[Kcker d[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kt install docker docker [K-compose.yml [K[K[K[K[K
+[?2004lCommand 'suao' not found, did you mean:
+  command 'sumo' from deb sumo (1.12.0+dfsg1-1)
+  command 'sudo' from deb sudo (1.9.9-1ubuntu2.4)
+  command 'sudo' from deb sudo-ldap (1.9.9-1ubuntu2.4)
+Try: sudo apt install <deb name>
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ suao apt install docker docker-compose[1P[1@d
+[?2004l[sudo] password for tomer: 
+Reading package lists... 0%Reading package lists... 100%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+The following additional packages will be installed:
+  bridge-utils containerd dns-root-data dnsmasq-base docker.io pigz python3-attr python3-docker python3-dockerpty python3-docopt
+  python3-dotenv python3-jsonschema python3-pyrsistent python3-texttable python3-websocket runc ubuntu-fan wmdocker
+Suggested packages:
+  ifupdown aufs-tools btrfs-progs cgroupfs-mount | cgroup-lite debootstrap docker-doc rinse zfs-fuse | zfsutils python-attr-doc
+  python-jsonschema-doc
+The following NEW packages will be installed:
+  bridge-utils containerd dns-root-data dnsmasq-base docker docker-compose docker.io pigz python3-attr python3-docker python3-dockerpty
+  python3-docopt python3-dotenv python3-jsonschema python3-pyrsistent python3-texttable python3-websocket runc ubuntu-fan wmdocker
+0 upgraded, 20 newly installed, 0 to remove and 14 not upgraded.
+Need to get 76.0 MB of archives.
+After this operation, 286 MB of additional disk space will be used.
+Do you want to continue? [Y/n] y
+[33m0% [Working][0m[33m0% [Waiting for headers][0m                        Get:1 http://archive.ubuntu.com/ubuntu jammy/universe amd64 pigz amd64 2.6-1 [63.6 kB]
+[33m0% [1 pigz 5310 B/63.6 kB 8%][0m[33m0% [1 pigz 58.5 kB/63.6 kB 92%][0m[33m                               1% [Working][0m            Get:2 http://archive.ubuntu.com/ubuntu jammy/main amd64 bridge-utils amd64 1.7-1ubuntu3 [34.4 kB]
+[33m1% [2 bridge-utils 1364 B/34.4 kB 4%][0m[33m                                     2% [Waiting for headers][0m                        Get:3 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 runc amd64 1.1.12-0ubuntu2~22.04.1 [8405 kB]
+[33m2% [3 runc 26.6 kB/8405 kB 0%][0m[33m                              2% [3 runc 280 kB/8405 kB 3%][0m[33m5% [3 runc 2548 kB/8405 kB 30%][0m[33m                               12% [Working][0m             Get:4 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 containerd amd64 1.7.12-0ubuntu2~22.04.1 [37.8 MB]
+[33m12% [4 containerd 28.3 kB/37.8 MB 0%][0m[33m19% [4 containerd 6371 kB/37.8 MB 17%][0m[33m26% [4 containerd 13.7 MB/37.8 MB 36%][0m[33m33% [4 containerd 19.8 MB/37.8 MB 52%][0m[33m39% [4 containerd 25.7 MB/37.8 MB 68%][0m[33m45% [4 containerd 31.1 MB/37.8 MB 82%][0m[33m                                      53% [Working][0m             Get:5 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 dns-root-data all 2023112702~ubuntu0.22.04.1 [5136 B]
+             Get:6 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 dnsmasq-base amd64 2.90-0ubuntu0.22.04.1 [374 kB]
+[33m54% [6 dnsmasq-base 16.5 kB/374 kB 4%][0m[33m                                      55% [Working][0m             Get:7 http://archive.ubuntu.com/ubuntu jammy/universe amd64 wmdocker amd64 1.5-2 [13.0 kB]
+[33m56% [Waiting for headers][0m                         Get:8 http://archive.ubuntu.com/ubuntu jammy/universe amd64 docker all 1.5-2 [1316 B]
+                         Get:9 http://archive.ubuntu.com/ubuntu jammy/universe amd64 python3-websocket all 1.2.3-1 [34.7 kB]
+[33m57% [9 python3-websocket 6586 B/34.7 kB 19%][0m[33m                                            58% [Waiting for headers][0m                         Get:10 http://archive.ubuntu.com/ubuntu jammy/universe amd64 python3-docker all 5.0.3-1 [89.3 kB]
+[33m58% [10 python3-docker 51.6 kB/89.3 kB 58%][0m[33m                                           59% [Working][0m             Get:11 http://archive.ubuntu.com/ubuntu jammy/universe amd64 python3-dockerpty all 0.4.1-2 [11.1 kB]
+             Get:12 http://archive.ubuntu.com/ubuntu jammy/universe amd64 python3-docopt all 0.6.2-4 [26.9 kB]
+[33m60% [12 python3-docopt 23.5 kB/26.9 kB 88%][0m[33m                                           61% [Working][0m             Get:13 http://archive.ubuntu.com/ubuntu jammy/universe amd64 python3-dotenv all 0.19.2-1 [20.5 kB]
+[33m62% [Waiting for headers][0m                         Get:14 http://archive.ubuntu.com/ubuntu jammy/main amd64 python3-attr all 21.2.0-1 [44.0 kB]
+[33m62% [14 python3-attr 3806 B/44.0 kB 9%][0m[33m                                       63% [Waiting for headers][0m                         Get:15 http://archive.ubuntu.com/ubuntu jammy/main amd64 python3-pyrsistent amd64 0.18.1-1build1 [55.5 kB]
+[33m63% [15 python3-pyrsistent 23.5 kB/55.5 kB 42%][0m[33m                                               64% [Working][0m             Get:16 http://archive.ubuntu.com/ubuntu jammy/main amd64 python3-jsonschema all 3.2.0-0ubuntu2 [43.1 kB]
+[33m65% [16 python3-jsonschema 43.1 kB/43.1 kB 100%][0m[33m                                                66% [Waiting for headers][0m                         Get:17 http://archive.ubuntu.com/ubuntu jammy/universe amd64 python3-texttable all 1.6.4-1 [11.4 kB]
+[33m67% [Waiting for headers][0m                         Get:18 http://archive.ubuntu.com/ubuntu jammy/universe amd64 docker-compose all 1.29.2-1 [95.8 kB]
+[33m67% [18 docker-compose 95.8 kB/95.8 kB 100%][0m[33m                                            68% [Working][0m             Get:19 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 docker.io amd64 24.0.7-0ubuntu2~22.04.1 [28.8 MB]
+[33m68% [19 docker.io 59.6 kB/28.8 MB 0%][0m[33m75% [19 docker.io 7351 kB/28.8 MB 26%]                                                                                       8570 kB/s 2s[0m[33m84% [19 docker.io 15.3 MB/28.8 MB 53%]                                                                                       8570 kB/s 1s[0m[33m92% [19 docker.io 23.1 MB/28.8 MB 80%]                                                                                       8570 kB/s 0s[0m[33m99% [Waiting for headers]                                                                                                    8570 kB/s 0s[0m                                                                                                                                         Get:20 http://archive.ubuntu.com/ubuntu jammy/universe amd64 ubuntu-fan all 0.12.16 [35.2 kB]
+[33m100% [Working]                                                                                                               8570 kB/s 0s[0m                                                                                                                                         Fetched 76.0 MB in 8s (9788 kB/s)
+debconf: unable to initialize frontend: Dialog
+debconf: (Dialog frontend requires a screen at least 13 lines tall and 31 columns wide.)
+debconf: falling back to frontend: Readline
+Preconfiguring packages ...
+
+7[0;6r8[1ASelecting previously unselected package pigz.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 82575 files and directories currently installed.)
+Preparing to unpack .../00-pigz_2.6-1_amd64.deb ...
+7[7;0f[42m[30mProgress: [  0%][49m[39m [....................................................................................................................] 87[7;0f[42m[30mProgress: [  1%][49m[39m [#...................................................................................................................] 8Unpacking pigz (2.6-1) ...
+7[7;0f[42m[30mProgress: [  2%][49m[39m [##..................................................................................................................] 8Selecting previously unselected package bridge-utils.
+Preparing to unpack .../01-bridge-utils_1.7-1ubuntu3_amd64.deb ...
+7[7;0f[42m[30mProgress: [  4%][49m[39m [####................................................................................................................] 8Unpacking bridge-utils (1.7-1ubuntu3) ...
+7[7;0f[42m[30mProgress: [  5%][49m[39m [#####...............................................................................................................] 8Selecting previously unselected package runc.
+Preparing to unpack .../02-runc_1.1.12-0ubuntu2~22.04.1_amd64.deb ...
+7[7;0f[42m[30mProgress: [  6%][49m[39m [#######.............................................................................................................] 8Unpacking runc (1.1.12-0ubuntu2~22.04.1) ...
+7[7;0f[42m[30mProgress: [  7%][49m[39m [########............................................................................................................] 8Selecting previously unselected package containerd.
+Preparing to unpack .../03-containerd_1.7.12-0ubuntu2~22.04.1_amd64.deb ...
+7[7;0f[42m[30mProgress: [  9%][49m[39m [##########..........................................................................................................] 8Unpacking containerd (1.7.12-0ubuntu2~22.04.1) ...
+7[7;0f[42m[30mProgress: [ 10%][49m[39m [###########.........................................................................................................] 8Selecting previously unselected package dns-root-data.
+Preparing to unpack .../04-dns-root-data_2023112702~ubuntu0.22.04.1_all.deb ...
+7[7;0f[42m[30mProgress: [ 11%][49m[39m [############........................................................................................................] 8Unpacking dns-root-data (2023112702~ubuntu0.22.04.1) ...
+7[7;0f[42m[30mProgress: [ 12%][49m[39m [##############......................................................................................................] 8Selecting previously unselected package dnsmasq-base.
+Preparing to unpack .../05-dnsmasq-base_2.90-0ubuntu0.22.04.1_amd64.deb ...
+7[7;0f[42m[30mProgress: [ 14%][49m[39m [###############.....................................................................................................] 8Unpacking dnsmasq-base (2.90-0ubuntu0.22.04.1) ...
+7[7;0f[42m[30mProgress: [ 15%][49m[39m [#################...................................................................................................] 8Selecting previously unselected package wmdocker.
+Preparing to unpack .../06-wmdocker_1.5-2_amd64.deb ...
+7[7;0f[42m[30mProgress: [ 16%][49m[39m [##################..................................................................................................] 8Unpacking wmdocker (1.5-2) ...
+7[7;0f[42m[30mProgress: [ 17%][49m[39m [####################................................................................................................] 8Selecting previously unselected package docker.
+Preparing to unpack .../07-docker_1.5-2_all.deb ...
+7[7;0f[42m[30mProgress: [ 19%][49m[39m [#####################...............................................................................................] 8Unpacking docker (1.5-2) ...
+7[7;0f[42m[30mProgress: [ 20%][49m[39m [######################..............................................................................................] 8Selecting previously unselected package python3-websocket.
+Preparing to unpack .../08-python3-websocket_1.2.3-1_all.deb ...
+7[7;0f[42m[30mProgress: [ 21%][49m[39m [########################............................................................................................] 8Unpacking python3-websocket (1.2.3-1) ...
+7[7;0f[42m[30mProgress: [ 22%][49m[39m [#########################...........................................................................................] 8Selecting previously unselected package python3-docker.
+Preparing to unpack .../09-python3-docker_5.0.3-1_all.deb ...
+7[7;0f[42m[30mProgress: [ 23%][49m[39m [###########################.........................................................................................] 8Unpacking python3-docker (5.0.3-1) ...
+7[7;0f[42m[30mProgress: [ 25%][49m[39m [############################........................................................................................] 8Selecting previously unselected package python3-dockerpty.
+Preparing to unpack .../10-python3-dockerpty_0.4.1-2_all.deb ...
+7[7;0f[42m[30mProgress: [ 26%][49m[39m [##############################......................................................................................] 8Unpacking python3-dockerpty (0.4.1-2) ...
+7[7;0f[42m[30mProgress: [ 27%][49m[39m [###############################.....................................................................................] 8Selecting previously unselected package python3-docopt.
+Preparing to unpack .../11-python3-docopt_0.6.2-4_all.deb ...
+7[7;0f[42m[30mProgress: [ 28%][49m[39m [################################....................................................................................] 8Unpacking python3-docopt (0.6.2-4) ...
+7[7;0f[42m[30mProgress: [ 30%][49m[39m [##################################..................................................................................] 8Selecting previously unselected package python3-dotenv.
+Preparing to unpack .../12-python3-dotenv_0.19.2-1_all.deb ...
+7[7;0f[42m[30mProgress: [ 31%][49m[39m [###################################.................................................................................] 8Unpacking python3-dotenv (0.19.2-1) ...
+7[7;0f[42m[30mProgress: [ 32%][49m[39m [#####################################...............................................................................] 8Selecting previously unselected package python3-attr.
+Preparing to unpack .../13-python3-attr_21.2.0-1_all.deb ...
+7[7;0f[42m[30mProgress: [ 33%][49m[39m [######################################..............................................................................] 8Unpacking python3-attr (21.2.0-1) ...
+7[7;0f[42m[30mProgress: [ 35%][49m[39m [########################################............................................................................] 8Selecting previously unselected package python3-pyrsistent:amd64.
+Preparing to unpack .../14-python3-pyrsistent_0.18.1-1build1_amd64.deb ...
+7[7;0f[42m[30mProgress: [ 36%][49m[39m [#########################################...........................................................................] 8Unpacking python3-pyrsistent:amd64 (0.18.1-1build1) ...
+7[7;0f[42m[30mProgress: [ 37%][49m[39m [##########################################..........................................................................] 8Selecting previously unselected package python3-jsonschema.
+Preparing to unpack .../15-python3-jsonschema_3.2.0-0ubuntu2_all.deb ...
+7[7;0f[42m[30mProgress: [ 38%][49m[39m [############################################........................................................................] 8Unpacking python3-jsonschema (3.2.0-0ubuntu2) ...
+7[7;0f[42m[30mProgress: [ 40%][49m[39m [#############################################.......................................................................] 8Selecting previously unselected package python3-texttable.
+Preparing to unpack .../16-python3-texttable_1.6.4-1_all.deb ...
+7[7;0f[42m[30mProgress: [ 41%][49m[39m [###############################################.....................................................................] 8Unpacking python3-texttable (1.6.4-1) ...
+7[7;0f[42m[30mProgress: [ 42%][49m[39m [################################################....................................................................] 8Selecting previously unselected package docker-compose.
+Preparing to unpack .../17-docker-compose_1.29.2-1_all.deb ...
+7[7;0f[42m[30mProgress: [ 43%][49m[39m [##################################################..................................................................] 8Unpacking docker-compose (1.29.2-1) ...
+7[7;0f[42m[30mProgress: [ 44%][49m[39m [###################################################.................................................................] 8Selecting previously unselected package docker.io.
+Preparing to unpack .../18-docker.io_24.0.7-0ubuntu2~22.04.1_amd64.deb ...
+7[7;0f[42m[30mProgress: [ 46%][49m[39m [####################################################................................................................] 8Unpacking docker.io (24.0.7-0ubuntu2~22.04.1) ...
+7[7;0f[42m[30mProgress: [ 47%][49m[39m [######################################################..............................................................] 8Selecting previously unselected package ubuntu-fan.
+Preparing to unpack .../19-ubuntu-fan_0.12.16_all.deb ...
+7[7;0f[42m[30mProgress: [ 48%][49m[39m [#######################################################.............................................................] 8Unpacking ubuntu-fan (0.12.16) ...
+7[7;0f[42m[30mProgress: [ 49%][49m[39m [#########################################################...........................................................] 8Setting up python3-dotenv (0.19.2-1) ...
+7[7;0f[42m[30mProgress: [ 51%][49m[39m [##########################################################..........................................................] 87[7;0f[42m[30mProgress: [ 52%][49m[39m [############################################################........................................................] 8Setting up python3-attr (21.2.0-1) ...
+7[7;0f[42m[30mProgress: [ 53%][49m[39m [#############################################################.......................................................] 87[7;0f[42m[30mProgress: [ 54%][49m[39m [###############################################################.....................................................] 8Setting up python3-texttable (1.6.4-1) ...
+7[7;0f[42m[30mProgress: [ 56%][49m[39m [################################################################....................................................] 87[7;0f[42m[30mProgress: [ 57%][49m[39m [#################################################################...................................................] 8Setting up python3-docopt (0.6.2-4) ...
+7[7;0f[42m[30mProgress: [ 58%][49m[39m [###################################################################.................................................] 87[7;0f[42m[30mProgress: [ 59%][49m[39m [####################################################################................................................] 8Setting up wmdocker (1.5-2) ...
+7[7;0f[42m[30mProgress: [ 60%][49m[39m [######################################################################..............................................] 87[7;0f[42m[30mProgress: [ 62%][49m[39m [#######################################################################.............................................] 8Setting up dnsmasq-base (2.90-0ubuntu0.22.04.1) ...
+7[7;0f[42m[30mProgress: [ 63%][49m[39m [#########################################################################...........................................] 87[7;0f[42m[30mProgress: [ 64%][49m[39m [##########################################################################..........................................] 8Setting up runc (1.1.12-0ubuntu2~22.04.1) ...
+7[7;0f[42m[30mProgress: [ 65%][49m[39m [###########################################################################.........................................] 87[7;0f[42m[30mProgress: [ 67%][49m[39m [#############################################################################.......................................] 8Setting up dns-root-data (2023112702~ubuntu0.22.04.1) ...
+7[7;0f[42m[30mProgress: [ 68%][49m[39m [##############################################################################......................................] 87[7;0f[42m[30mProgress: [ 69%][49m[39m [################################################################################....................................] 8Setting up bridge-utils (1.7-1ubuntu3) ...
+7[7;0f[42m[30mProgress: [ 70%][49m[39m [#################################################################################...................................] 8debconf: unable to initialize frontend: Dialog
+debconf: (Dialog frontend requires a screen at least 13 lines tall and 31 columns wide.)
+debconf: falling back to frontend: Readline
+7[7;0f[42m[30mProgress: [ 72%][49m[39m [###################################################################################.................................] 8Setting up python3-pyrsistent:amd64 (0.18.1-1build1) ...
+7[7;0f[42m[30mProgress: [ 73%][49m[39m [####################################################################################................................] 87[7;0f[42m[30mProgress: [ 74%][49m[39m [#####################################################################################...............................] 8Setting up pigz (2.6-1) ...
+7[7;0f[42m[30mProgress: [ 75%][49m[39m [#######################################################################################.............................] 87[7;0f[42m[30mProgress: [ 77%][49m[39m [########################################################################################............................] 8Setting up containerd (1.7.12-0ubuntu2~22.04.1) ...
+7[7;0f[42m[30mProgress: [ 78%][49m[39m [##########################################################################################..........................] 8Created symlink /etc/systemd/system/multi-user.target.wants/containerd.service → /lib/systemd/system/containerd.service.
+7[7;0f[42m[30mProgress: [ 79%][49m[39m [###########################################################################################.........................] 8Setting up python3-websocket (1.2.3-1) ...
+7[7;0f[42m[30mProgress: [ 80%][49m[39m [#############################################################################################.......................] 87[7;0f[42m[30mProgress: [ 81%][49m[39m [##############################################################################################......................] 8Setting up python3-dockerpty (0.4.1-2) ...
+7[7;0f[42m[30mProgress: [ 83%][49m[39m [###############################################################################################.....................] 87[7;0f[42m[30mProgress: [ 84%][49m[39m [#################################################################################################...................] 8Setting up docker (1.5-2) ...
+7[7;0f[42m[30mProgress: [ 85%][49m[39m [##################################################################################################..................] 87[7;0f[42m[30mProgress: [ 86%][49m[39m [####################################################################################################................] 8Setting up ubuntu-fan (0.12.16) ...
+7[7;0f[42m[30mProgress: [ 88%][49m[39m [#####################################################################################################...............] 8Created symlink /etc/systemd/system/multi-user.target.wants/ubuntu-fan.service → /lib/systemd/system/ubuntu-fan.service.
+invoke-rc.d: could not determine current runlevel
+7[7;0f[42m[30mProgress: [ 89%][49m[39m [#######################################################################################################.............] 8Setting up python3-docker (5.0.3-1) ...
+7[7;0f[42m[30mProgress: [ 90%][49m[39m [########################################################################################################............] 87[7;0f[42m[30mProgress: [ 91%][49m[39m [#########################################################################################################...........] 8Setting up docker.io (24.0.7-0ubuntu2~22.04.1) ...
+7[7;0f[42m[30mProgress: [ 93%][49m[39m [###########################################################################################################.........] 8debconf: unable to initialize frontend: Dialog
+debconf: (Dialog frontend requires a screen at least 13 lines tall and 31 columns wide.)
+debconf: falling back to frontend: Readline
+Adding group `docker' (GID 117) ...
+Done.
+Created symlink /etc/systemd/system/multi-user.target.wants/docker.service → /lib/systemd/system/docker.service.
+Created symlink /etc/systemd/system/sockets.target.wants/docker.socket → /lib/systemd/system/docker.socket.
+invoke-rc.d: unknown initscript, /etc/init.d/docker not found.
+invoke-rc.d: could not determine current runlevel
+7[7;0f[42m[30mProgress: [ 94%][49m[39m [############################################################################################################........] 8Setting up python3-jsonschema (3.2.0-0ubuntu2) ...
+7[7;0f[42m[30mProgress: [ 95%][49m[39m [##############################################################################################################......] 87[7;0f[42m[30mProgress: [ 96%][49m[39m [###############################################################################################################.....] 8Setting up docker-compose (1.29.2-1) ...
+7[7;0f[42m[30mProgress: [ 98%][49m[39m [#################################################################################################################...] 87[7;0f[42m[30mProgress: [ 99%][49m[39m [##################################################################################################################..] 8Processing triggers for dbus (1.12.20-2ubuntu4.1) ...
+Processing triggers for man-db (2.10.2-1) ...
+
+7[0;7r8[1A[J[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ docker-compose-[K  [Kvuild
+[?2004lNo such command: vuild
+
+Commands:
+  build              Build or rebuild services
+  config             Validate and view the Compose file
+  create             Create services
+  down               Stop and remove resources
+  events             Receive real time events from containers
+  exec               Execute a command in a running container
+  help               Get help on a command
+  images             List images
+  kill               Kill containers
+  logs               View output from containers
+  pause              Pause services
+  port               Print the public port for a port binding
+  ps                 List containers
+  pull               Pull service images
+  push               Push service images
+  restart            Restart services
+  rm                 Remove stopped containers
+  run                Run a one-off command
+  scale              Set number of containers for a service
+  start              Start services
+  stop               Stop services
+  top                Display the running processes
+  unpause            Unpause services
+  up                 Create and start containers
+  version            Show version information and quit
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ ls
+[?2004l [0m[01;32mDockerfile[0m    [01;32mSQL.py[0m        [01;32mdocker-compose.yml[0m   [01;32mmy_flask.py[0m   [01;32mrequirements.txt[0m   [01;32mtest_myflask.py[0m   [34;42mvenv[0m
+ [01;32mJenkinsfile[0m   [34;42m__pycache__[0m   [01;32mexample.db[0m           [01;32mmyproj.txt[0m    [34;42mtemplates[0m          [01;32mtestflask.py[0m     [01;32m'{'[0m
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ d[K[7msudo docker-compose build[27msudo docker-compose build
+[?2004lTraceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+    httplib_response = self._make_request(
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 395, in _make_request
+    conn.request(method, url, **httplib_request_kw)
+  File "/usr/lib/python3.10/http/client.py", line 1283, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1329, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1038, in _send_output
+    self.send(msg)
+  File "/usr/lib/python3.10/http/client.py", line 976, in send
+    self.connect()
+  File "/usr/lib/python3/dist-packages/docker/transport/unixconn.py", line 30, in connect
+    sock.connect(self.unix_socket)
+FileNotFoundError: [Errno 2] No such file or directory
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/requests/adapters.py", line 439, in send
+    resp = conn.urlopen(
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 756, in urlopen
+    retries = retries.increment(
+  File "/usr/lib/python3/dist-packages/urllib3/util/retry.py", line 532, in increment
+    raise six.reraise(type(error), error, _stacktrace)
+  File "/usr/lib/python3/dist-packages/six.py", line 718, in reraise
+    raise value.with_traceback(tb)
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+    httplib_response = self._make_request(
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 395, in _make_request
+    conn.request(method, url, **httplib_request_kw)
+  File "/usr/lib/python3.10/http/client.py", line 1283, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1329, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1038, in _send_output
+    self.send(msg)
+  File "/usr/lib/python3.10/http/client.py", line 976, in send
+    self.connect()
+  File "/usr/lib/python3/dist-packages/docker/transport/unixconn.py", line 30, in connect
+    sock.connect(self.unix_socket)
+urllib3.exceptions.ProtocolError: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 214, in _retrieve_server_version
+    return self.version(api_version=False)["ApiVersion"]
+  File "/usr/lib/python3/dist-packages/docker/api/daemon.py", line 181, in version
+    return self._result(self._get(url), json=True)
+  File "/usr/lib/python3/dist-packages/docker/utils/decorators.py", line 46, in inner
+    return f(self, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 237, in _get
+    return self.get(url, **self._set_request_timeout(kwargs))
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 557, in get
+    return self.request('GET', url, **kwargs)
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 544, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 657, in send
+    r = adapter.send(request, **kwargs)
+  File "/usr/lib/python3/dist-packages/requests/adapters.py", line 498, in send
+    raise ConnectionError(err, request=request)
+requests.exceptions.ConnectionError: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/bin/docker-compose", line 33, in <module>
+    sys.exit(load_entry_point('docker-compose==1.29.2', 'console_scripts', 'docker-compose')())
+  File "/usr/lib/python3/dist-packages/compose/cli/main.py", line 81, in main
+    command_func()
+  File "/usr/lib/python3/dist-packages/compose/cli/main.py", line 200, in perform_command
+    project = project_from_options('.', options)
+  File "/usr/lib/python3/dist-packages/compose/cli/command.py", line 60, in project_from_options
+    return get_project(
+  File "/usr/lib/python3/dist-packages/compose/cli/command.py", line 152, in get_project
+    client = get_client(
+  File "/usr/lib/python3/dist-packages/compose/cli/docker_client.py", line 41, in get_client
+    client = docker_client(
+  File "/usr/lib/python3/dist-packages/compose/cli/docker_client.py", line 170, in docker_client
+    client = APIClient(use_ssh_client=not use_paramiko_ssh, **kwargs)
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 197, in __init__
+    self._version = self._retrieve_server_version()
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 221, in _retrieve_server_version
+    raise DockerException(
+docker.errors.DockerException: Error while fetching server API version: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ docker ps
+[?2004lCannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+[?2004h(venv) ]0;tomer)["ApiVersion"]
+  File "/usr/lib/python3/dist-packages/docker/api/daemon.py", line 181, in version
+    return self._result(self._get(url), json=True)
+  File "/usr/lib/python3/dist-packages/docker/utils/decorators.py", line 46, in inner
+    return f(self, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 237, in _get
+    return self.get(url, **self._set_request_timeout(kwargs))
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 557, in get
+    return self.request('GET', url, **kwargs)
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 544, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 657, in send
+    r = adapter.send(request, **kwargs)
+  File "/usr/lib/python3/dist-packages/requests/adapters.py", line 498, in send
+    raise ConnectionError(err, request=request)
+requests.exceptions.ConnectionError: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/bin/docker-compose", line 33, in <module>
+    sys.exit(load_entry_point('docker-compose==1.29.2', 'console_scripts', 'docker-compose')())
+  File "/usr/lib/python3/dist-packages/compose/cli/main.py", line 81, in main
+    command_func()
+  File "/usr/lib/python3/dist-packages/compose/cli/main.py", line 200, in perform_command
+    project = project_from_options('.', options)
+  File "/usr/lib/python3/dist-packages/compose/cli/command.py", line 60, in project_from_options
+    return get_project(
+  File "/usr/lib/python3/dist-packages/compose/cli/command.py", line 152, in get_project
+    client = get_client(
+  File "/usr/lib/python3/dist-packages/compose/cli/docker_client.py", line 41, in get_client
+    client = docker_client(
+  File "/usr/lib/python3/dist-packages/compose/cli/docker_client.py", line 170, in docker_client
+    client = APIClient(use_ssh_client=not use_paramiko_ssh, **kwargs)
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 197, in __init__
+    self._version = self._retrieve_server_version()
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 221, in _retrieve_server_version
+    raise DockerException(
+docker.errors.DockerException: Error while fetching server API version: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ docker ps
+[?2004lCannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ docker [K[K[K[K[K[K[Ksudo systemctl s[Kdocker[K[K[K[K[K[Kstatus do[Kc[Kocker
+[?2004lSystem has not been booted with systemd as init system (PID 1). Can't operate.
+Failed to connect to bus: Host is down
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ =[Ke[Kdis[K[K[Kdeacite[Kivate
+[?2004ldeacitivate: command not found
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ deactivate
+[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ sudo system[K[K[K[K[K[K[K[K[K[K[Kdocker [K-compose
+[?2004lDefine and run multi-container applications with Docker.
+
+Usage:
+  docker-cominers
+  version            Show version information and quit
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ docker-compose build
+[?2004lTraceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+    httplib_response = self._make_request(
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 395, in _make_request
+    conn.request(method, url, **httplib_request_kw)
+  File "/usr/lib/python3.10/http/client.py", line 1283, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1329, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1038, in _send_output
+    self.send(msg)
+  File "/usr/lib/python3.10/http/client.py", line 976, in send
+    self.connect()
+  File "/usr/lib/python3/dist-packages/docker/transport/unixconn.py", line 30, in connect
+    sock.connect(self.unix_socket)
+FileNotFoundError: [Errno 2] No such file or directory
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/requests/adapters.py", line 439, in send
+    resp = conn.urlopen(
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 756, in urlopen
+    retries = retries.increment(
+  File "/usr/lib/python3/dist-packages/urllib3/util/retry.py", line 532, in increment
+    raise six.reraise(type(error), error, _stacktrace)
+  File "/usr/lib/python3/dist-packages/six.py", line 718, in reraise
+    raise value.with_traceback(tb)
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+    httplib_response = self._make_request(
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 395, in _make_request
+    conn.request(method, url, **httplib_request_kw)
+  File "/usr/lib/python3.10/http/client.py", line 1283, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1329, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1038, in _send_output
+    self.send(msg)
+  File "/usr/lib/python3.10/http/client.py", line 976, in send
+    self.connect()
+  File "/usr/lib/python3/dist-packages/docker/transport/unixconn.py", line 30, in connect
+    sock.connect(self.unix_socket)
+urllib3.exceptions.ProtocolError: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 214, in _retrieve_server_version
+    return self.version(api_version=False)["ApiVersion"]
+  File "/usr/lib/python3/dist-packages/docker/api/daemon.py", line 181, in version
+    return self._result(self._get(url), json=True)
+  File "/usr/lib/python3/dist-packages/docker/utils/decorators.py", line 46, in inner
+    return f(self, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 237, in _get
+    return self.get(url, **self._set_request_timeout(kwargs))
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 557, in get
+    return self.request('GET', url, **kwargs)
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 544, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 657, in send
+    r = adapter.send(request, **kwargs)
+  File "/usr/lib/python3/dist-packages/requests/adapters.py", line 498, in send
+    raise ConnectionError(err, request=request)
+requests.exceptions.ConnectionError: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/bin/docker-compose", line 33, in <module>
+    sys.exit(load_entry_point('docker-compose==1.29.2', 'console_scripts', 'docker-compose')())
+  File "/usr/lib/python3/dist-packages/compose/cli/main.py", line 81, in main
+    command_func()
+  File "/usr/lib/python3/dist-packages/compose/cli/main.py", line 200, in perform_command
+    project = project_from_options('.', options)
+  File "/usr/lib/python3/dist-packages/compose/cli/command.py", line 60, in project_from_options
+    return get_project(
+  File "/usr/lib/python3/dist-packages/compose/cli/command.py", line 152, in get_project
+    client = get_client(
+  File "/usr/lib/python3/dist-packages/compose/cli/docker_client.py", line 41, in get_client
+    client = docker_client(
+  File "/usr/lib/python3/dist-packages/compose/cli/docker_client.py", line 170, in docker_client
+    client = APIClient(use_ssh_client=not use_paramiko_ssh, **kwargs)
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 197, in __init__
+    self._version = self._retrieve_server_version()
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 221, in _retrieve_server_version
+    raise DockerException(
+docker.errors.DockerException: Error while fetching server API version: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ docker [K[K[K[K[K[K[Ksudo docker co[K[Ks[K[K[K[K[K[K[K[Ksystemctl status docker
+[?2004lSystem has not been booted with systemd as init system (PID 1). Can't operate.
+Failed to connect to bus: Host is down
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ sudo systemctl status [K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Ksudo apt install docker
+[?2004lReading package lists... 0%Reading package lists... 100%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+docker is already the newest version (1.5-2).
+0 upgraded, 0 newly installed, 0 to remove and 14 not upgraded.
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ sudo apt install docker-compos
+[?2004lReading package lists... 0%Reading package lists... 100%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+[1;31mE: [0mUnable to locate package docker-compos[0m
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ sudo apt install docker-compose
+[?2004lReading package lists... 0%Reading package lists... 100%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+docker-compose is already the newest version (1.29.2-1).
+0 upgraded, 0 newly installed, 0 to remove and 14 not upgraded.
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ sudo apt install docker-compose[K[K[5@systemctl status[C[C[C[C[C[C[C[8Pdocker-compose build[K[4Peactivateitivatesudo systemctl status docker[17Pdeacitivate[1Ptivateitivate[K[K[K[K[K[K[K[K[K[K[Ksudo systemctl status dockerdocker ps[Ksudo docker-compose buildls[Kdocker-compose vuildsudo apt install docker docker-composea[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cdocker ps[Kpython test_myflask.pyip install -r requirements.txt[9Python test_myflask.pyip install -r requirements.txt[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kpython test_myflask.py.pyls[Ksource venv/bin/activate[4Ppython3 -m venv venvython/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/pytho
