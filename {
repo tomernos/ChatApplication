@@ -6580,22 +6580,59 @@ Werkzeug       3.0.3
 [?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ pip3 list[1P listwhich python33[K[K[3Pippython3 test_myflask.py
 [?2004l/mnt/c/Users/PC/Desktop/projects/python/my_project/venv/bin/python3
 ['/mnt/c/Users/PC/Desktop/projects/python/my_project', '/usr/lib/python310.zip', '/usr/lib/python3.10', '/usr/lib/python3.10/lib-dynload', '/mnt/c/Users/PC/Desktop/projects/python/my_project/venv/lib/python3.10/site-packages']
-[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktopyflask.py", line 1, in <module>
-    import pytest
-ModuleNotFoundError: No module named 'pytest'
-[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ python3 test_myflask.pyip list[Kython3 test_myflask.py[13Pdeactivatepython3 test_myflask.pyip install -r requirements.txt[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kpython3 test_myflask.pysource venv/bin/activate[4Ppython3 -m venv venvsource venv/bin/activate
-[?2004l[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ source venv/bin/activate[1Ppython3 test_myflask.py
-[?2004l[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ python3 test_myflask.py[1Ptest_myflask.py[1Ptest_myflask.py test_myflask.py
-[?2004l[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ ls
-[?2004l [0m[01;32mDockerfile[0m   [01;32m'Output console.txt'[0m   [34;42m__pycache__[0m          [01;32mexample.db[0m    [01;32mmyproj.txt[0m         [34;42mtemplates[0m         [01;32mtestflask.py[0m
- [01;32mJenkinsfile[0m   [01;32mSQL.py[0m                [01;32mdocker-compose.yml[0m   [01;32mmy_flask.py[0m   [01;32mrequirements.txt[0m   [01;32mtest_myflask.py[0m   [34;42mvenv[0m
-[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ lspython test_myflask.py
-[?2004l[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ python test_myflask.pyls[Kpython test_myflask.py3 test_myflask.py
-[?2004l[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [7mwhich pip[27mwhich pip
-[?2004l/mnt/c/Users/PC/Desktop/projects/python/my_project/venv/bin/pip
-[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [7mwhich python3[27m[1Pwhich python
-[?2004l/mnt/c/Users/PC/Desktop/projects/python/my_project/venv/bin/python
-[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [7mwhich python3[27mwhich python33[K
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ python3 test_myflask.py[14Pip3 list[1P listwhich python33[K[K[3Pippython3 test_myflask.py[1P test_myflask.pyls[Kpython test_myflask.py3 test_myflask.pysource venv/bin/activate[1Ppython3 test_myflask.pyip list[Kython3 test_myflask.py[13Pdeactivatepython3 test_myflask.py[Kpython3 test_myflask.pysource venv/bin/activate[4Ppython3 -m venv venvls[Krm -r venv/[3Pvenv/ls[Kdeactivate[2Pgit pushcommit -m "changes test"add .[K
+[?2004l[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git add .python3 test_myflask.py[14Pip3 list[1P listwhich python33[K[K[3Pippython3 test_myflask.py[1P test_myflask.pyls[Kpython test_myflask.py3 test_myflask.pysource venv/bin/activate[1Ppython3 test_myflask.pyip list[Kython3 test_myflask.pyip list[Kython3 test_myflask.py[13Pdeactivatepython3 test_myflask.py[Kpython3 test_myflask.pysource venv/bin/activate[4Ppython3 -m venv venvls[Krm -r venv/[3Pvenv/ls[Kdeactivate[2Pgit pushcommit -m "changes test"
+[?2004l[main 4f56172] changes test
+ 4 files changed, 274 insertions(+), 77 deletions(-)
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git commit -m "changes test"add .[Kpython3 test_myflask.py[14Pip3 list[1P listwhich python33[K[K[3Pippython3 test_myflask.py[1P test_myflask.pyls[Kpython test_myflask.py3 test_myflask.pysource venv/bin/activate[1Ppython3 test_myflask.pyip list[Kython3 test_myflask.py[13Pdeactivatepython3 test_myflask.py[Kpython3 test_myflask.pysource venv/bin/activate[4Ppython3 -m venv venvls[Krm -r venv/[3Pvenv/ls[Kdeactivate[2Pgit pushcommit -m "changes test"add .[Kcommit -m "changes test"push[K
+[?2004lgit: 'credential-wincred' is not a git command. See 'git --help'.
+Username for 'https://github.com': tomernos
+Password for 'https://tomernos@github.com': 
+git: 'credential-wincred' is not a git command. See 'git --help'.
+Enumerating objects: 11, done.
+Counting objects:   9% (1/11)Counting objects:  18% (2/11)Counting objects:  27% (3/11)Counting objects:  36% (4/11)Counting objects:  45% (5/11)Counting objects:  54% (6/11)Counting objects:  63% (7/11)Counting objects:  72% (8/11)Counting objects:  81% (9/11)Counting objects:  90% (10/11)Counting objects: 100% (11/11)Counting objects: 100% (11/11), done.
+Delta compression using up to 12 threads
+Compressing objects:  16% (1/6)Compressing objects:  33% (2/6)Compressing objects:  50% (3/6)Compressing objects:  66% (4/6)Compressing objects:  83% (5/6)Compressing objects: 100% (6/6)Compressing objects.py[1P test_myflask.pyls[Kpython test_myflask.py3 test_myflask.py[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kpup[K[Kip list
+[?2004lPackage        Version
+-------------- -------
+blinker        1.8.2
+click          8.1.7
+exceptiongroup 1.2.2
+Flask          3.0.3
+iniconfig      2.0.0
+itsdangerous   2.2.0
+Jinja2         3.1.4
+MarkupSafe     2.1.5
+packaging      24.1
+pip            22.0.2
+pluggy         1.5.0
+pytest         8.3.2
+setuptools     59.6.0
+tomli          2.0.1
+Werkzeug       3.0.3
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ pip3 list
+[?2004lPackage        Version
+-------------- -------
+blinker        1.8.2
+click          8.1.7
+exceptiongroup 1.2.2
+Flask          3.0.3
+iniconfig      2.0.0
+itsdangerous   2.2.0
+Jinja2         3.1.4
+MarkupSafe     2.1.5
+packaging      24.1
+pip            22.0.2
+pluggy         1.5.0
+pytest         8.3.2
+setuptools     59.6.0
+tomli          2.0.1
+Werkzeug       3.0.3
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ pip3 list[1P listwhich python33[K[K[3Pippython3 test_myflask.py
 [?2004l/mnt/c/Users/PC/Desktop/projects/python/my_project/venv/bin/python3
-[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ which python33
-[?2004l[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ w[Kwhich python33[K[K[3Pippython3 test_myflask.py[1P test_myflask.py3 test_myflask
+['/mnt/c/Users/PC/Desktop/projects/python/my_project', '/usr/lib/python310.zip', '/usr/lib/python3.10', '/usr/lib/python3.10/lib-dynload', '/mnt/c/Users/PC/Desktop/projects/python/my_project/venv/lib/python3.10/site-packages']
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ python3 test_myflask.py[14Pip3 list[1P listwhich python33[K[K[3Pippython3 test_myflask.py[1P test_myflask.pyls[Kpython test_myflask.py3 test_myflask.pysource venv/bin/activate[1Ppython3 test_myflask.pyip list[Kython3 test_myflask.py[13Pdeactivatepython3 test_myflask.py[Kpython3 test_myflask.pysource venv/bin/activate[4Ppython3 -m venv venvls[Krm -r venv/[3Pvenv/ls[Kdeactivate[2Pgit pushcommit -m "changes test"add .[K
+[?2004l[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git add .python3 test_myflask.py[14Pip3 list[1P listwhich python33[K[K[3Pippython3 test_myflask.py[1P test_myflask.pyls[Kpython test_myflask.py3 test_myflask.pysource venv/bin/activate[1Ppython3 test_myflask.pyip list[Kython3 test_myflask.pyip list[Kython3 test_myflask.py[13Pdeactivatepython3 test_myflask.py[Kpython3 test_myflask.pysource venv/bin/activate[4Ppython3 -m venv venvls[Krm -r venv/[3Pvenv/ls[Kdeactivate[2Pgit pushcommit -m "changes test"
+[?2004l[main 4f56172] changes test
+ 4 files changed, 274 insertions(+), 77 deletions(-)
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01
