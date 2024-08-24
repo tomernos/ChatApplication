@@ -1,25 +1,3 @@
-Successfully installed pip-24.2
-+ pip install -r requirements.txt
-Defaulting to user installation because normal site-packages is not writeable
-Requirement already satisfied: blinker==1.8.2 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 1)) (1.8.2)
-Requirement already satisfied: click==8.1.7 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 2)) (8.1.7)
-Requirement already satisfied: exceptiongroup==1.2.2 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 3)) (1.2.2)
-Requirement already satisfied: Flask==3.0.3 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 4)) (3.0.3)
-Requirement already satisfied: iniconfig==2.0.0 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 5)) (2.0.0)
-Requirement already satisfied: itsdangerous==2.2.0 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 6)) (2.2.0)
-Requirement already satisfied: Jinja2==3.1.4 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 7)) (3.1.4)
-Requirement already satisfied: MarkupSafe==2.1.5 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 8)) (2.1.5)
-Requirement already satisfied: packaging==24.1 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 9)) (24.1)
-Requirement already satisfied: pluggy==1.5.0 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 10)) (1.5.0)
-Requirement already satisfied: pytest==8.3.2 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 11)) (8.3.2)
-Requirement already satisfied: tomli==2.0.1 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 12)) (2.0.1)
-Requirement already satisfied: Werkzeug==3.0.3 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 13)) (3.0.3)
-Requirement already satisfied: importlib-metadata>=3.6.0 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from Flask==3.0.3->-r requirements.txt (line 4)) (8.4.0)
-Requirement already satisfied: zipp>=0.5 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from importlib-metadata>=3.6.0->Flask==3.0.3->-r requirements.txt (line 4)) (3.20.0)
-+ echo 'Python version:'
-Python version:
-+ python --version
-Python 3.9.16
 + echo 'Pip version:'
 Pip version:
 + pip --version
@@ -104,24 +82,3 @@ Traceback (most recent call last):
   File "/var/lib/jenkins/workspace/ProjFlask/test_myflask.py", line 1, in <module>
     import pytest
 ModuleNotFoundError: No module named 'pytest'
-[Pipeline] }
-[Pipeline] // script
-[Pipeline] }
-[Pipeline] // stage
-[Pipeline] stage
-[Pipeline] { (Deploy)
-Stage "Deploy" skipped due to earlier failure(s)
-
-blinker==1.8.2
-click==8.1.7
-exceptiongroup==1.2.2
-Flask==3.0.3
-iniconfig==2.0.0
-itsdangerous==2.2.0
-Jinja2==3.1.4
-MarkupSafe==2.1.5
-packaging==24.1
-pluggy==1.5.0
-pytest==8.3.2
-tomli==2.0.1
-Werkzeug==3.0.3

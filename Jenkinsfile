@@ -61,22 +61,38 @@ pipeline {
             }
         }
 
+        stage('Check Environment') {
+            steps {
+                sh '''
+                   echo "User: $(whoami)"
+                   echo "Python Version:"
+                   python3 --version
+                   echo "Python Path:"
+                   which python3
+                   echo "Pip List:"
+                   pip list
+                   echo "Environment Variables:"
+                   env
+                '''
+            }
+        }
+
         stage('Run Tests') {
             steps {
                 script {
                     sh '''
-                    pip install -r requirements.txt
+                    pip3 install -r requirements.txt
                     python3 -m venv venv
                     source venv/bin/activate
-                    pip install --upgrade pip
-                    pip install -r requirements.txt
+                    pip3 install --upgrade pip
+                    pip3 install -r requirements.txt
                     sleep 30
                     echo "Python version:"
-                    python --version
+                    python3 --version
                     echo "Pip version:"
-                    pip --version
+                    pip3 --version
                     echo "Installed packages:"
-                    pip list
+                    pip3 list
                     python3 test_myflask.py
                     deactivate
                     '''

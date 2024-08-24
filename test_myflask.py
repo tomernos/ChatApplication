@@ -1,5 +1,8 @@
 import pytest
 from my_flask import app
+import sys
+print(sys.executable)
+print(sys.path)
 
 @pytest.fixture
 def client():
