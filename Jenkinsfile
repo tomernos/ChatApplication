@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        GIT_CREDENTIALS = '12341234' 
+        GIT_CREDENTIALS = credentials('12341234')
     }
 
     stages {
@@ -10,7 +10,6 @@ pipeline {
             steps {
                 script {
                     git branch: 'main', credentialsId: env.GIT_CREDENTIALS, url: 'https://github.com/tomernos/python-projects.git'
-                
                 }
             }
         }
@@ -23,32 +22,25 @@ pipeline {
                     then
                         sudo curl -fsSL https://get.docker.com/ | sh
                     fi
-                    '''
-      
-        
-                    sh '''
+                    
                     if ! sudo command -v docker-compose &> /dev/null
                     then
                         sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
                         sudo chmod +x /usr/local/bin/docker-compose
                     fi
-                    ''' 
-            
-                    sh '''
+                    
                     if ! sudo command -v python3 &> /dev/null
                     then
                         sudo apt-get update
-                        sudo apt-get install -y python3 python3-pip
+                        sudo apt-get install -y python3 python3-pip python3-venv
                     fi
-                    '''
-                    sh '''
+                    
                     if ! sudo command -v git &> /dev/null
                     then
                         sudo apt-get update
                         sudo apt-get install -y git
                     fi
                     '''
-
                 }
             }
         }
@@ -67,10 +59,19 @@ pipeline {
                     sh '''
                     python3 -m venv venv
                     source venv/bin/activate
+                    pip install --upgrade pip
                     pip install -r requirements.txt
-                    python -m pytest test_myflask.py
+                    echo "Python version:"
+                    python --version
+                    echo "Pip version:"
+                    pip --version
+                    echo "Installed packages:"
+                    pip list
+                    python3 test_myflask.py
                     deactivate
                     '''
+                
+
                 }
             }
         }

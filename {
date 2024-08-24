@@ -6249,21 +6249,38 @@ pluggy==1.5.0
 pytest==8.3.2
 tomli==2.0.1
 Werkzeug==3.0.3
-[?2004h(venv) ]0;tomer@DESK━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m341.8/341.8 KB[0m [31m1.9 MB/s[0m eta [36m0:00:00[0m
-[?25hCollecting pluggy<2,>=1.5
-  Downloading pluggy-1.5.0-py3-none-any.whl (20 kB)
-Collecting exceptiongroup>=1.0.0rc8
-  Downloading exceptiongroup-1.2.2-py3-none-any.whl (16 kB)
-Collecting tomli>=1
-  Downloading tomli-2.0.1-py3-none-any.whl (12 kB)
-Collecting iniconfig
-  Downloading iniconfig-2.0.0-py3-none-any.whl (5.9 kB)
-Collecting packaging
-  Downloading packaging-24.1-py3-none-any.whl (53 kB)
-[?25l     [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/54.0 KB[0m [31m?[0m eta [36m-:--:--[0m[2K     [38;5;107m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m54.0/54.0 KB[0m [31m8.6 MB/s[0m eta [36m0:00:00[0m
-[?25hInstalling collected packages: tomli, pluggy, packaging, iniconfig, exceptiongroup, pytest
-Successfully installed exceptiongroup-1.2.2 iniconfig-2.0.0 packaging-24.1 pluggy-1.5.0 pytest-8.3.2 tomli-2.0.1
-[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ pip install pytest[7P3 freeze[1P freeze[3@ython[C[C[C[C[C[C[C[4P freezethon -m pytest test_myflask.py
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ pip freeze > requirements.txt 
+[?2004l[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ deactivate
+[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ deactivatepip freeze > requirements.txt [Kython -m pytest test_myflask.py[14Pip install pytest[7P3 freeze[1P freeze[3@ython[C[C[C[C[C[C[C[4P freezethon -m pytest test_myflask.py[10Ptest_myflask.pyip install -r requirements.txt[8Python3 test_myflask.py[1P test_myflask.py-m test_myflask.pypytest test_myflask.py[13P. venv/bin/activate[9Pdeactivate. venv/bin/activatepython3 -m venv venv[11Pgit add .[1Ppushadd .
+[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ gt[Kit c[Kcommit -m "changes"[K fi[K[Ktest"
+[?2004l[main a7b5da2] changes test
+ 10 files changed, 434 insertions(+), 90 deletions(-)
+ create mode 100644 Output console.txt
+ create mode 100644 __pycache__/test_myflask.cpython-310-pytest-8.3.2.pyc
+ create mode 100644 __pycache__/test_myflask.cpython-310.pyc
+ rewrite test_myflask.py (99%)
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git ps[Kush
+[?2004lgit: 'credential-wincred' is not a git command. See 'git --help'.
+Username for 'https://github.com': tomernos
+Password for 'https://tomernos@github.com': 
+git: 'credential-wincred' is not a git command. See 'git --help'.
+Enumerating objects: 21, done.
+Counting objects:   4% (1/21)Counting objects:   9% (2/21)Counting objects:  14% (3/21)Counting objects:  19% (4/21)Counting objects:  23% (5/21)Counting objects:  28% (6/21)Counting objects:  33% (7/21)Counting objects:  38% (8/21)Counting objects:  42% (9/21)Counting objects:  47% (10/21)Counting objects:  52% (11/21)Counting objects:  57% (12/21)Counting objects:  61% (13/21)Counting objects:  66% (14/21)Counting objects:  71% (15/21)Counting objects:  76% (16/21)Counting objects:  80% (17/21)Counting objects:  85% (18/21)Counting objects:  90% (19/21)Counting objects:  95% (20/21)Counting objects: 100% (21/21)Counting objects: 100% (21/21), done.
+Delta compression using up to 12 threads
+Compressing objects:   8% (1/12)Compressing objects:  16% (2/12)Compressing objects:  25% (3/12)Compressing objects:  33% (4/12)Compressing objects:  41% (5/12)Compressing objects:  50% (6/12)Compressing objects:  58% (7/12)Compressing objects:  66% (8/12)Compressing objects:  75% (9/12)Compressing objects:  83% (10/12)Compressing objects:  91% (11/12)Compressing objects: 100% (12/12)Compressing objects: 100% (12/12), done.
+Writing objects:   8% (1/12)Writing objects:  16% (2/12)Writing objects:  25% (3/12)Writing objects:  33% (4/12)Writing objects:  41% (5/12)Writing objects:  50% (6/12)Writing objects:  58% (7/12)Writing objects:  66% (8/12)Writing objects:  75% (9/12)Writing objects:  83% (10/12)Writing objects:  91% (11/12)Writing objects: 100% (12/12)Writing objects: 100% (12/12), 6.89 KiB | 783.00 KiB/s, done.
+Total 12 (delta 6), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas:  16% (1/6)[Kremote: Resolving deltas:  33% (2/6)[Kremote: Resolving deltas:  50% (3/6)[Kremote: Resolving deltas:  66% (4/6)[Kremote: Resolving deltas:  83% (5/6)[Kremote: Resolving deltas: 100% (6/6)[Kremote: Resolving deltas: 100% (6/6), completed with 6 local objects.[K
+To https://github.com/tomernos/python-projects.git
+   38b4a8b..a7b5da2  main -> main
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [7mpython -m pytest test_myflask.py[27mpython -m pytest test_myflask.py
+[?2004lCommand 'python' not found, did you mean:
+  command 'python3' from deb python3
+  command 'python' from deb python-is-python3
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ python -m pytest test_myflask.py[1@3
+[?2004l/usr/bin/python3: No module named pytest
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ python3 -m pytest test_myflask.py[1P[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cgit push[Kcommit -m "changes test"add .[Kdeactivatepip freeze > requirements.txt [Kython -m pytest test_myflask.py[14Pip install pytest[7P3 freeze[1P freeze[3@ython[C[C[C[C[C[C[C[4P freezethon -m pytest test_myflask.py[10Ptest_myflask.pyip install -r requirements.txt[8Python3 test_myflask.py[1P test_myflask.py-m test_myflask.pypytest test_myflask.py[13P. venv/bin/activate[9Pdeactivate. venv/bin/activate
+[?2004l[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [7mpython -m pytest test_myflask.py[27mpython -m pytest test_myflask.py
 [?2004l[1m========================================================== test session starts ===========================================================[0m
 platform linux -- Python 3.10.12, pytest-8.3.2, pluggy-1.5.0
 rootdir: /mnt/c/Users/PC/Desktop/projects/python/my_project
@@ -6272,20 +6289,55 @@ rootdir: /mnt/c/Users/PC/Desktop/projects/python/my_project
 test_myflask.py [32m.[0m[32m.[0m[32m                                                                                                                 [100%][0m
 
 [32m=========================================================== [32m[1m2 passed[0m[32m in 0.16s[0m[32m ============================================================[0m
-[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ freeze[K[K[K[K[K[Kpip freeze
-[?2004lblinker==1.8.2
-click==8.1.7
-exceptiongroup==1.2.2
-Flask==3.0.3
-iniconfig==2.0.0
-itsdangerous==2.2.0
-Jinja2==3.1.4
-MarkupSafe==2.1.5
-packaging==24.1
-pluggy==1.5.0
-pytest==8.3.2
-tomli==2.0.1
-Werkzeug==3.0.3
-[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ pip freeze > requirements.txt 
-[?2004l[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ deactivate
-[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ deactivatepip freeze > requirements.txt [Kython -m pytest test_myflask.py[14Pip install pytest[7P3 freeze[1P freeze[3@ython[C[C[C[C[C[C[C[4P freezethon -m pytest test_myflask.py[10Ptest_myflask.pyip install -r requirements.txt[8Python3 test_myflask.py[1P test_myflask.py-m test_myflask.pypytest test_myflask.py[13P. venv/bin/activate[9Pdeactivate
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [7mpython3 -m pytest test_myflask.py[27mpython3 -m pytest test_myflask.py
+[?2004l[1m========================================================== test session starts ===========================================================[0m
+platform linux -- Python 3.10.12, pytest-8.3.2, pluggy-1.5.0
+rootdir: /mnt/c/Users/PC/Desktop/projects/python/my_project
+[1mcollecting ... [0m[1mcollected 2 items                                                                                                                        [0m
+
+test_myflask.py [32m.[0m[32m.[0m[32m                                                                                                                 [100%][0m
+
+[32m=========================================================== [32m[1m2 passed[0m[32m in 0.14s[0m[32m ============================================================[0m
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [7mpip list | grep Flask[27mpip list | grep Flask
+[?2004l[01;31m[KFlask[m[K          3.0.3
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [7mecho $PATH[27mecho $PATH
+[?2004l/mnt/c/Users/PC/Desktop/projects/python/my_project/venv/bin:/home/tomer/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/mnt/c/Program Files (x86)/VMware/VMware Workstation/bin/:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/Program Files/Amazon/AWSCLIV2/:/mnt/c/Users/PC/AppData/Local/Programs/Python/Python312/Scripts/:/mnt/c/Users/PC/AppData/Local/Programs/Python/Python312/:/mnt/c/Users/PC/AppData/Local/Programs/Python/Launcher/:/mnt/c/Users/PC/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/PC/AppData/Local/Programs/Microsoft VS Code/bin:/snap/bin
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ pwd
+[?2004l/mnt/c/Users/PC/Desktop/projects/python/my_project
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ isactive
+[?2004lisactive: command not found
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ isactive[5Ppwdecho $PATHpip list | grep Flaskython3 -m pytest test_myflask.py[C[C[1P
+[?2004l[1m========================================================== test session starts ===========================================================[0m
+platform linux -- Python 3.10.12, pytest-8.3.2, pluggy-1.5.0
+rootdir: /mnt/c/Users/PC/Desktop/projects/python/my_project
+[1mcollecting ... [0m[1mcollecting 2 items                                                                                                                       [0m[1mcollected 2 items                                                                                                                        [0m
+
+test_myflask.py [32m.[0m[32m.[0m[32m                                                                                                                 [100%][0m
+
+[32m=========================================================== [32m[1m2 passed[0m[32m in 0.81s[0m[32m ============================================================[0m
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ python -m pytest test_myflask.py[1@3
+[?2004l[1m========================================================== test session starts ===========================================================[0m
+platform linux -- Python 3.stem32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/Program Files/Amazon/AWSCLIV2/:/mnt/c/Users/PC/AppData/Local/Programs/Python/Python312/Scripts/:/mnt/c/Users/PC/AppData/Local/Programs/Python/Python312/:/mnt/c/Users/PC/AppData/Local/Programs/Python/Launcher/:/mnt/c/Users/PC/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/PC/AppData/Local/Programs/Microsoft VS Code/bin:/snap/bin
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ pwd
+[?2004l/mnt/c/Users/PC/Desktop/projects/python/my_project
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ isactive
+[?2004lisactive: command not found
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ isactive[5Ppwdecho $PATHpip list | grep Flaskython3 -m pytest test_myflask.py[C[C[1P
+[?2004l[1m========================================================== test session starts ===========================================================[0m
+platform linux -- Python 3.10.12, pytest-8.3.2, pluggy-1.5.0
+rootdir: /mnt/c/Users/PC/Desktop/projects/python/my_project
+[1mcollecting ... [0m[1mcollecting 2 items                                                                                                                       [0m[1mcollected 2 items                                                                                                                        [0m
+
+test_myflask.py [32m.[0m[32m.[0m[32m                                                                                                                 [100%][0m
+
+[32m=========================================================== [32m[1m2 passed[0m[32m in 0.81s[0m[32m ============================================================[0m
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ python -m pytest test_myflask.py[1@3
+[?2004l[1m========================================================== test session starts ===========================================================[0m
+platform linux -- Python 3.10.12, pytest-8.3.2, pluggy-1.5.0
+rootdir: /mnt/c/Users/PC/Desktop/projects/python/my_project
+[1mcollecting ... [0m[1mcollected 2 items                                                                                                                        [0m
+
+test_myflask.py [32m.[0m[32m.[0m[32m                                                                                                                 [100%][0m
+
+[32m=========================================================== [32m[1m2 passed[0m[32m in 0.14s[0m[32m ============================================================[0m
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ python3 -m pytest test_myflask.py[1P[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cisactive[K[5Ppwdecho $PATHpip list | grep Flaskython3 -m pytest test_myflask.py[1P[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[13P. venv/bin/activate
