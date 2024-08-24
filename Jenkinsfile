@@ -98,7 +98,7 @@ pipeline {
                     pip list
 
                     # Run the tests
-                    python -m pytest test_myflask.py
+                    python test_myflask.py
 
                     # Deactivate the virtual environment
                     deactivate
