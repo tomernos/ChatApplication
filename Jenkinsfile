@@ -96,8 +96,9 @@ pipeline {
                     pip --version
                     echo "Installed packages:"
                     pip list
+                    pip install pytest
                     pytest --version
-                    
+
                     # Run the tests
                     python test_myflask.py
 
