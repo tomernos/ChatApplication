@@ -83,7 +83,7 @@ pipeline {
                     sh '''
                     # Create and activate virtual environment
                     python3 -m venv venv
-                    . venv/bin/activate
+                    source venv/bin/activate
 
                     # Upgrade pip and install requirements in the virtual environment
                     pip install --upgrade pip
@@ -96,7 +96,8 @@ pipeline {
                     pip --version
                     echo "Installed packages:"
                     pip list
-
+                    pytest --version
+                    
                     # Run the tests
                     python test_myflask.py
 
