@@ -11,7 +11,7 @@ COPY requirements.txt requirements.txt
 RUN apt-get update && apt-get install -y python3
 
 # Install the Python dependencies specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
 # Copy the rest of the application code into the container
 COPY . .
