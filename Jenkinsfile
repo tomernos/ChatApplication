@@ -82,8 +82,8 @@ pipeline {
                 script {
                     sh '''
                     # Create and activate virtual environment
-                    python3 -m venv venv
-                    source venv/bin/activate
+                    # python3 -m venv venv
+                    # source venv/bin/activate
 
                     # Upgrade pip and install requirements in the virtual environment
                     pip3 install --upgrade pip
