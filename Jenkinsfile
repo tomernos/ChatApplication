@@ -86,21 +86,21 @@ pipeline {
                     source venv/bin/activate
 
                     # Upgrade pip and install requirements in the virtual environment
-                    pip install --upgrade pip
-                    pip install -r requirements.txt
+                    pip3 install --upgrade pip
+                    pip3 install -r requirements.txt
 
                     # Display information about the Python environment
                     echo "Python version:"
-                    python --version
+                    python3 --version
                     echo "Pip version:"
-                    pip --version
+                    pip3 --version
                     echo "Installed packages:"
-                    pip list
-                    pip install pytest
+                    pip3 list
+                    pip3 install pytest
                     pytest --version
 
                     # Run the tests
-                    python test_myflask.py
+                    python3 test_myflask.py
 
                     # Deactivate the virtual environment
                     deactivate
