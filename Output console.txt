@@ -1,168 +1,3 @@
-Started by GitHub push by tomernos
-Obtained Jenkinsfile from git https://github.com/tomernos/python-projects.git
-[Pipeline] Start of Pipeline
-[Pipeline] node
-Running on Jenkins in /var/lib/jenkins/workspace/ProjFlask
-[Pipeline] {
-[Pipeline] stage
-[Pipeline] { (Declarative: Checkout SCM)
-[Pipeline] checkout
-The recommended git tool is: git
-using credential 12341234
- > git rev-parse --resolve-git-dir /var/lib/jenkins/workspace/ProjFlask/.git # timeout=10
-Fetching changes from the remote Git repository
- > git config remote.origin.url https://github.com/tomernos/python-projects.git # timeout=10
-Fetching upstream changes from https://github.com/tomernos/python-projects.git
- > git --version # timeout=10
- > git --version # 'git version 2.40.1'
-using GIT_ASKPASS to set credentials credentials for git environment
- > git fetch --tags --force --progress -- https://github.com/tomernos/python-projects.git +refs/heads/*:refs/remotes/origin/* # timeout=10
- > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
-Checking out Revision 4f5617211e8805d80ffd8842b533b6396029b1cd (refs/remotes/origin/main)
- > git config core.sparsecheckout # timeout=10
- > git checkout -f 4f5617211e8805d80ffd8842b533b6396029b1cd # timeout=10
-Commit message: "changes test"
- > git rev-list --no-walk e3c60fe08d1d6416b763938dea5cbdb9cb1e3044 # timeout=10
-[Pipeline] }
-[Pipeline] // stage
-[Pipeline] withEnv
-[Pipeline] {
-[Pipeline] withEnv
-[Pipeline] {
-[Pipeline] stage
-[Pipeline] { (Checkout)
-[Pipeline] script
-[Pipeline] {
-[Pipeline] git
-The recommended git tool is: git
-using credential 12341234
- > git rev-parse --resolve-git-dir /var/lib/jenkins/workspace/ProjFlask/.git # timeout=10
-Fetching changes from the remote Git repository
- > git config remote.origin.url https://github.com/tomernos/python-projects.git # timeout=10
-Fetching upstream changes from https://github.com/tomernos/python-projects.git
- > git --version # timeout=10
- > git --version # 'git version 2.40.1'
-using GIT_ASKPASS to set credentials credentials for git environment
- > git fetch --tags --force --progress -- https://github.com/tomernos/python-projects.git +refs/heads/*:refs/remotes/origin/* # timeout=10
- > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
-Checking out Revision 4f5617211e8805d80ffd8842b533b6396029b1cd (refs/remotes/origin/main)
- > git config core.sparsecheckout # timeout=10
- > git checkout -f 4f5617211e8805d80ffd8842b533b6396029b1cd # timeout=10
- > git branch -a -v --no-abbrev # timeout=10
- > git branch -D main # timeout=10
- > git checkout -b main 4f5617211e8805d80ffd8842b533b6396029b1cd # timeout=10
-Commit message: "changes test"
-[Pipeline] }
-[Pipeline] // script
-[Pipeline] }
-[Pipeline] // stage
-[Pipeline] stage
-[Pipeline] { (Setup)
-[Pipeline] script
-[Pipeline] {
-[Pipeline] sh
-+ sudo command -v docker
-[Pipeline] sh
-+ sudo command -v docker-compose
-[Pipeline] sh
-+ sudo command -v python3
-[Pipeline] sh
-+ sudo command -v git
-[Pipeline] }
-[Pipeline] // script
-[Pipeline] }
-[Pipeline] // stage
-[Pipeline] stage
-[Pipeline] { (Build)
-[Pipeline] script
-[Pipeline] {
-[Pipeline] sh
-+ sudo docker-compose build
-#1 [flask-app internal] load build definition from Dockerfile
-#1 transferring dockerfile:
-#1 transferring dockerfile: 757B 0.0s done
-#1 DONE 0.1s
-
-#2 [flask-app internal] load metadata for docker.io/library/python:3.9.19-bullseye
-#2 DONE 0.4s
-
-#3 [flask-app internal] load .dockerignore
-#3 transferring context: 2B done
-#3 DONE 0.0s
-
-#4 [flask-app 1/6] FROM docker.io/library/python:3.9.19-bullseye@sha256:f4010aad4cc1b4fd67b36ca54fa17b10055821a8a3b3a7cd735eeaa36f76063f
-#4 DONE 0.0s
-
-#5 [flask-app internal] load build context
-#5 transferring context: 989.14kB 0.4s done
-#5 DONE 0.4s
-
-#6 [flask-app 2/6] WORKDIR /app
-#6 CACHED
-
-#7 [flask-app 3/6] COPY requirements.txt requirements.txt
-#7 CACHED
-
-#8 [flask-app 4/6] RUN apt-get update && apt-get install -y python3
-#8 CACHED
-
-#9 [flask-app 5/6] RUN pip install --no-cache-dir -r requirements.txt
-#9 CACHED
-
-#10 [flask-app 6/6] COPY . .
-#10 DONE 2.2s
-
-#11 [flask-app] exporting to image
-#11 exporting layers
-#11 exporting layers 1.5s done
-#11 writing image sha256:64a3f32cf2f450570e738b68e6f36038687103e3e8aa08933e64e4d9ec21cf0b done
-#11 naming to docker.io/library/projflask-flask-app 0.0s done
-#11 DONE 1.5s
-
-#12 [test internal] load build definition from Dockerfile
-#12 transferring dockerfile: 757B 0.1s done
-#12 DONE 0.1s
-
-#2 [test internal] load metadata for docker.io/library/python:3.9.19-bullseye
-#2 DONE 0.6s
-
-#13 [test internal] load .dockerignore
-#13 transferring context: 2B done
-#13 DONE 0.0s
-
-#4 [test 1/6] FROM docker.io/library/python:3.9.19-bullseye@sha256:f4010aad4cc1b4fd67b36ca54fa17b10055821a8a3b3a7cd735eeaa36f76063f
-#4 DONE 0.0s
-
-#14 [test internal] load build context
-#14 transferring context: 215.47kB 0.3s done
-#14 DONE 0.4s
-
-#15 [test 3/6] COPY requirements.txt requirements.txt
-#15 CACHED
-
-#16 [test 4/6] RUN apt-get update && apt-get install -y python3
-#16 CACHED
-
-#17 [test 5/6] RUN pip install --no-cache-dir -r requirements.txt
-#17 CACHED
-
-#6 [test 2/6] WORKDIR /app
-#6 CACHED
-
-#18 [test 6/6] COPY . .
-#18 CACHED
-
-#19 [test] exporting to image
-#19 exporting layers done
-#19 writing image sha256:bdb70f4b1030639ae57bd34824b0d7ee5ab5c0dc48c84268ca49c9105efc3974 done
-#19 naming to docker.io/library/projflask-test 0.0s done
-#19 DONE 0.0s
-[Pipeline] }
-[Pipeline] // script
-[Pipeline] }
-[Pipeline] // stage
-[Pipeline] stage
-[Pipeline] { (Check Environment)
 [Pipeline] sh
 ++ whoami
 + echo 'User: jenkins'
@@ -253,29 +88,30 @@ zipp                 3.20.0
 + echo 'Environment Variables:'
 Environment Variables:
 + env
-RUN_TESTS_DISPLAY_URL=http://54.237.56.251:8080/job/ProjFlask/29/display/redirect?page=tests
+SHELL=/bin/bash
+RUN_TESTS_DISPLAY_URL=http://54.237.56.251:8080/job/ProjFlask/46/display/redirect?page=tests
 JENKINS_SERVER_COOKIE=durable-b62f9497af3adcfac6d35a4f22b267ba4d179f9658de55f23542788771a70e5b
-RUN_CHANGES_DISPLAY_URL=http://54.237.56.251:8080/job/ProjFlask/29/display/redirect?page=changes
+RUN_CHANGES_DISPLAY_URL=http://54.237.56.251:8080/job/ProjFlask/46/display/redirect?page=changes
 HUDSON_HOME=/var/lib/jenkins
 PWD=/var/lib/jenkins/workspace/ProjFlask
 LOGNAME=jenkins
-BUILD_URL=http://54.237.56.251:8080/job/ProjFlask/29/
+BUILD_URL=http://54.237.56.251:8080/job/ProjFlask/46/
 JOB_URL=http://54.237.56.251:8080/job/ProjFlask/
-BUILD_NUMBER=29
-SYSTEMD_EXEC_PID=53825
-JENKINS_NODE_COOKIE=142e5c05-1f4f-4bd1-888a-93b492123db7
-BUILD_DISPLAY_NAME=#29
+BUILD_NUMBER=46
+SYSTEMD_EXEC_PID=4476
+JENKINS_NODE_COOKIE=24f6bf9b-6b8b-47f5-a2e9-f6c86c3860dd
+BUILD_DISPLAY_NAME=#46
 HOME=/var/lib/jenkins
 LANG=C.UTF-8
 JENKINS_URL=http://54.237.56.251:8080/
 JOB_BASE_NAME=ProjFlask
 JOB_NAME=ProjFlask
-INVOCATION_ID=c757e9417ed249f4ac92e3f7e7c25b99
-RUN_DISPLAY_URL=http://54.237.56.251:8080/job/ProjFlask/29/display/redirect
+INVOCATION_ID=c266f730f00d4f1f98d6c195c3968581
+RUN_DISPLAY_URL=http://54.237.56.251:8080/job/ProjFlask/46/display/redirect
 JOB_DISPLAY_URL=http://54.237.56.251:8080/job/ProjFlask/display/redirect
 WORKSPACE=/var/lib/jenkins/workspace/ProjFlask
 GIT_CREDENTIALS=12341234
-GIT_PREVIOUS_COMMIT=e3c60fe08d1d6416b763938dea5cbdb9cb1e3044
+GIT_PREVIOUS_COMMIT=f5db8dbc9d0cc725e88e7b0c836b398b1d2adc9b
 HUDSON_URL=http://54.237.56.251:8080/
 NODE_NAME=built-in
 USER=jenkins
@@ -283,20 +119,20 @@ HUDSON_SERVER_COOKIE=50d9d0f108d4ad28
 NOTIFY_SOCKET=/run/systemd/notify
 GIT_URL=https://github.com/tomernos/python-projects.git
 SHLVL=2
-BUILD_TAG=jenkins-ProjFlask-29
+BUILD_TAG=jenkins-ProjFlask-46
 EXECUTOR_NUMBER=0
-HUDSON_COOKIE=067d8e14-1fcf-431a-8190-5bd8de2c14ba
+HUDSON_COOKIE=8dbadf9b-4eb4-48d6-8e1d-169dcde0faaa
 JENKINS_HOME=/var/lib/jenkins
-GIT_COMMIT=4f5617211e8805d80ffd8842b533b6396029b1cd
+GIT_COMMIT=9a6a0396b82372cbe15eac3430ef15a58446de4d
 NODE_LABELS=built-in
 STAGE_NAME=Check Environment
-JOURNAL_STREAM=8:452298
+JOURNAL_STREAM=8:28959
 WORKSPACE_TMP=/var/lib/jenkins/workspace/ProjFlask@tmp
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
 CI=true
-RUN_ARTIFACTS_DISPLAY_URL=http://54.237.56.251:8080/job/ProjFlask/29/display/redirect?page=artifacts
+RUN_ARTIFACTS_DISPLAY_URL=http://54.237.56.251:8080/job/ProjFlask/46/display/redirect?page=artifacts
 GIT_BRANCH=origin/main
-BUILD_ID=29
+BUILD_ID=46
 _=/usr/bin/env
 [Pipeline] }
 [Pipeline] // stage
@@ -305,45 +141,6 @@ _=/usr/bin/env
 [Pipeline] script
 [Pipeline] {
 [Pipeline] sh
-+ pip3 install -r requirements.txt
-Defaulting to user installation because normal site-packages is not writeable
-Requirement already satisfied: blinker==1.8.2 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 1)) (1.8.2)
-Requirement already satisfied: click==8.1.7 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 2)) (8.1.7)
-Requirement already satisfied: exceptiongroup==1.2.2 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 3)) (1.2.2)
-Requirement already satisfied: Flask==3.0.3 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 4)) (3.0.3)
-Requirement already satisfied: iniconfig==2.0.0 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 5)) (2.0.0)
-Requirement already satisfied: itsdangerous==2.2.0 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 6)) (2.2.0)
-Requirement already satisfied: Jinja2==3.1.4 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 7)) (3.1.4)
-Requirement already satisfied: MarkupSafe==2.1.5 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 8)) (2.1.5)
-Requirement already satisfied: packaging==24.1 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 9)) (24.1)
-Requirement already satisfied: pluggy==1.5.0 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 10)) (1.5.0)
-Requirement already satisfied: pytest==8.3.2 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 11)) (8.3.2)
-Requirement already satisfied: tomli==2.0.1 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 12)) (2.0.1)
-Requirement already satisfied: Werkzeug==3.0.3 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 13)) (3.0.3)
-Requirement already satisfied: importlib-metadata>=3.6.0 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from Flask==3.0.3->-r requirements.txt (line 4)) (8.4.0)
-Requirement already satisfied: zipp>=0.5 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from importlib-metadata>=3.6.0->Flask==3.0.3->-r requirements.txt (line 4)) (3.20.0)
-+ python3 -m venv venv
-+ source venv/bin/activate
-++ deactivate nondestructive
-++ '[' -n '' ']'
-++ '[' -n '' ']'
-++ '[' -n /usr/bin/sh -o -n '' ']'
-++ hash -r
-++ '[' -n '' ']'
-++ unset VIRTUAL_ENV
-++ '[' '!' nondestructive = nondestructive ']'
-++ VIRTUAL_ENV=/var/lib/jenkins/workspace/ProjFlask/venv
-++ export VIRTUAL_ENV
-++ _OLD_VIRTUAL_PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
-++ PATH=/var/lib/jenkins/workspace/ProjFlask/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
-++ export PATH
-++ '[' -n '' ']'
-++ '[' -z '' ']'
-++ _OLD_VIRTUAL_PS1=
-++ PS1='(venv) '
-++ export PS1
-++ '[' -n /usr/bin/sh -o -n '' ']'
-++ hash -r
 + pip3 install --upgrade pip
 Defaulting to user installation because normal site-packages is not writeable
 Requirement already satisfied: pip in /var/lib/jenkins/.local/lib/python3.9/site-packages (24.2)
@@ -364,7 +161,6 @@ Requirement already satisfied: tomli==2.0.1 in /var/lib/jenkins/.local/lib/pytho
 Requirement already satisfied: Werkzeug==3.0.3 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from -r requirements.txt (line 13)) (3.0.3)
 Requirement already satisfied: importlib-metadata>=3.6.0 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from Flask==3.0.3->-r requirements.txt (line 4)) (8.4.0)
 Requirement already satisfied: zipp>=0.5 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from importlib-metadata>=3.6.0->Flask==3.0.3->-r requirements.txt (line 4)) (3.20.0)
-+ sleep 30
 + echo 'Python version:'
 Python version:
 + python3 --version
@@ -448,11 +244,16 @@ urllib3              2.2.2
 wcwidth              0.2.5
 Werkzeug             3.0.3
 zipp                 3.20.0
-+ python3 test_myflask.py
-Traceback (most recent call last):
-  File "/var/lib/jenkins/workspace/ProjFlask/test_myflask.py", line 1, in <module>
-    import pytest
-ModuleNotFoundError: No module named 'pytest'
++ pip3 install pytest
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: pytest in /var/lib/jenkins/.local/lib/python3.9/site-packages (8.3.2)
+Requirement already satisfied: iniconfig in /var/lib/jenkins/.local/lib/python3.9/site-packages (from pytest) (2.0.0)
+Requirement already satisfied: packaging in /var/lib/jenkins/.local/lib/python3.9/site-packages (from pytest) (24.1)
+Requirement already satisfied: pluggy<2,>=1.5 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from pytest) (1.5.0)
+Requirement already satisfied: exceptiongroup>=1.0.0rc8 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from pytest) (1.2.2)
+Requirement already satisfied: tomli>=1 in /var/lib/jenkins/.local/lib/python3.9/site-packages (from pytest) (2.0.1)
++ pytest --version
+/var/lib/jenkins/workspace/ProjFlask@tmp/durable-ca8d75f9/script.sh.copy: line 18: pytest: command not found
 [Pipeline] }
 [Pipeline] // script
 [Pipeline] }
@@ -471,10 +272,3 @@ Stage "Deploy" skipped due to earlier failure(s)
 [Pipeline] // stage
 [Pipeline] }
 [Pipeline] // withEnv
-[Pipeline] }
-[Pipeline] // withEnv
-[Pipeline] }
-[Pipeline] // node
-[Pipeline] End of Pipeline
-ERROR: script returned exit code 1
-Finished: FAILURE

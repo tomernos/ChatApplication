@@ -82,25 +82,28 @@ pipeline {
                 script {
                     sh '''
                     # Create and activate virtual environment
-                    # python3 -m venv venv
-                    # source venv/bin/activate
+                    python3 -m venv venv
+                    . venv/bin/activate
+
+                    echo "directory:"
+                    python3 --version
 
                     # Upgrade pip and install requirements in the virtual environment
-                    pip3 install --upgrade pip
-                    pip3 install -r requirements.txt
+                    ./venv/bin/pip3 install --upgrade pip
+                    ./venv/bin/pip3 install -r requirements.txt
 
                     # Display information about the Python environment
                     echo "Python version:"
-                    python3 --version
+                    ./venv/bin/python3 --version
                     echo "Pip version:"
-                    pip3 --version
+                    ./venv/bin/pip3 --version
                     echo "Installed packages:"
                     pip3 list
-                    pip3 install pytest
-                    pytest --version
+            
+    
 
                     # Run the tests
-                    python3 test_myflask.py
+                    ./venv/bin/python3 test_myflask.py
 
                     # Deactivate the virtual environment
                     deactivate
