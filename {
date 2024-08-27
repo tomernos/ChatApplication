@@ -8143,23 +8143,6 @@ invoke-rc.d: could not determine current runlevel
 7[17;0f[42m[30mProgress: [ 98%][49m[39m [##################################################################################################################..] 87[17;0f[42m[30mProgress: [ 99%][49m[39m [###################################################################################################################.] 8Processing triggers for man-db (2.10.2-1) ...
 Processing triggers for libc-bin (2.35-0ubuntu3.8) ...
 
-7[0;17r8[1A[J[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ d[Ksudo apt install mysql-server[1P-get install netstat[4P[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cp[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Co netstat -tlnp | grep mysql92%][49m[39m [###########################################################################################################.........] 8Setting up libcgi-pm-perl (4.54-1) ...
-7[17;0f[42m[30mProgress: [ 93%][49m[39m [############################################################################################################........] 87[17;0f[42m[30mProgress: [ 94%][49m[39m [#############################################################################################################.......] 8Setting up libhtml-template-perl (2.97-1.1) ...
-7[17;0f[42m[30mProgress: [ 96%][49m[39m [###############################################################################################################.....] 8Setting up mysql-server (8.0.39-0ubuntu0.22.04.1) ...
-7[17;0f[42m[30mProgress: [ 97%][49m[39m [################################################################################################################....] 87[17;0f[42m[30mProgress: [ 97%][49m[39m [#################################################################################################################...] 8Setting up libcgi-fast-perl (1:2.15-1) ...
-7[17;0f[42m[30mProgress: [ 98%][49m[39m [##################################################################################################################..] 87[17;0f[42m[30mProgress: [ 99%][49m[39m [###################################################################################################################.] 8Processing triggers for man-db (2.10.2-1) ...
-Processing triggers for libc-bin (2.35-0ubuntu3.8) ...
-
-7[0;17r8[1A[J[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ d[Ksudo apt install mysql-server[1P-get install netstat[4P[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cp[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Co netstat -tlnp | grep mysqlecho $DB_USER $DB_PASSWORD $DB_HOST $DB_NAMEflask run[Kip address[1Pwhatsmyip[1Pifconfigflask runpip install pymysql[10Pflask runpip install -r requirements.txtflask run[Kpip install -r requirements.txtflask run[Kpip install flask_sqlalchemyflask run[Krm -r venvn[C[C[C[C[C[C[C[C[3Pm[C[C[C[C[Cflask runpip freeze[5@echo [C[C[C[C[C[C[C[C[C[C[4Pfreezesudo docker-compose upls[Ksudo docker-compose up[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kgit add .
-[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git commit -m "changes"
-[?2004l[main 5418e42] changes
- 19 files changed, 2367 insertions(+), 387 deletions(-)
- rewrite Output console.txt (62%)
- rename SQL.py => SQLite.py (100%)
- create mode 1#....] 87[17;0f[42m[30mProgress: [ 97%][49m[39m [#################################################################################################################...] 8Setting up libcgi-fast-perl (1:2.15-1) ...
-7[17;0f[42m[30mProgress: [ 98%][49m[39m [##################################################################################################################..] 87[17;0f[42m[30mProgress: [ 99%][49m[39m [###################################################################################################################.] 8Processing triggers for man-db (2.10.2-1) ...
-Processing triggers for libc-bin (2.35-0ubuntu3.8) ...
-
 7[0;17r8[1A[J[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ d[Ksudo apt install mysql-server[1P-get install netstat[4P[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cp[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Co netstat -tlnp | grep mysqlecho $DB_USER $DB_PASSWORD $DB_HOST $DB_NAMEflask run[Kip address[1Pwhatsmyip[1Pifconfigflask runpip install pymysql[10Pflask runpip install -r requirements.txtflask run[Kpip install -r requirements.txtflask run[Kpip install flask_sqlalchemyflask run[Krm -r venvn[C[C[C[C[C[C[C[C[3Pm[C[C[C[C[Cflask runpip freeze[5@echo [C[C[C[C[C[C[C[C[C[C[4Pfreezesudo docker-compose upls[Ksudo docker-compose up[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kgit add .
 [?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git commit -m "changes"
 [?2004l[main 5418e42] changes
@@ -8180,4 +8163,83 @@ Processing triggers for libc-bin (2.35-0ubuntu3.8) ...
  create mode 100644 secondtrymysql/models.py
 [?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ gir [K[Kt rm secc[Kondtrymysql/
 MySQL.py               app.py                 database_functions.py  db_setup.py            models.py              
-]0;tomer@DESKTOP-9J2H91V: /mnt
+]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git rm secondtrymysql/
+[?2004lfatal: not removing 'secondtrymysql/' recursively without -r
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git rm secondtrymysql/0secondtrymysql/[1Psecondtrymysql/-secondtrymysql/rsecondtrymysql/ secondtrymysql/
+[?2004lrm 'secondtrymysql/MySQL.py'
+rm 'secondtrymysql/app.py'
+rm 'secondtrymysql/database_functions.py'
+rm 'secondtrymysql/db_setup.py'
+rm 'secondtrymysql/models.py'
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git rm -r secondtrymysql/[3Psecondtrymysql/commit -m "changes"add .[K
+[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git add .rm -r secondtrymysql/[3Psecondtrymysql/commit -m "changes"add .[Kcommit -m "changes"
+[?2004l[main 54979b1] changes
+ 7 files changed, 38 insertions(+), 419 deletions(-)
+ delete mode 100644 secondtrymysql/MySQL.py
+ delete mode 100644 secondtrymysql/app.py
+ delete mode 100644 secondtrymysql/database_functions.py
+ delete mode 100644 secondtrymysql/db_setup.py
+ delete mode 100644 secondtrymysql/models.py
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project00644 __pycache__/app.cpython-310.pyc
+ create mode 100644 __pycache__/database_functions.cpython-310.pyc
+ create mode 100644 __pycache__/db_setup.cpython-310.pyc
+ create mode 100644 __pycache__/models.cpython-310.pyc
+ rewrite docker-compose.yml (63%)
+ delete mode 100644 example.db
+ create mode 100644 my_flask.py.txt
+ create mode 100644 secondtrymysql/MySQL.py
+ create mode 100644 secondtrymysql/app.py
+ create mode 100644 secondtrymysql/database_functions.py
+ create mode 100644 secondtrymysql/db_setup.py
+ create mode 100644 secondtrymysql/models.py
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ gir [K[Kt rm secc[Kondtrymysql/
+MySQL.py               app.py                 database_functions.py  db_setup.py            models.py              
+]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git rm secondtrymysql/
+[?2004lfatal: not removing 'secondtrymysql/' recursively without -r
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git rm secondtrymysql/0secondtrymysql/[1Psecondtrymysql/-secondtrymysql/rsecondtrymysql/ secondtrymysql/
+[?2004lrm 'secondtrymysql/MySQL.py'
+rm 'secondtrymysql/app.py'
+rm 'secondtrymysql/database_functions.py'
+rm 'secondtrymysql/db_setup.py'
+rm 'secondtrymysql/models.py'
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git rm -r secondtrymysql/[3Psecondtrymysql/commit -m "changes"add .[K
+[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git add .rm -r secondtrymysql/[3Psecondtrymysql/commit -m "changes"add .[Kcommit -m "changes"
+[?2004l[main 54979b1] changes
+ 7 files changed, 38 insertions(+), 419 deletions(-)
+ delete mode 100644 secondtrymysql/MySQL.py
+ delete mode 100644 secondtrymysql/app.py
+ delete mode 100644 secondtrymysql/database_functions.py
+ delete mode 100644 secondtrymysql/db_setup.py
+ delete mode 100644 secondtrymysql/models.py
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git[Kt push
+[?2004lgit: 'credential-wincred' is not a git command. See 'git --help'.
+Username for 'https://github.com': tomernos
+Password for 'https://tomernos@github.com': 
+git: 'credential-wincred' is not a git command. See 'git --help'.
+Enumerating objects: 35, done.
+Counting objects:   2% (1/35)Counting objects:   5% (2/35)Counting objects:   8% (3/35)Counting objects:  11% (4/35)Counting objects:  14% (5/35)Counting objects:  17% (6/35)Counting objects:  20% (7/35)Counting objects:  22% (8/35)Counting objects:  25% (9/35)Counting objects:  28% (10/35)Counting objects:  31% (11/35)Counting objects:  34% (12/35)Counting objects:  37% (13/35)Counting objects:  40% (14/35)Counting objects:  42% (15/35)Counting objects:  45% (16/35)Counting objects:  48% (17/35)Counting objects:  51% (18/35)Counting objects:  54% (19/35)Counting objects:  57% (20/35)Counting objects:  60% (21/35)Counting objects:  62% (22/35)Counting objects:  65% (23/35)Counting objects:  68% (24/35)Counting objects:  71% (25/35)Counting objects:  74% (26/35)Counting objects:  77% (27/35)Counting objects:  80% (28/35)Counting objects:  82% (29/35)Co/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git rm secondtrymysql/
+[?2004lfatal: not removing 'secondtrymysql/' recursively without -r
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git rm secondtrymysql/0secondtrymysql/[1Psecondtrymysql/-secondtrymysql/rsecondtrymysql/ secondtrymysql/
+[?2004lrm 'secondtrymysql/MySQL.py'
+rm 'secondtrymysql/app.py'
+rm 'secondtrymysql/database_functions.py'
+rm 'secondtrymysql/db_setup.py'
+rm 'secondtrymysql/models.py'
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git rm -r secondtrymysql/[3Psecondtrymysql/commit -m "changes"add .[K
+[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git add .rm -r secondtrymysql/[3Psecondtrymysql/commit -m "changes"add .[Kcommit -m "changes"
+[?2004l[main 54979b1] changes
+ 7 files changed, 38 insertions(+), 419 deletions(-)
+ delete mode 100644 secondtrymysql/MySQL.py
+ delete mode 100644 secondtrymysql/app.py
+ delete mode 100644 secondtrymysql/database_functions.py
+ delete mode 100644 secondtrymysql/db_setup.py
+ delete mode 100644 secondtrymysql/models.py
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git[Kt push
+[?2004lgit: 'credential-wincred' is not a git command. See 'git --help'.
+Username for 'https://github.com': tomernos
+Password for 'https://tomernos@github.com': 
+git: 'credential-wincred' is not a git command. See 'git --help'.
+Enumerating objects: 35, done.
+Counting objects:   2% (1/35)Counting objects:   5% (2/35)Counting objects:   8% (3/35)Counting objects:  11% (4/35)Counting objects:  14% (5/35)Counting objects:  17% (6/35)Counting objects:  20% (7/35)Counting objects:  22% (8/35)Counting objects:  25% (9/35)Counting objects:  28% (10/35)Counting objects:  31% (11/35)Counting objects:  34% (12/35)Counting objects:  37% (13/35)Counting objects:  40% (14/35)Counting objects:  42% (15/35)Counting objects:  45% (16/35)Counting objects:  48% (17/35)Counting objects:  51% (18/35)Counting objects:  54% (19/35)Counting objects:  57% (20/35)Counting objects:  60% (21/35)Counting objects:  62% (22/35)Counting objects:  65% (23/35)Counting objects:  68% (24/35)Counting objects:  71% (25/35)Counting objects:  74% (26/35)Counting objects:  77% (27/35)Counting objects:  80% (28/35)Counting objects:  82% (29/35)Counting objects:  85% (30/35)Counting objects:  88% (31/35)Counting objects:  91% (32/35)Counting objects:  94% (33/35)Counting objects:  97% (34/35)Counting objects: 100% (35/35)Counting objects: 100% (35/35), done.
+Delta compression using up to 12 threads
+Compressing objects:   4% (1/24)Compressing objects:   8% (2/24)Compressing objects:  12% (3/24)Compressing objects:  16% (4/24)Compressing objects:  20% (5/24)Compressing objects:  25% (6/24)Compressing objects:  29% (7/24)Compressing objects:  33% (8/24)Compressing objects:  37% (9/24)Compressing objects:  41% (10/24)Compressing objects:  45% (11/24)Compressing objects:  50% (12/24)Compressing objects:  54% (13/24)Compressing objects:  58% (14/24)Compressing objects:  62% (15/24)Compressing objects:  66% (16/24)Compressing objects:  70% (17/24)Compressing objects:  75% (18/24)Compressing objects:  79% (19/24)Compressing objects:  83% (20/24)Com

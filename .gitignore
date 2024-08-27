@@ -1,4 +1,9 @@
+.gitignore
 testflask.py
 fpy-venv/
 venv/
 secondtrymysql/
+my_flask.txt
+my_project.txt
+Output console.txt
+testflask.py
