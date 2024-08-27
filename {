@@ -8253,15 +8253,42 @@ git: 'credential-wincred' is not a git command. See 'git --help'.
 Enumerating objects: 16, done.
 Counting objects:   6% (1/16)Counting objects:  12% (2/16)Counting objects:  18% (3/16)Counting objects:  25% (4/16)Counting objects:  31% (5/16)Counting objects:  37% (6/16)Counting objects:  43% (7/16)Counting objects:  50% (8/16)Counting objects:  56% (9/16)Counting objects:  62% (10/16)Counting objects:  68% (11/16)Counting objects:  75% (12/16)Counting objects:  81% (13/16)Counting objects:  87% (14/16)Counting objects:  93% (15/16)Counting objects: 100% (16/16)Counting objects: 100% (16/16), done.
 Delta compression using up to 12 threads
-Compressing objects:  10% (1/10)Compressing objects:  20% (2/10)Compressing objects:  30% (3/10)Compressing objects:  40% (4/10)Compressing objects:  50% (5/10)Compressing objects:  60% (6/10)Compressing objects:  70% (7/10)Compressing objects:  80% (8/10)Compressing objects:  90% (9/10)Compressing objects: 100% (10/10)Compressing objects: 10 line 2, in <module>
+Compressing objects:  10% (1/10)Compressing objects:  20% (2/10)Compressing objects:  30% (3/10)Compressing objects:  40% (4/10)Compressing objects:  50% (5/10)Compressing objects:  60% (6/10)Compressing objects:  70% (7/10)Compressing objects:  80% (8/10)Compressing objects:  90% (9/10)Compressing objects: 100% (10/10)Compressing objects: 100% (10/10), done.
+Writing objects:  10% (1/10)Writing objects:  20% (2/10)Writing objects:  30% (3/10)Writing objects:  40% (4/10)Writing objects:  50% (5/10)Writing objects:  60% (6/10)Writing objects:  70% (7/10)Writing objects:  80% (8/10)Writing objects:  90% (9/10)Writing objects: 100% (10/10)Writing objects: 100% (10/10), 5.49 KiB | 468.00 KiB/s, done.
+Total 10 (delta 4), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas:   0% (0/4)[Kremote: Resolving deltas:  25% (1/4)[Kremote: Resolving deltas:  50% (2/4)[Kremote: Resolving deltas:  75% (3/4)[Kremote: Resolving deltas: 100% (4/4)[Kremote: Resolving deltas: 100% (4/4), completed with 4 local objects.[K
+To https://github.com/tomernos/python-projects.git
+   8be11f1..1a49233  main -> main
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git pushcommit -m "changes"add .[Kpython3 test_myflask.py 
+[?2004lTraceback (most recent call last):
+  File "/mnt/c/Users/PC/Desktop/projects/python/my_project/test_myflask.py", line 2, in <module>
     from my_flask import app, create_table, create_chat_table
   File "/mnt/c/Users/PC/Desktop/projects/python/my_project/my_flask.py", line 11, in <module>
     create_table()
   File "/mnt/c/Users/PC/Desktop/projects/python/my_project/SQLite.py", line 9, in create_table
     conn = sql3.connect(db_path)
 sqlite3.OperationalError: unable to open database file
-[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ python3 test_myflask.py [16Pgit push[Kgit push[Kgit add .[1Ppushadd .
-[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git add .python3 test_myflask.py [16Pgit push[Kgit add .[1Ppushcommit -m "changes"
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ python3 test_myflask.py [16Pgit pushcommit -m "changes"add .[K
+[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git add .python3 test_myflask.py [16Pgit pushpython3 test_myflask.py 
+[?2004l...
+----------------------------------------------------------------------
+Ran 3 tests in 0.022s
+
+OK
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ python3 test_myflask.py [15Pgit add .python3 test_myflask.py [15Pgit add .python3 test_myflask.py [16Pgit pushcommit -m "changes"
+[?2004l[main 2038b87] changes
+ 2 files changed, 59 insertions(+), 8 deletions(-)
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git commit -m "changes"python3 test_myflask.py [15Pgit add .python3 test_myflask.py [16Pgit push
+[?2004lgit: 'credential-wincred' is not a git command. See 'git --help'.
+Username for 'https://github.com': tomernos
+Password for 'https://tomernos@github.com': 
+git: 'credential-wincred' is not a git command. See 'git --help'.
+Enumerating objects: 7, done.
+Counting objects:  14% (1/7)Counting objects:  28% (2/7)Counting objects:  42% (3/7)Counting objects:  57% (4/7)Counting objects:  71% (5/7)Counting objects:  85% (6/7)Counting objects: 100% (7/7)Counting objects: 100% (7/7), done.
+Delta compression using up to 12 threads
+Compressing objects:  25% (1/4)Compressing objects:  50% (2/4)Compressing objects:  75% (3/4)Compressing objects: 100% (4/4)Compressing objects: 100% (4/4), done.
+Writing objects:  25% (1/4)Writing objects:  50% (2/4)Writing objects:  75% (3/4)Writing objects: 100% (4/4)Writing objects: 100% (4/4), 1.02 KiB | 104.00 KiB/s, done.
+Total 4 (delta 3), reused 0 (delta 0), pack-re[16Pgit push[Kgit add .[1Ppushcommit -m "changes"
 [?2004l[main 1a49233] changes
  8 files changed, 73 insertions(+), 654 deletions(-)
  rewrite Output console.txt (99%)
@@ -8287,3 +8314,12 @@ To https://github.com/tomernos/python-projects.git
 [?2004lTraceback (most recent call last):
   File "/mnt/c/Users/PC/Desktop/projects/python/my_project/test_myflask.py", line 2, in <module>
     from my_flask import app, create_table, create_chat_table
+  File "/mnt/c/Users/PC/Desktop/projects/python/my_project/my_flask.py", line 11, in <module>
+    create_table()
+  File "/mnt/c/Users/PC/Desktop/projects/python/my_project/SQLite.py", line 9, in create_table
+    conn = sql3.connect(db_path)
+sqlite3.OperationalError: unable to open database file
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ python3 test_myflask.py [16Pgit pushcommit -m "changes"add .[K
+[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git add .python3 test_myflask.py [16Pgit pushpython3 test_myflask.py 
+[?2004l...
+---------------

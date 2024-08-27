@@ -122,8 +122,20 @@ pipeline {
     }
 
     post {
-        always {
-            sh 'sudo docker-compose down'
+        /*always {
+            //sh 'sudo docker-compose down'
+           
+            
+        }*/
+        success {
+            
+            sh '''
+                echo 'Application deployed successfully and is running'
+                curl http://localhost:5000 || exit 1
+            '''
+        }
+        failure {
+            echo 'Deployment failed'
         }
     }
 }
