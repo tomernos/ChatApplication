@@ -3,7 +3,7 @@ import hashlib
 import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-db_path = os.path.join(BASE_DIR, '/data/example.db')
+db_path = os.path.join(BASE_DIR, 'example.db')
 
 def create_table():
     conn = sql3.connect(db_path)
