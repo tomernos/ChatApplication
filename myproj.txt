@@ -120,14 +120,23 @@ if __name__ == '__main__':
 
 blinker==1.8.2
 click==8.1.7
-Flask==3.0.3
+exceptiongroup==1.2.2
+Flask==2.0.1
+Flask-SQLAlchemy==2.5.1
+mysqlclient==2.0.3
+pymysql==1.0.2
+iniconfig==2.0.0
 itsdangerous==2.2.0
 Jinja2==3.1.4
 MarkupSafe==2.1.5
+packaging==24.1
+pluggy==1.5.0
+pytest==8.3.2
+tomli==2.0.1
 Werkzeug==3.0.3
 
 
-=== my-project/SQL.py ===
+=== my-project/SQLite.py ===
 
 import sqlite3 as sql3
 import hashlib
@@ -282,9 +291,6 @@ def get_all_chat_messages():
     
     conn.close()
     return messages
-
-
-=== my-project/example.db ===
 
 === my-project/templates/chat.html ===
 
@@ -516,6 +522,7 @@ pipeline {
             steps {
                 script {
                     git branch: 'main', credentialsId: env.GIT_CREDENTIALS, url: 'https://github.com/tomernos/python-projects.git'
+                
                 }
             }
         }
@@ -566,14 +573,51 @@ pipeline {
             }
         }
 
+        stage('Check Environment') {
+            steps {
+                sh '''
+                   echo "User: $(whoami)"
+                   echo "Python Version:"
+                   python3 --version
+                   echo "Python Path:"
+                   which python3
+                   echo "Pip List:"
+                   pip list
+                   echo "Environment Variables:"
+                   env
+                '''
+            }
+        }
+
         stage('Run Tests') {
             steps {
                 script {
                     sh '''
+                    # Create and activate virtual environment
                     python3 -m venv venv
-                    source venv/bin/activate
-                    pip install -r requirements.txt
-                    python3 test_myflask.py
+                    . venv/bin/activate
+
+                    echo "directory:"
+                    python3 --version
+
+                    # Upgrade pip and install requirements in the virtual environment
+                    ./venv/bin/pip3 install --upgrade pip
+                    ./venv/bin/pip3 install -r requirements.txt
+
+                    # Display information about the Python environment
+                    echo "Python version:"
+                    ./venv/bin/python3 --version
+                    echo "Pip version:"
+                    ./venv/bin/pip3 --version
+                    echo "Installed packages:"
+                    pip3 list
+            
+    
+
+                    # Run the tests
+                    ./venv/bin/python3 test_myflask.py
+
+                    # Deactivate the virtual environment
                     deactivate
                     '''
                 }
@@ -637,42 +681,56 @@ services:
       - FLASK_ENV=development
     volumes:
       - .:/app
-    command: >
-      sh -c "python3 -m my_flask --host=0.0.0.0"
 
   db:
-    image: sqlite3
+    image: keinos/sqlite3:latest
     volumes:
       - ./example.db:/app/example.db
 
-  test:
-    build: .
-    depends_on:
-      - flask-app
-    command: >
-      sh -c "pytest test_myflask.py"
 
 
 === my-project/test_myflask.py ===
 
 
-from flask import Flask, render_template
+import unittest
+from my_flask import app, create_table, create_chat_table
 import os
 
-app = Flask(__name__)
+class FlaskTestCase(unittest.TestCase):
 
-clock_app_url = os.getenv('CLOCK_APP_URL', "http://clock_upp")
+    def setUp(self):
+        app.config['TESTING'] = True
+        app.config['WTF_CSRF_ENABLED'] = False
+        self.app = app.test_client()
+        
+        # Use an in-memory database for testing
+        app.config['DATABASE'] = ':memory:'
+        with app.app_context():
+            create_table()
+            create_chat_table()
 
-@app.route('/')
-def home():
-    return render_template('update_index.html')
+    def test_index(self):
+        response = self.app.get('/', follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Welcome to the Flask App', response.data)
 
-@app.route('/update', methods=['POST'])
-def update_clock_app():
-    updated_time = request.form.get('updated_time')
-    os.system(f'curl -X POST {clock_app_url}/update_time -H "Content-Type: application/json" -d \'{{"time": "{updated_time}" }}\'')
-    return 'Time updated successfully!', 200
+    def test_login(self):
+        response = self.app.post('/login', data=dict(
+            username='testuser',
+            password='testpass'
+        ), follow_redirects=True)
+        self.assertIn(b'Invalid username or password', response.data)
 
+    def test_insert_user(self):
+        response = self.app.post('/insert', data=dict(
+            id='1',
+            username='newuser',
+            password='newpass',
+            classification='A',
+            age='25',
+            email='new@example.com'
+        ), follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=80, host="0.0.0.0")
+    unittest.main()

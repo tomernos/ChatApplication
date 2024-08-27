@@ -6882,53 +6882,6 @@ Delta compression using up to 12 threads
 Compressing objects:  25% (1/4)Compressing objects:  50% (2/4)Compressing objects:  75% (3/4)Compressing objects: 100% (4/4)Compressing objects: 100% (4/4), done.
 Writing objects:  25% (1/4)Writing objects:  50% (2/4)Writing objects:  75% (3/4)Writing objects: 100% (4/4)Writing objects: 100% (4/4), 513 bytes | 513.00 KiB/s, done.
 Total 4 (delta 3), reused 0 (delta 0), pack-reused 0
-remote: Resolving deltas:  33% (1/3)[Kremote: Resolving deltas:   71% (5/7)Counting objects:  85% (6/7)Counting objects: 100% (7/7)Counting objects: 100% (7/7), done.
-Delta compression using up to 12 threads
-Compressing objects:  25% (1/4)Compressing objects:  50% (2/4)Compressing objects:  75% (3/4)Compressing objects: 100% (4/4)Compressing objects: 100% (4/4), done.
-Writing objects:  25% (1/4)Writing objects:  50% (2/4)Writing objects:  75% (3/4)Writing objects: 100% (4/4)Writing objects: 100% (4/4), 759 bytes | 759.00 KiB/s, done.
-Total 4 (delta 3), reused 0 (delta 0), pack-reused 0
-remote: Resolving deltas:  33% (1/3)[Kremote: Resolving deltas:  66% (2/3)[Kremote: Resolving deltas: 100% (3/3)[Kremote: Resolving deltas: 100% (3/3), completed with 3 local objects.[K
-To https://github.com/tomernos/python-projects.git
-   7db04d8..f5db8db  main -> main
-[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git pushcommit -m "changes test"add .[K
-[?2004l[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git add .[1Ppushcommit -m "changes test"
-[?2004l[main 9a6a039] changes test
- 2 files changed, 64 insertions(+), 35 deletions(-)
-[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git commit -m "changes test"add .[K[1Ppushcommit -m "changes test"add .[Kpytest --version[8Pgit push
-[?2004lgit: 'credential-wincred' is not a git command. See 'git --help'.
-Username for 'https://github.com': tomernos
-Password for 'https://tomernos@github.com': 
-git: 'credential-wincred' is not a git command. See 'git --help'.
-Enumerating objects: 7, done.
-Counting objects:  14% (1/7)Counting objects:  28% (2/7)Counting objects:  42% (3/7)Counting objects:  57% (4/7)Counting objects:  71% (5/7)Counting objects:  85% (6/7)Counting objects: 100% (7/7)Counting objects: 100% (7/7), done.
-Delta compression using up to 12 threads
-Compressing objects:  25% (1/4)Compressing objects:  50% (2/4)Compressing objects:  75% (3/4)Compressing objects: 100% (4/4)Compressing objects: 100% (4/4), done.
-Writing objects:  25% (1/4)Writing objects:  50% (2/4)Writing objects:  75% (3/4)Writing objects: 100% (4/4)Writing objects: 100% (4/4), 513 bytes | 513.00 KiB/s, done.
-Total 4 (delta 3), reused 0 (delta 0), pack-reused 0
-remote: Resolving deltas:  33% (1/3)[Kremote: Resolving deltas:  66% (2/3)[Kremote: Resolving deltas: 100% (3/3)[Kremote: Resolving deltas: 100% (3/3), completed with 3 local objects.[K
-To https://github.com/tomernos/python-projects.git
-   f5db8db..9a6a039  main -> main
-[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ PYTHONPATHePYTHONPATHcPYTHONPATHhPYTHONPATHoPYTHONPATH PYTHONPATH$PYTHONPATH
-[?2004l
-[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ echo $PYTHONPATH
-[?2004l
-[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ echo $PYTHONPATH)D[K[1P$PYTHONPATH)($PYTHONPATH)
-[?2004lbash: syntax error near unexpected token `$PYTHONPATH'
-[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git pushcommit -m "changes test"add .[K
-[?2004l[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git add .[1Ppushcommit -m "changes test"
-[?2004l[main 9a6a039] changes test
- 2 files changed, 64 insertions(+), 35 deletions(-)
-[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git commit -m "changes test"add .[K[1Ppushcommit -m "changes test"add .[Kpytest --version[8Pgit push
-[?2004lgit: 'credential-wincred' is not a git command. See 'git --help'.
-Username for 'https://github.com': tomernos
-Password for 'https://tomernos@github.com': 
-git: 'credential-wincred' is not a git command. See 'git --help'.
-Enumerating objects: 7, done.
-Counting objects:  14% (1/7)Counting objects:  28% (2/7)Counting objects:  42% (3/7)Counting objects:  57% (4/7)Counting objects:  71% (5/7)Counting objects:  85% (6/7)Counting objects: 100% (7/7)Counting objects: 100% (7/7), done.
-Delta compression using up to 12 threads
-Compressing objects:  25% (1/4)Compressing objects:  50% (2/4)Compressing objects:  75% (3/4)Compressing objects: 100% (4/4)Compressing objects: 100% (4/4), done.
-Writing objects:  25% (1/4)Writing objects:  50% (2/4)Writing objects:  75% (3/4)Writing objects: 100% (4/4)Writing objects: 100% (4/4), 513 bytes | 513.00 KiB/s, done.
-Total 4 (delta 3), reused 0 (delta 0), pack-reused 0
 remote: Resolving deltas:  33% (1/3)[Kremote: Resolving deltas:  66% (2/3)[Kremote: Resolving deltas: 100% (3/3)[Kremote: Resolving deltas: 100% (3/3), completed with 3 local objects.[K
 To https://github.com/tomernos/python-projects.git
    f5db8db..9a6a039  main -> main
@@ -6944,4 +6897,1278 @@ To https://github.com/tomernos/python-projects.git
 [?2004lPYTHONPATH
 [?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ echo PYTHONPATH[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K#PATH
 [?2004l
-[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ echo #PATHPYTHONPATH($PYTHONPATH)[1P($PYTHONPATH)[1P $PYTHONPATH[8Pgit pushcommit -m "changes test"add .[K
+[?2004l[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git add .echo #PATHPYTHONPATH($PYTHONPATH)[1P($PYTHONPATH)[1P $PYTHONPATH[8Pgit pushcommit -m "changes test"push[Kcommit -m "changes test"
+[?2004l[main 28e51fc] changes test
+ 3 files changed, 106 insertions(+), 282 deletions(-)
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ git commit -m "changes test"add .[Kecho #PATHPYTHONPATH($PYTHONPATH)[1P($PYTHONPATH)[1P $PYTHONPATH[8Pgit pushcommit -m "changes test"add .[K[K[K[K[K[Kpush
+[?2004lgit: 'credential-wincred' is not a git command. See 'git --help'.
+Username for 'https://github.com': tomernos
+Password for 'https://tomernos@github.com': 
+git: 'credential-wincred' is not a git command. See 'git --help'.
+Enumerating objects: 9, done.
+Counting objects:  11% (1/9)Counting objects:  22% (2/9)Counting objects:  33% (3/9)Counting objects:  44% (4/9)Counting objects:  55% (5/9)Counting objects:  66% (6/9)Counting objects:  77% (7/9)Counting objects:  88% (8/9)Counting objects: 100% (9/9)Counting objects: 100% (9/9), done.
+Delta compression using up to 12 threads
+Compressing objects:  20% (1/5)Compressing objects:  40% (2/5)Compressing objects:  60% (3/5)Compressing objects:  80% (4/5)Compressing objects: 100% (5/5)Compressing objects: 100% (5/5), done.
+Writing objects:  20% (1/5)Writing objects:  40% (2/5)Writing objects:  60% (3/5)Writing objects:  80% (4/5)Writing objects: 100% (5/5)Writing objects: 100% (5/5), 1.41 KiB | 110.00 KiB/s, done.
+Total 5 (delta 4), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas:   0% (0/4)[Kremote: Resolving deltas:  25% (1/4)[Kremote: Resolving deltas:  50% (2/4)[Kremote: Resolving deltas:  75% (3/4)[Kremote: Resolving deltas: 100% (4/4)[Kremote: Resolving deltas: 100% (4/4), completed with 4 local objects.[K
+To https://github.com/tomernos/python-projects.git
+   9a6a039..28e51fc  main -> main
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [7msudo docker-compose up -d[27msudo docker-compose up -d[K[K[K
+[?2004l[sudo] password for tomer: 
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+    httplib_response = self._make_request(
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 395, in _make_request
+    conn.request(method, url, **httplib_request_kw)
+  File "/usr/lib/python3.10/http/client.py", line 1283, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1329, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1038, in _send_output
+    self.send(msg)
+  File "/usr/lib/python3.10/http/client.py", line 976, in send
+    self.connect()
+  File "/usr/lib/python3/dist-packages/docker/transport/unixconn.py", line 30, in connect
+    sock.connect(self.unix_socket)
+FileNotFoundError: [Errno 2] No such file or directory
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/requests/adapters.py", line 439, in send
+    resp = conn.urlopen(
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 756, in urlopen
+    retries = retries.increment(
+  File "/usr/lib/python3/dist-packages/urllib3/util/retry.py", line 532, in increment
+    raise six.reraise(type(error), error, _stacktrace)
+  File "/usr/lib/python3/dist-packages/six.py", line 718, in reraise
+    raise value.with_traceback(tb)
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+    httplib_response = self._make_request(
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 395, in _make_request
+    conn.request(method, url, **httplib_request_kw)
+  File "/usr/lib/python3.10/http/client.py", line 1283, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1329, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1038, in _send_output
+    self.send(msg)
+  File "/usr/lib/python3.10/http/client.py", line 976, in send
+    self.connect()
+  File "/usr/lib/python3/dist-packages/docker/transport/unixconn.py", line 30, in connect
+    sock.connect(self.unix_socket)
+urllib3.exceptions.ProtocolError: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 214, in _retrieve_server_version
+    return self.version(api_version=False)["ApiVersion"]
+  File "/usr/lib/python3/dist-packages/docker/api/daemon.py", line 181, in version
+    return self._result(self._get(url), json=True)
+  File "/usr/lib/python3/dist-packages/docker/utils/decorators.py", line 46, in inner
+    return f(self, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 237, in _get
+    return self.get(url, **self._set_request_timeout(kwargs))
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 557, in get
+    return self.request('GET', url, **kwargs)
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 544, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 657, in send
+    r = adapter.send(request, **kwargs)
+  File "/usr/lib/python3/dist-packages/requests/adapters.py", line 498, in send
+    raise ConnectionError(err, request=request)
+requests.exceptions.ConnectionError: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/bin/docker-compose", line 33, in <module>
+    sys.exit(load_entry_point('docker-compose==1.29.2', 'console_scripts', 'docker-compose')())
+  File "/usr/lib/python3/dist-packages/compose/cli/main.py", line 81, in main
+    command_func()
+  File "/usr/lib/python3/dist-packages/compose/cli/main.py", line 200, in perform_command
+    project = project_from_options('.', options)
+  File "/usr/lib/python3/dist-packages/compose/cli/command.py", line 60, in project_from_options
+    return get_project(
+  File "/usr/lib/python3/dist-packages/compose/cli/command.py", line 152, in get_project
+    client = get_client(
+  File "/usr/lib/python3/dist-packages/compose/cli/docker_client.py", line 41, in get_client
+    client = docker_client(
+  File "/usr/lib/python3/dist-packages/compose/cli/docker_client.py", line 170, in docker_client
+    client = APIClient(use_ssh_client=not use_paramiko_ssh, **kwargs)
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 197, in __init__
+    self._version = self._retrieve_server_version()
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 221, in _retrieve_server_version
+    raise DockerException(
+docker.errors.DockerException: Error while fetching server API version: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ sudo docker-compose up
+[?2004lTraceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+    httplib_response = self._make_request(
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 395, in _make_request
+    conn.request(method, url, **httplib_request_kw)
+  File "/usr/lib/python3.10/http/client.py", line 1283, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1329, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1038, in _send_output
+    self.send(msg)
+  File "/usr/lib/python3.10/http/client.py", line 976, in send
+    self.connect()
+  File "/usr/lib/python3/dist-packages/docker/transport/unixconn.py", line 30, in connect
+    sock.connect(self.unix_socket)
+FileNotFoundError: [Errno 2] No such file or directory
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/requests/adapters.py", line 439, in send
+    resp = conn.urlopen(
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 756, in urlopen
+    retries = retries.increment(
+  File "/usr/lib/python3/dist-packages/urllib3/util/retry.py", line 532, in increment
+    raise six.reraise(type(error), error, _stacktrace)
+  File "/usr/lib/python3/dist-packages/six.py", line 718, in reraise
+    raise value.with_traceback(tb)
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+    httplib_response = self._make_request(
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 395, in _make_request
+    conn.request(method, url, **httplib_request_kw)
+  File "/usr/lib/python3.10/http/client.py", line 1283, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1329, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1038, in _send_output
+    self.send(msg)
+  File "/usr/lib/python3.10/http/client.py", line 976, in send
+    self.connect()
+  File "/usr/lib/python3/dist-packages/docker/transport/unixconn.py", line 30, in connect
+    sock.connect(self.unix_socket)
+urllib3.exceptions.ProtocolError: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 214, in _retrieve_server_version
+    return self.version(api_version=False)["ApiVersion"]
+  File "/usr/lib/python3/dist-packages/docker/api/daemon.py", line 181, in version
+    return self._result(self._get(url), json=True)
+  File "/usr/lib/python3/dist-packages/docker/utils/decorators.py", line 46, in inner
+    return f(self, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 237, in _get
+    return self.get(url, **self._set_request_timeout(kwargs))
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 557, in get
+    return self.request('GET', url, **kwargs)
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 544, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 657, in send
+    r = adapter.send(request, **kwargs)
+  File "/usr/lib/python3/dist-packages/requests/adapters.py", line 498, in send
+    raise ConnectionError(err, request=request)
+requests.exceptions.ConnectionError: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/bin/docker-compose", line 33, in <module>
+    sys.exit(load_entry_point('docker-compose==1.29.2', 'console_scripts', 'docker-compose')())
+  File "/usr/lib/python3/dist-packages/compose/cli/main.py", line 81, in main
+    command_func()
+  File "/usr/lib/python3/dist-packages/compose/cli/main.py", line 200, in perform_command
+    project = project_from_options('.', options)
+  File "/usr/lib/python3/dist-packages/compose/cli/command.py", line 60, in project_from_options
+    return get_project(
+  File "/usr/lib/python3/dist-packages/compose/cli/command.py", line 152, in get_project
+    client = get_client(
+  File "/usr/lib/python3/dist-packages/compose/cli/docker_client.py", line 41, in get_client
+    client = docker_client(
+  File "/usr/lib/python3/dist-packages/compose/cli/docker_client.py", line 170, in docker_client
+    client = APIClient(use_ssh_client=not use_paramiko_ssh, **kwargs)
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 197, in __init__
+    self._version = self._retrieve_server_version()
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 221, in _retrieve_server_version
+    raise DockerException(
+docker.errors.DockerException: Error while fetching server API version: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+[?2004h(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K(venv) ]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ deactivate
+[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ deactivatesudo docker-compose up
+[?2004lTraceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+    httplib_response = self._make_request(
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 395, in _make_request
+    conn.request(method, url, **httplib_request_kw)
+  File "/usr/lib/python3.10/http/client.py", line 1283, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1329, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1038, in _send_output
+    self.send(msg)
+  File "/usr/lib/python3.10/http/client.py", line 976, in send
+    self.connect()
+  File "/usr/lib/python3/dist-packages/docker/transport/unixconn.py", line 30, in connect
+    sock.connect(self.unix_socket)
+FileNotFoundError: [Errno 2] No such file or directory
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/requests/adapters.py", line 439, in send
+    resp = conn.urlopen(
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 756, in urlopen
+    retries = retries.increment(
+  File "/usr/lib/python3/dist-packages/urllib3/util/retry.py", line 532, in increment
+    raise six.reraise(type(error), error, _stacktrace)
+  File "/usr/lib/python3/dist-packages/six.py", line 718, in reraise
+    raise value.with_traceback(tb)
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+    httplib_response = self._make_request(
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 395, in _make_request
+    conn.request(method, url, **httplib_request_kw)
+  File "/usr/lib/python3.10/http/client.py", line 1283, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1329, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1038, in _send_output
+    self.send(msg)
+  File "/usr/lib/python3.10/http/client.py", line 976, in send
+    self.connect()
+  File "/usr/lib/python3/dist-packages/docker/transport/unixconn.py", line 30, in connect
+    sock.connect(self.unix_socket)
+urllib3.exceptions.ProtocolError: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 214, in _retrieve_server_version
+    return self.version(api_version=False)["ApiVersion"]
+  File "/usr/lib/python3/dist-packages/docker/api/daemon.py", line 181, in version
+    return self._result(self._get(url), json=True)
+  File "/usr/lib/python3/dist-packages/docker/utils/decorators.py", line 46, in inner
+    return f(self, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 237, in _get
+    return self.get(url, **self._set_request_timeout(kwargs))
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 557, in get
+    return self.request('GET', url, **kwargs)
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 544, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 657, in send
+    r = adapter.send(request, **kwargs)
+  File "/usr/lib/python3/dist-packages/requests/adapters.py", line 498, in send
+    raise ConnectionError(err, request=request)
+requests.exceptions.ConnectionError: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/bin/docker-compose", line 33, in <module>
+    sys.exit(load_entry_point('docker-compose==1.29.2', 'console_scripts', 'docker-compose')())
+  File "/usr/lib/python3/dist-packages/compose/cli/main.py", line 81, in main
+    command_func()
+  File "/usr/lib/python3/dist-packages/compose/cli/main.py", line 200, in perform_command
+    project = project_from_options('.', options)
+  File "/usr/lib/python3/dist-packages/compose/cli/command.py", line 60, in project_from_options
+    return get_project(
+  File "/usr/lib/python3/dist-packages/compose/cli/command.py", line 152, in get_project
+    client = get_client(
+  File "/usr/lib/python3/dist-packages/compose/cli/docker_client.py", line 41, in get_client
+    client = docker_client(
+  File "/usr/lib/python3/dist-packages/compose/cli/docker_client.py", line 170, in docker_client
+    client = APIClient(use_ssh_client=not use_paramiko_ssh, **kwargs)
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 197, in __init__
+    self._version = self._retrieve_server_version()
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 221, in _retrieve_server_version
+    raise DockerException(
+docker.errors.DockerException: Error while fetching server API version: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ sudo docker-compose up
+[?2004lTraceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+    httplib_response = self._make_request(
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 395, in _make_request
+    conn.request(method, url, **httplib_request_kw)
+  File "/usr/lib/python3.10/http/client.py", line 1283, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1329, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1038, in _send_output
+    self.send(msg)
+  File "/usr/lib/python3.10/http/client.py", line 976, in send
+    self.connect()
+  File "/usr/lib/python3/dist-packages/docker/transport/unixconn.py", line 30, in connect
+    sock.connect(self.unix_socket)
+FileNotFoundError: [Errno 2] No such file or directory
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/requests/adapters.py", line 439, in send
+    resp = conn.urlopen(
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 756, in urlopen
+    retries = retries.increment(
+  File "/usr/lib/python3/dist-packages/urllib3/util/retry.py", line 532, in increment
+    raise six.reraise(type(error), error, _stacktrace)
+  File "/usr/lib/python3/dist-packages/six.py", line 718, in reraise
+    raise value.with_traceback(tb)
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+    httplib_response = self._make_request(
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 395, in _make_request
+    conn.request(method, url, **httplib_request_kw)
+  File "/usr/lib/python3.10/http/client.py", line 1283, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1329, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1038, in _send_output
+    self.send(msg)
+  File "/usr/lib/python3.10/http/client.py", line 976, in send
+    self.connect()
+  File "/usr/lib/python3/dist-packages/docker/transport/unixconn.py", line 30, in connect
+    sock.connect(self.unix_socket)
+urllib3.exceptions.ProtocolError: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 214, in _retrieve_server_version
+    return self.version(api_version=False)["ApiVersion"]
+  File "/usr/lib/python3/dist-packages/docker/api/daemon.py", line 181, in version
+    return self._result(self._get(url), json=True)
+  File "/usr/lib/python3/dist-packages/docker/utils/decorators.py", line 46, in inner
+    return f(self, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 237, in _get
+    return self.get(url, **self._set_request_timeout(kwargs))
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 557, in get
+    return self.request('GET', url, **kwargs)
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 544, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 657, in send
+    r = adapter.send(request, **kwargs)
+  File "/usr/lib/python3/dist-packages/requests/adapters.py", line 498, in send
+    raise ConnectionError(err, request=request)
+requests.exceptions.ConnectionError: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/bin/docker-compose", line 33, in <module>
+    sys.exit(load_entry_point('docker-compose==1.29.2', 'console_scripts', 'docker-compose')())
+  File "/usr/lib/python3/dist-packages/compose/cli/main.py", line 81, in main
+    command_func()
+  File "/usr/lib/python3/dist-packages/compose/cli/main.py", line 200, in perform_command
+    project = project_from_options('.', options)
+  File "/usr/lib/python3/dist-packages/compose/cli/command.py", line 60, in project_from_options
+    return get_project(
+  File "/usr/lib/python3/dist-packages/compose/cli/command.py", line 152, in get_project
+    client = get_client(
+  File "/usr/lib/python3/dist-packages/compose/cli/docker_client.py", line 41, in get_client
+    client = docker_client(
+  File "/usr/lib/python3/dist-packages/compose/cli/docker_client.py", line 170, in docker_client
+    client = APIClient(use_ssh_client=not use_paramiko_ssh, **kwargs)
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 197, in __init__
+    self._version = self._retrieve_server_version()
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 221, in _retrieve_server_version
+    raise DockerException(
+docker.errors.DockerException: Error while fetching server API version: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ ls
+[?2004l [0m[01;32mDockerfile[0m   [01;32m'Output console.txt'[0m   [34;42m__pycache__[0m          [01;32mexample.db[0m    [01;32mmyproj.txt[0m         [34;42mtemplates[0m         [01;32mtestflask.py[0m
+ [01;32mJenkinsfile[0m   [01;32mSQL.py[0m                [01;32mdocker-compose.yml[0m   [01;32mmy_flask.py[0m   [01;32mrequirements.txt[0m   [01;32mtest_myflask.py[0m   [34;42mvenv[0m
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ lssudo docker-compose up
+[?2004lTraceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+    httplib_response = self._make_request(
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 395, in _make_request
+    conn.request(method, url, **httplib_request_kw)
+  File "/usr/lib/python3.10/http/client.py", line 1283, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1329, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1038, in _send_output
+    self.send(msg)
+  File "/usr/lib/python3.10/http/client.py", line 976, in send
+    self.connect()
+  File "/usr/lib/python3/dist-packages/docker/transport/unixconn.py", line 30, in connect
+    sock.connect(self.unix_socket)
+FileNotFoundError: [Errno 2] No such file or directory
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/requests/adapters.py", line 439, in send
+    resp = conn.urlopen(
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 756, in urlopen
+    retries = retries.increment(
+  File "/usr/lib/python3/dist-packages/urllib3/util/retry.py", line 532, in increment
+    raise six.reraise(type(error), error, _stacktrace)
+  File "/usr/lib/python3/dist-packages/six.py", line 718, in reraise
+    raise value.with_traceback(tb)
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+    httplib_response = self._make_request(
+  File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 395, in _make_request
+    conn.request(method, url, **httplib_request_kw)
+  File "/usr/lib/python3.10/http/client.py", line 1283, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1329, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.10/http/client.py", line 1038, in _send_output
+    self.send(msg)
+  File "/usr/lib/python3.10/http/client.py", line 976, in send
+    self.connect()
+  File "/usr/lib/python3/dist-packages/docker/transport/unixconn.py", line 30, in connect
+    sock.connect(self.unix_socket)
+urllib3.exceptions.ProtocolError: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 214, in _retrieve_server_version
+    return self.version(api_version=False)["ApiVersion"]
+  File "/usr/lib/python3/dist-packages/docker/api/daemon.py", line 181, in version
+    return self._result(self._get(url), json=True)
+  File "/usr/lib/python3/dist-packages/docker/utils/decorators.py", line 46, in inner
+    return f(self, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 237, in _get
+    return self.get(url, **self._set_request_timeout(kwargs))
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 557, in get
+    return self.request('GET', url, **kwargs)
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 544, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 657, in send
+    r = adapter.send(request, **kwargs)
+  File "/usr/lib/python3/dist-packages/requests/adapters.py", line 498, in send
+    raise ConnectionError(err, request=request)
+requests.exceptions.ConnectionError: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/bin/docker-compose", line 33, in <module>
+    sys.exit(load_entry_point('docker-compose==1.29.2', 'console_scripts', 'docker-compose')())
+  File "/usr/lib/python3/dist-packages/compose/cli/main.py", line 81, in main
+    command_func()
+  File "/usr/lib/python3/dist-packages/compose/cli/main.py", line 200, in perform_command
+    project = project_from_options('.', options)
+  File "/usr/lib/python3/dist-packages/compose/cli/command.py", line 60, in project_from_options
+    return get_project(
+  File "/usr/lib/python3/dist-packages/compose/cli/command.py", line 152, in get_project
+    client = get_client(
+  File "/usr/lib/python3/dist-packages/compose/cli/docker_client.py", line 41, in get_client
+    client = docker_client(
+  File "/usr/lib/python3/dist-packages/compose/cli/docker_client.py", line 170, in docker_client
+    client = APIClient(use_ssh_client=not use_paramiko_ssh, **kwargs)
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 197, in __init__
+    self._version = self._retrieve_server_version()
+  File "/usr/lib/python3/dist-packages/docker/api/client.py", line 221, in _retrieve_server_version
+    raise DockerException(
+docker.errors.DockerException: Error while fetching server API version: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ f[Kecho freeze
+[?2004lfreeze
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ echo freezepfreezeifreezepfreeze freeze
+[?2004lpip freeze
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ echo pip freeze[1P[1P[1P[1P[1P
+[?2004lansible-base==2.10.8
+apache-libcloud==3.2.0
+argcomplete==1.8.1
+attrs==21.2.0
+awscli==1.22.34
+Babel==2.8.0
+blinker==1.8.2
+botocore==1.23.34
+certifi==2020.6.20
+chardet==4.0.0
+click==8.1.7
+colorama==0.4.4
+command-not-found==0.3
+cryptography==3.4.8
+dbus-python==1.2.18
+distro==1.7.0
+distro-info==1.1+ubuntu0.2
+dnspython==2.1.0
+docker==5.0.3
+docker-compose==1.29.2
+dockerpty==0.4.1
+docopt==0.6.2
+docutils==0.17.1
+Flask==3.0.3
+httplib2==0.20.2
+idna==3.3
+importlib-metadata==4.6.4
+itsdangerous==2.2.0
+jeepney==0.7.1
+Jinja2==3.1.4
+jmespath==0.10.0
+jsonschema==3.2.0
+keyring==23.5.0
+launchpadlib==1.10.16
+lazr.restfulclient==0.14.4
+lazr.uri==1.0.6
+lockfile==0.12.2
+MarkupSafe==2.1.5
+more-itertools==8.10.0
+netaddr==0.8.0
+netifaces==0.11.0
+ntlm-auth==1.4.0
+oauthlib==3.2.0
+olefile==0.46
+packaging==21.3
+Pillow==9.0.1
+pyasn1==0.4.8
+pycryptodomex==3.11.0
+Pygments==2.11.2
+PyGObject==3.42.1
+PyJWT==2.3.0
+pykerberos==1.1.14
+pyparsing==2.4.7
+pyrsistent==0.18.1
+python-apt==2.4.0+ubuntu3
+python-dateutil==2.8.1
+python-dotenv==0.19.2
+pytz==2022.1
+pywinrm==0.3.0
+PyYAML==5.4.1
+requests==2.25.1
+requests-kerberos==0.12.0
+requests-ntlm==1.1.0
+requests-toolbelt==0.9.1
+roman==3.3
+rsa==4.8
+s3transfer==0.5.0
+SecretStorage==3.3.1
+selinux==3.3
+simplejson==3.17.6
+six==1.16.0
+systemd-python==234
+texttable==1.6.4
+ubuntu-pro-client==8001
+ufw==0.36.1
+unattended-upgrades==0.1
+urllib3==1.26.5
+wadllib==1.3.6
+websocket-client==1.2.3
+Werkzeug==3.0.3
+xmltodict==0.12.0
+zipp==1.0.0
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ flask run
+[?2004lUsage: flask run [OPTIONS]
+Try 'flask run --help' for help.
+
+Error: While importing 'app', an ImportError was raised:
+
+Traceback (most recent call last):
+  File "/home/tomer/.local/lib/python3.10/site-packages/flask/cli.py", line 245, in locate_app
+    __import__(module_name)
+  File "/mnt/c/Users/PC/Desktop/projects/python/my_project/app.py", line 2, in <module>
+    from flask_sqlalchemy import SQLAlchemy
+ModuleNotFoundError: No module named 'flask_sqlalchemy'
+
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ rm venv
+[?2004lrm: cannot remove 'venv': Is a directory
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ rn /[K[K -r venv
+[?2004lCommand 'rn' not found, but can be installed with:
+sudo apt install trn4
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ rn -r venv[1P[1@m
+[?2004l[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [7mflask run[27mflask run
+[?2004lUsage: flask run [OPTIONS]
+Try 'flask run --help' for help.
+
+Error: While importing 'app', an ImportError was raised:
+
+Traceback (most recent call last):
+  File "/home/tomer/.local/lib/python3.10/site-packages/flask/cli.py", line 245, in locate_app
+    __import__(module_name)
+  File "/mnt/c/Users/PC/Desktop/projects/python/my_project/app.py", line 2, in <module>
+    from flask_sqlalchemy import SQLAlchemy
+ModuleNotFoundError: No module named 'flask_sqlalchemy'
+
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [7mpip install mysqlclient[27mpip install mysqlclient[K[K[K[K[K[K[K[K[K[K[Kflask_sqlalchemy
+[?2004lDefaulting to user installation because normal site-packages is not writeable
+Collecting flask_sqlalchemy
+  Downloading flask_sqlalchemy-3.1.1-py3-none-any.whl (25 kB)
+Collecting sqlalchemy>=2.0.16
+  Downloading SQLAlchemy-2.0.32-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.1 MB)
+[?25l     [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/3.1 MB[0m [31m?[0m eta [36m-:--:--[0m[2K     [38;5;204m╸[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/3.1 MB[0m [31m1.0 MB/s[0m eta [36m0:00:04[0m[2K     [38;5;204m━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.1/3.1 MB[0m [31m1.2 MB/s[0m eta [36m0:00:03[0m[2K     [38;5;204m━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.2/3.1 MB[0m [31m1.5 MB/s[0m eta [36m0:00:02[0m[2K     [38;5;204m━━━━[0m[38;5;204m╸[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.4/3.1 MB[0m [31m2.4 MB/s[0m eta [36m0:00:02[0m[2K     [38;5;204m━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.7/3.1 MB[0m [31m3.5 MB/s[0m eta [36m0:00:01[0m[2K     [38;5;204m━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m1.0/3.1 MB[0m [31m4.2 MB/s[0m eta [36m0:00:01[0m[2K     [38;5;204m━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━[0m [32m1.7/3.1 MB[0m [31m6.0 MB/s[0m eta [36m0:00:01[0m[2K     [38;5;204m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━[0m [32m2.3/3.1 MB[0m [31m7.0 MB/s[0m eta [36m0:00:01[0m[2K     [38;5;204m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;204m╸[0m[38;5;237m━━[0m [32m2.9/3.1 MB[0m [31m7.9 MB/s[0m eta [36m0:00:01[0m[2K     [38;5;107m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m3.1/3.1 MB[0m [31m7.7 MB/s[0m eta [36m0:00:00[0m
+[?25hRequirement already satisfied: flask>=2.2.5 in /home/tomer/.local/lib/python3.10/site-packages (from flask_sqlalchemy) (3.0.3)
+Requirement already satisfied: Werkzeug>=3.0.0 in /home/tomer/.local/lib/python3.10/site-packages (from flask>=2.2.5->flask_sqlalchemy) (3.0.3)
+Requirement already satisfied: blinker>=1.6.2 in /home/tomer/.local/lib/python3.10/site-packages (from flask>=2.2.5->flask_sqlalchemy) (1.8.2)
+Requirement already satisfied: itsdangerous>=2.1.2 in /home/tomer/.local/lib/python3.10/site-packages (from flask>=2.2.5->flask_sqlalchemy) (2.2.0)
+Requirement already satisfied: click>=8.1.3 in /home/tomer/.local/lib/python3.10/site-packages (from flask>=2.2.5->flask_sqlalchemy) (8.1.7)
+Requirement already satisfied: Jinja2>=3.1.2 in /home/tomer/.local/lib/python3.10/site-packages (from flask>=2.2.5->flask_sqlalchemy) (3.1.4)
+Collecting greenlet!=0.4.17
+  Downloading greenlet-3.0.3-cp310-cp310-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (616 kB)
+[?25l     [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/616.0 KB[0m [31m?[0m eta [36m-:--:--[0m[2K     [38;5;204m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;204m╸[0m[38;5;237m━[0m [32m593.9/616.0 KB[0m [31m16.8 MB/s[0m eta [36m0:00:01[0m[2K     [38;5;107m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m616.0/616.0 KB[0m [31m11.8 MB/s[0m eta [36m0:00:00[0m
+[?25hCollecting typing-extensions>=4.6.0
+  Downloading typing_extensions-4.12.2-py3-none-any.whl (37 kB)
+Requirement already satisfied: MarkupSafe>=2.0 in /home/tomer/.local/lib/python3.10/site-packages (from Jinja2>=3.1.2->flask>=2.2.5->flask_sqlalchemy) (2.1.5)
+Installing collected packages: typing-extensions, greenlet, sqlalchemy, flask_sqlalchemy
+Successfully installed flask_sqlalchemy-3.1.1 greenlet-3.0.3 sqlalchemy-2.0.32 typing-extensions-4.12.2
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ pip install flask_sqlalchemyflask run[Kpip install flask_sqlalchemyflask run[K
+[?2004lUsage: flask run [OPTIONS]
+Try 'flask run --help' for help.
+
+Error: While importing 'app', an ImportError was raised:
+
+Traceback (most recent call last):
+  File "/home/tomer/.local/lib/python3.10/site-packages/flask/cli.py", line 245, in locate_app
+    __import__(module_name)
+  File "/mnt/c/Users/PC/Desktop/projects/python/my_project/app.py", line 4, in <module>
+    from models import User, ChatMessage
+  File "/mnt/c/Users/PC/Desktop/projects/python/my_project/models.py", line 1, in <module>
+    from app import db
+ImportError: cannot import name 'db' from partially initialized module 'app' (most likely due to a circular import) (/mnt/c/Users/PC/Desktop/projects/python/my_project/app.py)
+
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ flask run[K[K[K[K[K[K[K[K[K[7mpip install -r requirements.txt[27mpip install -r requirements.txt
+[?2004lDefaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: blinker==1.8.2 in /home/tomer/.local/lib/python3.10/site-packages (from -r requirements.txt (line 1)) (1.8.2)
+Requirement already satisfied: click==8.1.7 in /home/tomer/.local/lib/python3.10/site-packages (from -r requirements.txt (line 2)) (8.1.7)
+Collecting exceptiongroup==1.2.2
+  Using cached exceptiongroup-1.2.2-py3-none-any.whl (16 kB)
+Collecting Flask==2.0.1
+  Downloading Flask-2.0.1-py3-none-any.whl (94 kB)
+[?25l     [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/94.8 KB[0m [31m?[0m eta [36m-:--:--[0m[2K     [38;5;204m━━━━━━━━━━━━[0m[38;5;204m╸[0m[38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m30.7/94.8 KB[0m [31m77.6 MB/s[0m eta [36m0:00:01[0m[2K     [38;5;204m━━━━━━━━━━━━━━━━━━━━━[0m[38;5;204m╸[0m[38;5;237m━━━━━━━━━━━━━━━━━━[0m [32m51.2/94.8 KB[0m [31m535.4 kB/s[0m eta [36m0:00:01[0m[2K     [38;5;107m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m94.8/94.8 KB[0m [31m729.7 kB/s[0m eta [36m0:00:00[0m
+[?25hCollecting Flask-SQLAlchemy==2.5.1
+  Downloading Flask_SQLAlchemy-2.5.1-py2.py3-none-any.whl (17 kB)
+Collecting mysqlclient==2.0.3
+  Downloading mysqlclient-2.0.3.tar.gz (88 kB)
+[?25l     [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/88.9 KB[0m [31m?[0m eta [36m-:--:--[0m[2K     [38;5;107m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m88.9/88.9 KB[0m [31m6.9 MB/s[0m eta [36m0:00:00[0m
+[?25h  Preparing metadata (setup.py) ... [?25l- error
+  [1;31merror[0m: [1msubprocess-exited-with-error[0m
+  
+  [31m×[0m [32mpython setup.py egg_info[0m did not run successfully.
+  [31m│[0m exit code: [1;36m1[0m
+  [31m╰─>[0m [31m[16 lines of output][0m
+  [31m   [0m /bin/sh: 1: mysql_config: not found
+  [31m   [0m /bin/sh: 1: mariadb_config: not found
+  [31m   [0m /bin/sh: 1: mysql_config: not found
+  [31m   [0m Traceback (most recent call last):
+  [31m   [0m   File "<string>", line 2, in <module>
+  [31m   [0m   File "<pip-setuptools-caller>", line 34, in <module>
+  [31m   [0m   File "/tmp/pip-install-4500mfmr/mysqlclient_fd8b62f1cc3644e3888741b7b9821222/setup.py", line 15, in <module>
+  [31m   [0m     metadata, options = get_config()
+  [31m   [0m   File "/tmp/pip-install-4500mfmr/mysqlclient_fd8b62f1cc3644e3888741b7b9821222/setup_posix.py", line 70, in get_config
+  [31m   [0m     libs = mysql_config("libs")
+  [31m   [0m   File "/tmp/pip-install-4500mfmr/mysqlclient_fd8b62f1cc3644e3888741b7b9821222/setup_posix.py", line 31, in mysql_config
+  [31m   [0m     raise OSError("{} not found".format(_mysql_config_path))
+  [31m   [0m OSError: mysql_config not found
+  [31m   [0m mysql_config --version
+  [31m   [0m mariadb_config --version
+  [31m   [0m mysql_config --libs
+  [31m   [0m [31m[end of output][0m
+  
+  [1;35mnote[0m: This error originates from a subprocess, and is likely not a problem with pip.
+[1;31merror[0m: [1mmetadata-generation-failed[0m
+
+[31m×[0m Encountered error while generating package metadata.
+[31m╰─>[0m See above for output.
+
+[1;35mnote[0m: This is an issue with the package mentioned above, not pip.
+[1;36mhint[0m: See above for details.
+[?25h[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ pip install -r requirements.txtflask run[Kpip install flask_sqlalchemyflask run[K
+[?2004lUsage: flask run [OPTIONS]
+Try 'flask run --help' for help.
+
+Error: While importing 'app', an ImportError was raised:
+
+Traceback (most recent call last):
+  File "/home/tomer/.local/lib/python3.10/site-packages/flask/cli.py", line 245, in locate_app
+    __import__(module_name)
+  File "/mnt/c/Users/PC/Desktop/projects/python/my_project/app.py", line 4, in <module>
+    from models import User, ChatMessage
+  File "/mnt/c/Users/PC/Desktop/projects/python/my_project/models.py", line 1, in <module>
+    from db_setup import db
+  File "/mnt/c/Users/PC/Desktop/projects/python/my_project/db_setup.py", line 2, in <module>
+    import pymysql
+ModuleNotFoundError: No module named 'pymysql'
+
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ pip3[K isnmt[K[K[K[Knstall pymysql
+[?2004lDefaulting to user installation because normal site-packages is not writeable
+Collecting pymysql
+  Downloading PyMySQL-1.1.1-py3-none-any.whl (44 kB)
+[?25l     [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/45.0 KB[0m [31m?[0m eta [36m-:--:--[0m[2K     [38;5;204m━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━[0m [32m30.7/45.0 KB[0m [31m67.0 MB/s[0m eta [36m0:00:01[0m[2K     [38;5;204m━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━[0m [32m30.7/45.0 KB[0m [31m67.0 MB/s[0m eta [36m0:00:01[0m[2K     [38;5;107m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m45.0/45.0 KB[0m [31m285.0 kB/s[0m eta [36m0:00:00[0m
+[?25hInstalling collected packages: pymysql
+Successfully installed pymysql-1.1.1
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ pip install pymysql[10Pflask run
+[?2004lTraceback (most recent call last):
+  File "/home/tomer/.local/bin/flask", line 8, in <module>
+    sys.exit(main())
+  File "/home/tomer/.local/lib/python3.10/site-packages/flask/cli.py", line 1105, in main
+    cli.main()
+  File "/home/tomer/.local/lib/python3.10/site-packages/click/core.py", line 1078, in main
+    rv = self.invoke(ctx)
+  File "/home/tomer/.local/lib/python3.10/site-packages/click/core.py", line 1688, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/tomer/.local/lib/python3.10/site-packages/click/core.py", line 1434, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/tomer/.local/lib/python3.10/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/tomer/.local/lib/python3.10/site-packages/click/decorators.py", line 92, in new_func
+    return ctx.invoke(f, obj, *args, **kwargs)
+  File "/home/tomer/.local/lib/python3.10/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/tomer/.local/lib/python3.10/site-packages/flask/cli.py", line 953, in run_command
+    raise e from None
+  File "/home/tomer/.local/lib/python3.10/site-packages/flask/cli.py", line 937, in run_command
+    app: WSGIApplication = info.load_app()
+  File "/home/tomer/.local/lib/python3.10/site-packages/flask/cli.py", line 339, in load_app
+    app = locate_app(import_name, None, raise_if_not_found=False)
+  File "/home/tomer/.local/lib/python3.10/site-packages/flask/cli.py", line 245, in locate_app
+    __import__(module_name)
+  File "/mnt/c/Users/PC/Desktop/projects/python/my_project/app.py", line 14, in <module>
+    init_db(app)
+  File "/mnt/c/Users/PC/Desktop/projects/python/my_project/db_setup.py", line 15, in init_db
+    conn = pymysql.connect(host=DB_HOST, user=DB_USER, password=DB_PASSWORD)
+  File "/home/tomer/.local/lib/python3.10/site-packages/pymysql/connections.py", line 361, in __init__
+    self.connect()
+  File "/home/tomer/.local/lib/python3.10/site-packages/pymysql/connections.py", line 716, in connect
+    raise exc
+pymysql.err.OperationalError: (2003, "Can't connect to MySQL server on 'localhost' ([Errno 111] Connection refused)")
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ ipf[K[Kfconfig
+[?2004lCommand 'ifconfig' not found, but can be installed with:
+sudo apt install net-tools
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ whatsmyip
+[?2004lwhatsmyip: command not found
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ ip address
+[?2004l2: eth0: <BROADCAST,MULTICAST,UP> mtu 1500 group default qlen 1
+    link/ether 00:50:56:c0:00:01
+    inet 192.168.225.1/24 brd 192.168.225.255 scope global dynamic 
+       valid_lft 1770sec preferred_lft 1770sec
+    inet6 fe80::f6f1:b0d4:1f0c:b7ac/64 scope link dynamic 
+       valid_lft forever preferred_lft forever
+15: eth1: <BROADCAST,MULTICAST,UP> mtu 1500 group default qlen 1
+    link/ether 0a:00:27:00:00:0f
+    inet 192.168.56.1/24 brd 192.168.56.255 scope global dynamic 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::5516:a694:2da4:bb7e/64 scope link dynamic 
+       valid_lft forever preferred_lft forever
+14: eth2: <BROADCAST,MULTICAST,UP> mtu 1500 group default qlen 1
+    link/ether 00:50:56:c0:00:08
+    inet 192.168.220.1/24 brd 192.168.220.255 scope global dynamic 
+       valid_lft 1771sec preferred_lft 1771sec
+    inet6 fe80::a1b4:2d6f:5620:3df/64 scope link dynamic 
+       valid_lft forever preferred_lft forever
+10: eth3: <> mtu 1500 group default qlen 1
+    link/ether e8:6a:64:2e:46:b0
+    inet 169.254.116.84/16 brd 169.254.255.255 scope global dynamic 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::66f4:6c08:e614:eb30/64 scope link dynamic 
+       valid_lft forever preferred_lft forever
+1: lo: <LOOPBACK,UP> mtu 1500 group default qlen 1
+    link/loopback 00:00:00:00:00:00
+    inet 127.0.0.1/8 brd 127.255.255.255 scope global dynamic 
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host dynamic 
+       valid_lft forever preferred_lft forever
+11: eth4: <> mtu 65535 group default qlen 1
+    link/ether 00:00:00:00:00:00
+    inet 169.254.72.121/16 brd 169.254.255.255 scope global dynamic 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::42b7:35e:2b0f:a3fa/64 scope link dynamic 
+       valid_lft forever preferred_lft forever
+3: eth5: <> mtu 1500 group default qlen 1
+    link/ether 00:ff:06:85:11:c5
+    inet 169.254.132.198/16 brd 169.254.255.255 scope global dynamic 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::7d99:e401:9215:223c/64 scope link dynamic 
+       valid_lft forever preferred_lft forever
+12: eth6: <> mtu 1500 group default qlen 1
+    link/ether 00:00:00:00:00:00
+    inet 169.254.238.224/16 brd 169.254.255.255 scope global dynamic 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::ad:493a:9ce3:68d7/64 scope link dynamic 
+       valid_lft forever preferred_lft forever
+20: wifi0: <> mtu 1500 group default qlen 1
+    link/ieee802.11 82:2b:f9:49:75:f1
+    inet 169.254.94.172/16 brd 169.254.255.255 scope global dynamic 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::c19d:d905:2f8b:3657/64 scope link dynamic 
+       valid_lft forever preferred_lft forever
+6: wifi1: <> mtu 1500 group default qlen 1
+    link/ieee802.11 c2:2b:f9:49:75:f1
+    inet 169.254.124.108/16 brd 169.254.255.255 scope global dynamic 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::7d86:642a:bc4a:fce/64 scope link dynamic 
+       valid_lft forever preferred_lft forever
+19: wifi2: <BROADCAST,MULTICAST,UP> mtu 1500 group default qlen 1
+    link/ieee802.11 80:2b:f9:49:75:f1
+    inet 192.168.1.153/24 brd 192.168.1.255 scope global dynamic 
+       valid_lft 43172sec preferred_lft 43172sec
+    inet6 2a0d:6fc2:53a0:6000:841e:a13:6b2d:36a/64 scope global dynamic 
+       valid_lft 172602sec preferred_lft 172602sec
+    inet6 2a0d:6fc2:53a0:6000:1dd:af56:ffde:adf3/128 scope global dynamic 
+       valid_lft 172602sec preferred_lft 86225sec
+    inet6 fe80::1f07:bcd6:fd60:38b5/64 scope link dynamic 
+       valid_lft forever preferred_lft forever
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ ip address
+[?2004l2: eth0: <BROADCAST,MULTICAST,UP> mtu 1500 group default qlen 1
+    link/ether 00:50:56:c0:00:01
+    inet 192.168.225.1/24 brd 192.168.225.255 scope global dynamic 
+       valid_lft 1770sec preferred_lft 1770sec
+    inet6 fe80::f6f1:b0d4:1f0c:b7ac/64 scope link dynamic 
+       valid_lft forever preferred_lft forever
+15: eth1: <BROADCAST,MULTICAST,UP> mtu 1500 group default qlen 1
+    link/ether 0a:00:27:00:00:0f
+    inet 192.168.56.1/24 brd 192.168.56.255 scope global dynamic 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::5516:a694:2da4:bb7e/64 scope link dynamic 
+       valid_lft forever preferred_lft forever
+14: eth2: <BROADCAST,MULTICAST,UP> mtu 1500 group default qlen 1
+    link/ether 00:50:56:c0:00:08
+    inet 192.168.220.1/24 brd 192.168.220.255 scope global dynamic 
+       valid_lft 1771sec preferred_lft 1771sec
+    inet6 fe80::a1b4:2d6f:5620:3df/64 scope link dynamic 
+       valid_lft forever preferred_lft forever
+10: eth3: <> mtu 1500 group default qlen 1
+    link/ether e8:6a:64:2e:46:b0
+    inet 169.254.116.84/16 brd 169.254.255.255 scope global dynamic 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::66f4:6c08:e614:eb30/64 scope link dynamic 
+       valid_lft forever preferred_lft forever
+1: lo: <LOOPBACK,UP> mtu 1500 group default qlen 1
+    link/loopback 00:00:00:00:00:00
+    inet 127.0.0.1/8 brd 127.255.255.255 scope global dynamic 
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host dynamic 
+       valid_lft forever preferred_lft forever
+11: eth4: <> mtu 65535 group default qlen 1
+    link/ether 00:00:00:00:00:00
+    inet 169.254.72.121/16 brd 169.254.255.255 scope global dynamic 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::42b7:35e:2b0f:a3fa/64 scope link dynamic 
+       valid_lft forever preferred_lft forever
+3: eth5: <> mtu 1500 group default qlen 1
+    link/ether 00:ff:06:85:11:c5
+    inet 169.254.132.198/16 brd 169.254.255.255 scope global dynamic 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::7d99:e401:9215:223c/64 scope link dynamic 
+       valid_lft forever preferred_lft forever
+12: eth6: <> mtu 1500 group default qlen 1
+    link/ether 00:00:00:00:00:00
+    inet 169.254.238.224/16 brd 169.254.255.255 scope global dynamic 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::ad:493a:9ce3:68d7/64 scope link dynamic 
+       valid_lft forever preferred_lft forever
+20: wifi0: <> mtu 1500 group default qlen 1
+    link/ieee802.11 82:2b:f9:49:75:f1
+    inet 169.254.94.172/16 brd 169.254.255.255 scope global dynamic 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::c19d:d905:2f8b:3657/64 scope link dynamic 
+       valid_lft forever preferred_lft forever
+6: wifi1: <> mtu 1500 group default qlen 1
+    link/ieee802.11 c2:2b:f9:49:75:f1
+    inet 169.254.124.108/16 brd 169.254.255.255 scope global dynamic 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::7d86:642a:bc4a:fce/64 scope link dynamic 
+       valid_lft forever preferred_lft forever
+19: wifi2: <BROADCAST,MULTICAST,UP> mtu 1500 group default qlen 1
+    link/ieee802.11 80:2b:f9:49:75:f1
+    inet 192.168.1.153/24 brd 192.168.1.255 scope global dynamic 
+       valid_lft 43172sec preferred_lft 43172sec
+    inet6 2a0d:6fc2:53a0:6000:841e:a13:6b2d:36a/64 scope global dynamic 
+       valid_lft 172602sec preferred_lft 172602sec
+    inet6 2a0d:6fc2:53a0:6000:1dd:af56:ffde:adf3/128 scope global dynamic 
+       valid_lft 172602sec preferred_lft 86225sec
+    inet6 fe80::1f07:bcd6:fd60:38b5/64 scope link dynamic 
+       valid_lft forever preferred_lft forever
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ ip address[1Pwhatsmyip[1Pifconfigflask runpip install pymysql[10Pflask run
+[?2004lTraceback (most recent call last):
+  File "/home/tomer/.local/bin/flask", line 8, in <module>
+    sys.exit(main())
+  File "/home/tomer/.local/lib/python3.10/site-packages/flask/cli.py", line 1105, in main
+    cli.main()
+  File "/home/tomer/.local/lib/python3.10/site-packages/click/core.py", line 1078, in main
+    rv = self.invoke(ctx)
+  File "/home/tomer/.local/lib/python3.10/site-packages/click/core.py", line 1688, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/tomer/.local/lib/python3.10/site-packages/click/core.py", line 1434, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/tomer/.local/lib/python3.10/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/tomer/.local/lib/python3.10/site-packages/click/decorators.py", line 92, in new_func
+    return ctx.invoke(f, obj, *args, **kwargs)
+  File "/home/tomer/.local/lib/python3.10/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/tomer/.local/lib/python3.10/site-packages/flask/cli.py", line 953, in run_command
+    raise e from None
+  File "/home/tomer/.local/lib/python3.10/site-packages/flask/cli.py", line 937, in run_command
+    app: WSGIApplication = info.load_app()
+  File "/home/tomer/.local/lib/python3.10/site-packages/flask/cli.py", line 339, in load_app
+    app = locate_app(import_name, None, raise_if_not_found=False)
+  File "/home/tomer/.local/lib/python3.10/site-packages/flask/cli.py", line 245, in locate_app
+    __import__(module_name)
+  File "/mnt/c/Users/PC/Desktop/projects/python/my_project/app.py", line 14, in <module>
+    init_db(app)
+  File "/mnt/c/Users/PC/Desktop/projects/python/my_project/db_setup.py", line 15, in init_db
+    conn = pymysql.connect(host=DB_HOST, user=DB_USER, password=DB_PASSWORD)
+  File "/home/tomer/.local/lib/python3.10/site-packages/pymysql/connections.py", line 361, in __init__
+    self.connect()
+  File "/home/tomer/.local/lib/python3.10/site-packages/pymysql/connections.py", line 716, in connect
+    raise exc
+pymysql.err.OperationalError: (2003, "Can't connect to MySQL server on '87.71.167.106' ([Errno 111] Connection refused)")
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ flask runip address[1Pflask run
+[?2004lTraceback (most recent call last):
+  File "/home/tomer/.local/bin/flask", line 8, in <module>
+    sys.exit(main())
+  File "/home/tomer/.local/lib/python3.10/site-packages/flask/cli.py", line 1105, in main
+    cli.main()
+  File "/home/tomer/.local/lib/python3.10/site-packages/click/core.py", line 1078, in main
+    rv = self.invoke(ctx)
+  File "/home/tomer/.local/lib/python3.10/site-packages/click/core.py", line 1688, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/tomer/.local/lib/python3.10/site-packages/click/core.py", line 1434, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/tomer/.local/lib/python3.10/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/tomer/.local/lib/python3.10/site-packages/click/decorators.py", line 92, in new_func
+    return ctx.invoke(f, obj, *args, **kwargs)
+  File "/home/tomer/.local/lib/python3.10/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/tomer/.local/lib/python3.10/site-packages/flask/cli.py", line 953, in run_command
+    raise e from None
+  File "/home/tomer/.local/lib/python3.10/site-packages/flask/cli.py", line 937, in run_command
+    app: WSGIApplication = info.load_app()
+  File "/home/tomer/.local/lib/python3.10/site-packages/flask/cli.py", line 339, in load_app
+    app = locate_app(import_name, None, raise_if_not_found=False)
+  File "/home/tomer/.local/lib/python3.10/site-packages/flask/cli.py", line 245, in locate_app
+    __import__(module_name)
+  File "/mnt/c/Users/PC/Desktop/projects/python/my_project/app.py", line 14, in <module>
+    init_db(app)
+  File "/mnt/c/Users/PC/Desktop/projects/python/my_project/db_setup.py", line 15, in init_db
+    conn = pymysql.connect(host=DB_HOST, user=DB_USER, password=DB_PASSWORD)
+  File "/home/tomer/.local/lib/python3.10/site-packages/pymysql/connections.py", line 361, in __init__
+    self.connect()
+  File "/home/tomer/.local/lib/python3.10/site-packages/pymysql/connections.py", line 716, in connect
+    raise exc
+pymysql.err.OperationalError: (2003, "Can't connect to MySQL server on '127.0.0.1' ([Errno 111] Connection refused)")
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [7mecho $DB_USER $DB_PASSWORD $DB_HOST $DB_NAME[27mecho $DB_USER $DB_PASSWORD $DB_HOST $DB_NAME
+[?2004l
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [7msudo netstat -tlnp | grep mysql[27msudo netstat -tlnp | grep mysql
+[?2004l[sudo] password for tomer: 
+sudo: netstat: command not found
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ p[Kapt[K[K[Ksudp apt isn[K[Knstall netstat
+[?2004lCommand 'sudp' not found, did you mean:
+  command 'sfdp' from deb graphviz (2.42.2-6ubuntu0.1)
+  command 'sup' from deb sup (20100519-3)
+  command 'sudo' from deb sudo (1.9.9-1ubuntu2.4)
+  command 'sudo' from deb sudo-ldap (1.9.9-1ubuntu2.4)
+Try: sudo apt install <deb name>
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ sudp apt install netstat[1P[1@o
+[?2004lReading package lists... 0%Reading package lists... 100%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+[1;31mE: [0mUnable to locate package netstat[0m
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ sudo apt install netstat[1@-[1@g[1@e[1@t
+[?2004lReading package lists... 0%Reading package lists... 100%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+E: Unable to locate package netstat
+[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ sudo apt-get install netstat[1P[1P[1P[1P[1P[1@ [C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[7msudo apt install mysql-server[27msudo apt install mysql-server
+[?2004lReading package lists... 0%Reading package lists... 100%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+The following additional packages will be installed:
+  libaio1 libcgi-fast-perl libcgi-pm-perl libclone-perl libencode-locale-perl libevent-pthreads-2.1-7 libfcgi-bin libfcgi-perl
+  libfcgi0ldbl libhtml-parser-perl libhtml-tagset-perl libhtml-template-perl libhttp-date-perl libhttp-message-perl libio-html-perl
+  liblwp-mediatypes-perl libmecab2 libprotobuf-lite23 libtimedate-perl liburi-perl mecab-ipadic mecab-ipadic-utf8 mecab-utils
+  mysql-client-8.0 mysql-client-core-8.0 mysql-common mysql-server-8.0 mysql-server-core-8.0
+Suggested packages:
+  libdata-dump-perl libipc-sharedcache-perl libbusiness-isbn-perl libwww-perl mailx tinyca
+The following NEW packages will be installed:
+  libaio1 libcgi-fast-perl libcgi-pm-perl libclone-perl libencode-locale-perl libevent-pthreads-2.1-7 libfcgi-bin libfcgi-perl
+  libfcgi0ldbl libhtml-parser-perl libhtml-tagset-perl libhtml-template-perl libhttp-date-perl libhttp-message-perl libio-html-perl
+  liblwp-mediatypes-perl libmecab2 libprotobuf-lite23 libtimedate-perl liburi-perl mecab-ipadic mecab-ipadic-utf8 mecab-utils
+  mysql-client-8.0 mysql-client-core-8.0 mysql-common mysql-server mysql-server-8.0 mysql-server-core-8.0
+0 upgraded, 29 newly installed, 0 to remove and 14 not upgraded.
+Need to get 29.6 MB of archives.
+After this operation, 243 MB of additional disk space will be used.
+Do you want to continue? [Y/n] y
+[33m0% [Working][0m            Get:1 http://archive.ubuntu.com/ubuntu jammy/main amd64 mysql-common all 5.8+1.0.8 [7212 B]
+[33m0% [1 mysql-common 2511 B/7212 B 35%][0m[33m                                     1% [Working][0m            Get:2 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 mysql-client-core-8.0 amd64 8.0.39-0ubuntu0.22.04.1 [2762 kB]
+[33m1% [2 mysql-client-core-8.0 5306 B/2762 kB 0%][0m[33m8% [2 mysql-client-core-8.0 2532 kB/2762 kB 92%][0m[33m                                                9% [Working][0m            Get:3 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 mysql-client-8.0 amd64 8.0.39-0ubuntu0.22.04.1 [22.7 kB]
+[33m10% [Waiting for headers][0m                         Get:4 http://archive.ubuntu.com/ubuntu jammy/main amd64 libaio1 amd64 0.3.112-13build1 [7176 B]
+[33m10% [Waiting for headers][0m                         Get:5 http://archive.ubuntu.com/ubuntu jammy/main amd64 libevent-pthreads-2.1-7 amd64 2.1.12-stable-1build3 [7642 B]
+[33m11% [Waiting for headers][0m                         Get:6 http://archive.ubuntu.com/ubuntu jammy/main amd64 libmecab2 amd64 0.996-14build9 [199 kB]
+[33m11% [6 libmecab2 67.8 kB/199 kB 34%][0m[33m                                    12% [Working][0m             Get:7 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 libprotobuf-lite23 amd64 3.12.4-1ubuntu7.22.04.1 [209 kB]
+[33m12% [7 libprotobuf-lite23 84.9 kB/209 kB 41%][0m[33m                                             14% [Waiting for headers][0m                         Get:8 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 mysql-server-core-8.0 amd64 8.0.39-0ubuntu0.22.04.1 [17.6 MB]
+[33m14% [8 mysql-server-core-8.0 36.3 kB/17.6 MB 0%][0m[33m35% [8 mysql-server-core-8.0 8100 kB/17.6 MB 46%][0m[33m56% [8 mysql-server-core-8.0 15.6 MB/17.6 MB 89%][0m[33m                                                 62% [Working][0m             Get:9 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 mysql-server-8.0 amd64 8.0.39-0ubuntu0.22.04.1 [1437 kB]
+[33m62% [9 mysql-server-8.0 6570 B/1437 kB 0%][0m[33m                                          66% [Working][0m             Get:10 http://archive.ubuntu.com/ubuntu jammy/main amd64 libhtml-tagset-perl all 3.20-4 [12.5 kB]
+[33m66% [10 libhtml-tagset-perl 604 B/12.5 kB 5%][0m[33m                                             67% [Waiting for headers][0m                         Get:11 http://archive.ubuntu.com/ubuntu jammy/main amd64 liburi-perl all 5.10-1 [78.8 kB]
+[33m67% [11 liburi-perl 51.3 kB/78.8 kB 65%][0m[33m                                        68% [Waiting for headers][0m                         Get:12 http://archive.ubuntu.com/ubuntu jammy/main amd64 libhtml-parser-perl amd64 3.76-1build2 [88.4 kB]
+[33m68% [12 libhtml-parser-perl 2799 B/88.4 kB 3%][0m[33m                                              69% [Working][0m             Get:13 http://archive.ubuntu.com/ubuntu jammy/main amd64 libcgi-pm-perl all 4.54-1 [188 kB]
+[33m69% [13 libcgi-pm-perl 96.9 kB/188 kB 52%][0m[33m                                          70% [Working][0m             Get:14 http://archive.ubuntu.com/ubuntu jammy/main amd64 libfcgi0ldbl amd64 2.4.2-2build2 [28.0 kB]
+[33m70% [14 libfcgi0ldbl 17.8 kB/28.0 kB 64%][0m[33m                                         71% [Waiting for headers][0m                         Get:15 http://archive.ubuntu.com/ubuntu jammy/main amd64 libfcgi-perl amd64 0.82+ds-1build1 [22.8 kB]
+                         Get:16 http://archive.ubuntu.com/ubuntu jammy/main amd64 libcgi-fast-perl all 1:2.15-1 [10.5 kB]
+[33m71% [16 libcgi-fast-perl 10.5 kB/10.5 kB 100%][0m                                              Get:17 http://archive.ubuntu.com/ubuntu jammy/main amd64 libclone-perl amd64 0.45-1build3 [11.0 kB]
+[33m                                              73% [Waiting for headers][0m                         Get:18 http://archive.ubuntu.com/ubuntu jammy/main amd64 libencode-locale-perl all 1.05-1.1 [11.8 kB]
+[33m74% [Waiting for headers][0m                         Get:19 http://archive.ubuntu.com/ubuntu jammy/main amd64 libfcgi-bin amd64 2.4.2-2build2 [11.2 kB]
+[33m74% [19 libfcgi-bin 3806 B/11.2 kB 34%][0m[33m                                       74% [Working][0m             Get:20 http://archive.ubuntu.com/ubuntu jammy/main amd64 libhtml-template-perl all 2.97-1.1 [59.1 kB]
+[33m74% [20 libhtml-template-perl 32.5 kB/59.1 kB 55%][0m[33m                                                  75% [Waiting for headers][0m                         Get:21 http://archive.ubuntu.com/ubuntu jammy/main amd64 libtimedate-perl all 2.3300-2 [34.0 kB]
+[33m75% [21 libtimedate-perl 24.9 kB/34.0 kB 73%][0m[33m                                             76% [Working][0m             Get:22 http://archive.ubuntu.com/ubuntu jammy/main amd64 libhttp-date-perl all 6.05-1 [9920 B]
+[33m77% [Waiting for headers][0m                         Get:23 http://archive.ubuntu.com/ubuntu jammy/main amd64 libio-html-perl all 1.004-2 [15.4 kB]
+[33m77% [23 libio-html-perl 3806 B/15.4 kB 25%][0m[33m                                           77% [Waiting for headers][0m                         Get:24 http://archive.ubuntu.com/ubuntu jammy/main amd64 liblwp-mediatypes-perl all 6.04-1 [19.5 kB]
+[33m77% [24 liblwp-mediatypes-perl 7596 B/19.5 kB 39%][0m[33m                                                  78% [Working][0m             Get:25 http://archive.ubuntu.com/ubuntu jammy/main amd64 libhttp-message-perl all 6.36-1 [76.8 kB]
+[33m78% [25 libhttp-message-perl 27.9 kB/76.8 kB 36%][0m[33m                                                 79% [Waiting for headers][0m                         Get:26 http://archive.ubuntu.com/ubuntu jammy/main amd64 mecab-utils amd64 0.996-14build9 [4850 B]
+                         Get:27 http://archive.ubuntu.com/ubuntu jammy/main amd64 mecab-ipadic all 2.7.0-20070801+main-3 [6718 kB]
+[33m80% [27 mecab-ipadic 45.1 kB/6718 kB 1%][0m[33m                                        99% [Waiting for headers][0m                         Get:28 http://archive.ubuntu.com/ubuntu jammy/main amd64 mecab-ipadic-utf8 all 2.7.0-20070801+main-3 [4384 B]
+[33m99% [Waiting for headers][0m                         Get:29 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 mysql-server all 8.0.39-0ubuntu0.22.04.1 [9468 B]
+[33m                         100% [Working][0m              Fetched 29.6 MB in 3s (10.6 MB/s)
+Preconfiguring packages ...
+
+7[0;16r8[1ASelecting previously unselected package mysql-common.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 83319 files and directories currently installed.)
+Preparing to unpack .../0-mysql-common_5.8+1.0.8_all.deb ...
+7[17;0f[42m[30mProgress: [  0%][49m[39m [....................................................................................................................] 8Unpacking mysql-common (5.8+1.0.8) ...
+7[17;0f[42m[30mProgress: [  2%][49m[39m [#...................................................................................................................] 8Selecting previously unselected package mysql-client-core-8.0.
+Preparing to unpack .../1-mysql-client-core-8.0_8.0.39-0ubuntu0.22.04.1_amd64.deb ...
+7[17;0f[42m[30mProgress: [  3%][49m[39m [##..................................................................................................................] 8Unpacking mysql-client-core-8.0 (8.0.39-0ubuntu0.22.04.1) ...
+7[17;0f[42m[30mProgress: [  3%][49m[39m [###.................................................................................................................] 8Selecting previously unselected package mysql-client-8.0.
+Preparing to unpack .../2-mysql-client-8.0_8.0.39-0ubuntu0.22.04.1_amd64.deb ...
+7[17;0f[42m[30mProgress: [  4%][49m[39m [####................................................................................................................] 8Unpacking mysql-client-8.0 (8.0.39-0ubuntu0.22.04.1) ...
+7[17;0f[42m[30mProgress: [  5%][49m[39m [#####...............................................................................................................] 8Selecting previously unselected package libaio1:amd64.
+Preparing to unpack .../3-libaio1_0.3.112-13build1_amd64.deb ...
+Unpacking libaio1:amd64 (0.3.112-13build1) ...
+7[17;0f[42m[30mProgress: [  7%][49m[39m [#######.............................................................................................................] 8Selecting previously unselected package libevent-pthreads-2.1-7:amd64.
+Preparing to unpack .../4-libevent-pthreads-2.1-7_2.1.12-stable-1build3_amd64.deb ...
+7[17;0f[42m[30mProgress: [  8%][49m[39m [########............................................................................................................] 8Unpacking libevent-pthreads-2.1-7:amd64 (2.1.12-stable-1build3) ...
+7[17;0f[42m[30mProgress: [  9%][49m[39m [#########...........................................................................................................] 8Selecting previously unselected package libmecab2:amd64.
+Preparing to unpack .../5-libmecab2_0.996-14build9_amd64.deb ...
+7[17;0f[42m[30mProgress: [  9%][49m[39m [##########..........................................................................................................] 8Unpacking libmecab2:amd64 (0.996-14build9) ...
+7[17;0f[42m[30mProgress: [ 10%][49m[39m [###########.........................................................................................................] 8Selecting previously unselected package libprotobuf-lite23:amd64.
+Preparing to unpack .../6-libprotobuf-lite23_3.12.4-1ubuntu7.22.04.1_amd64.deb ...
+7[17;0f[42m[30mProgress: [ 11%][49m[39m [############........................................................................................................] 8Unpacking libprotobuf-lite23:amd64 (3.12.4-1ubuntu7.22.04.1) ...
+Selecting previously unselected package mysql-server-core-8.0.
+Preparing to unpack .../7-mysql-server-core-8.0_8.0.39-0ubuntu0.22.04.1_amd64.deb ...
+7[17;0f[42m[30mProgress: [ 13%][49m[39m [##############......................................................................................................] 8Unpacking mysql-server-core-8.0 (8.0.39-0ubuntu0.22.04.1) ...
+7[17;0f[42m[30mProgress: [ 14%][49m[39m [###############.....................................................................................................] 8Setting up mysql-common (5.8+1.0.8) ...
+7[17;0f[42m[30mProgress: [ 15%][49m[39m [################....................................................................................................] 8update-alternatives: using /etc/mysql/my.cnf.fallback to provide /etc/mysql/my.cnf (my.cnf) in auto mode
+7[17;0f[42m[30mProgress: [ 15%][49m[39m [#################...................................................................................................] 8Selecting previously unselected package mysql-server-8.0.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 83538 files and directories currently installed.)
+Preparing to unpack .../00-mysql-server-8.0_8.0.39-0ubuntu0.22.04.1_amd64.deb ...
+7[17;0f[42m[30mProgress: [ 16%][49m[39m [##################..................................................................................................] 8Unpacking mysql-server-8.0 (8.0.39-0ubuntu0.22.04.1) ...
+7[17;0f[42m[30mProgress: [ 17%][49m[39m [###################.................................................................................................] 8Selecting previously unselected package libhtml-tagset-perl.
+Preparing to unpack .../01-libhtml-tagset-perl_3.20-4_all.deb ...
+Unpacking libhtml-tagset-perl (3.20-4) ...
+7[17;0f[42m[30mProgress: [ 19%][49m[39m [#####################...............................................................................................] 8Selecting previously unselected package liburi-perl.
+Preparing to unpack .../02-liburi-perl_5.10-1_all.deb ...
+7[17;0f[42m[30mProgress: [ 20%][49m[39m [######################..............................................................................................] 8Unpacking liburi-perl (5.10-1) ...
+7[17;0f[42m[30mProgress: [ 21%][49m[39m [#######################.............................................................................................] 8Selecting previously unselected package libhtml-parser-perl:amd64.
+Preparing to unpack .../03-libhtml-parser-perl_3.76-1build2_amd64.deb ...
+7[17;0f[42m[30mProgress: [ 21%][49m[39m [########################............................................................................................] 8Unpacking libhtml-parser-perl:amd64 (3.76-1build2) ...
+7[17;0f[42m[30mProgress: [ 22%][49m[39m [#########################...........................................................................................] 8Selecting previously unselected package libcgi-pm-perl.
+Preparing to unpack .../04-libcgi-pm-perl_4.54-1_all.deb ...
+7[17;0f[42m[30mProgress: [ 23%][49m[39m [##########################..........................................................................................] 8Unpacking libcgi-pm-perl (4.54-1) ...
+Selecting previously unselected package libfcgi0ldbl:amd64.
+Preparing to unpack .../05-libfcgi0ldbl_2.4.2-2build2_amd64.deb ...
+7[17;0f[42m[30mProgress: [ 25%][49m[39m [############################........................................................................................] 8Unpacking libfcgi0ldbl:amd64 (2.4.2-2build2) ...
+7[17;0f[42m[30mProgress: [ 26%][49m[39m [#############################.......................................................................................] 8Selecting previously unselected package libfcgi-perl:amd64.
+Preparing to unpack .../06-libfcgi-perl_0.82+ds-1build1_amd64.deb ...
+7[17;0f[42m[30mProgress: [ 26%][49m[39m [##############################......................................................................................] 8Unpacking libfcgi-perl:amd64 (0.82+ds-1build1) ...
+7[17;0f[42m[30mProgress: [ 27%][49m[39m [###############################.....................................................................................] 8Selecting previously unselected package libcgi-fast-perl.
+Preparing to unpack .../07-libcgi-fast-perl_1%3a2.15-1_all.deb ...
+7[17;0f[42m[30mProgress: [ 28%][49m[39m [################################....................................................................................] 8Unpacking libcgi-fast-perl (1:2.15-1) ...
+7[17;0f[42m[30mProgress: [ 29%][49m[39m [#################################...................................................................................] 8Selecting previously unselected package libclone-perl.
+Preparing to unpack .../08-libclone-perl_0.45-1build3_amd64.deb ...
+Unpacking libclone-perl (0.45-1build3) ...
+7[17;0f[42m[30mProgress: [ 31%][49m[39m [###################################.................................................................................] 8Selecting previously unselected package libencode-locale-perl.
+Preparing to unpack .../09-libencode-locale-perl_1.05-1.1_all.deb ...
+7[17;0f[42m[30mProgress: [ 32%][49m[39m [####################################................................................................................] 8Unpacking libencode-locale-perl (1.05-1.1) ...
+7[17;0f[42m[30mProgress: [ 32%][49m[39m [#####################################...............................................................................] 8Selecting previously unselected package libfcgi-bin.
+Preparing to unpack .../10-libfcgi-bin_2.4.2-2build2_amd64.deb ...
+7[17;0f[42m[30mProgress: [ 33%][49m[39m [######################################..............................................................................] 8Unpacking libfcgi-bin (2.4.2-2build2) ...
+7[17;0f[42m[30mProgress: [ 34%][49m[39m [#######################################.............................................................................] 8Selecting previously unselected package libhtml-template-perl.
+Preparing to unpack .../11-libhtml-template-perl_2.97-1.1_all.deb ...
+7[17;0f[42m[30mProgress: [ 35%][49m[39m [########################################............................................................................] 8Unpacking libhtml-template-perl (2.97-1.1) ...
+Selecting previously unselected package libtimedate-perl.
+Preparing to unpack .../12-libtimedate-perl_2.3300-2_all.deb ...
+7[17;0f[42m[30mProgress: [ 37%][49m[39m [##########################################..........................................................................] 8Unpacking libtimedate-perl (2.3300-2) ...
+7[17;0f[42m[30mProgress: [ 38%][49m[39m [###########################################.........................................................................] 8Selecting previously unselected package libhttp-date-perl.
+Preparing to unpack .../13-libhttp-date-perl_6.05-1_all.deb ...
+7[17;0f[42m[30mProgress: [ 38%][49m[39m [############################################........................................................................] 8Unpacking libhttp-date-perl (6.05-1) ...
+7[17;0f[42m[30mProgress: [ 39%][49m[39m [#############################################.......................................................................] 8Selecting previously unselected package libio-html-perl.
+Preparing to unpack .../14-libio-html-perl_1.004-2_all.deb ...
+7[17;0f[42m[30mProgress: [ 40%][49m[39m [##############################################......................................................................] 8Unpacking libio-html-perl (1.004-2) ...
+7[17;0f[42m[30mProgress: [ 41%][49m[39m [###############################################.....................................................................] 8Selecting previously unselected package liblwp-mediatypes-perl.
+Preparing to unpack .../15-liblwp-mediatypes-perl_6.04-1_all.deb ...
+Unpacking liblwp-mediatypes-perl (6.04-1) ...
+7[17;0f[42m[30mProgress: [ 43%][49m[39m [#################################################...................................................................] 8Selecting previously unselected package libhttp-message-perl.
+Preparing to unpack .../16-libhttp-message-perl_6.36-1_all.deb ...
+7[17;0f[42m[30mProgress: [ 44%][49m[39m [##################################################..................................................................] 8Unpacking libhttp-message-perl (6.36-1) ...
+7[17;0f[42m[30mProgress: [ 44%][49m[39m [###################################################.................................................................] 8Selecting previously unselected package mecab-utils.
+Preparing to unpack .../17-mecab-utils_0.996-14build9_amd64.deb ...
+7[17;0f[42m[30mProgress: [ 45%][49m[39m [####################################################................................................................] 8Unpacking mecab-utils (0.996-14build9) ...
+7[17;0f[42m[30mProgress: [ 46%][49m[39m [#####################################################...............................................................] 8Selecting previously unselected package mecab-ipadic.
+Preparing to unpack .../18-mecab-ipadic_2.7.0-20070801+main-3_all.deb ...
+7[17;0f[42m[30mProgress: [ 47%][49m[39m [######################################################..............................................................] 8Unpacking mecab-ipadic (2.7.0-20070801+main-3) ...
+Selecting previously unselected package mecab-ipadic-utf8.
+Preparing to unpack .../19-mecab-ipadic-utf8_2.7.0-20070801+main-3_all.deb ...
+7[17;0f[42m[30mProgress: [ 49%][49m[39m [########################################################............................................................] 8Unpacking mecab-ipadic-utf8 (2.7.0-20070801+main-3) ...
+7[17;0f[42m[30mProgress: [ 50%][49m[39m [#########################################################...........................................................] 8Selecting previously unselected package mysql-server.
+Preparing to unpack .../20-mysql-server_8.0.39-0ubuntu0.22.04.1_all.deb ...
+7[17;0f[42m[30mProgress: [ 50%][49m[39m [##########################################################..........................................................] 8Unpacking mysql-server (8.0.39-0ubuntu0.22.04.1) ...
+7[17;0f[42m[30mProgress: [ 51%][49m[39m [###########################################################.........................................................] 8Setting up libmecab2:amd64 (0.996-14build9) ...
+7[17;0f[42m[30mProgress: [ 52%][49m[39m [############################################################........................................................] 8Setting up mysql-client-core-8.0 (8.0.39-0ubuntu0.22.04.1) ...
+7[17;0f[42m[30mProgress: [ 54%][49m[39m [##############################################################......................................................] 87[17;0f[42m[30mProgress: [ 55%][49m[39m [###############################################################.....................................................] 8Setting up libfcgi0ldbl:amd64 (2.4.2-2build2) ...
+7[17;0f[42m[30mProgress: [ 56%][49m[39m [################################################################....................................................] 87[17;0f[42m[30mProgress: [ 56%][49m[39m [#################################################################...................................................] 8Setting up libclone-perl (0.45-1build3) ...
+7[17;0f[42m[30mProgress: [ 57%][49m[39m [##################################################################..................................................] 87[17;0f[42m[30mProgress: [ 58%][49m[39m [###################################################################.................................................] 8Setting up libhtml-tagset-perl (3.20-4) ...
+7[17;0f[42m[30mProgress: [ 60%][49m[39m [#####################################################################...............................................] 8Setting up liblwp-mediatypes-perl (6.04-1) ...
+7[17;0f[42m[30mProgress: [ 61%][49m[39m [######################################################################..............................................] 87[17;0f[42m[30mProgress: [ 62%][49m[39m [#######################################################################.............................................] 8Setting up libfcgi-bin (2.4.2-2build2) ...
+7[17;0f[42m[30mProgress: [ 62%][49m[39m [########################################################################............................................] 87[17;0f[42m[30mProgress: [ 63%][49m[39m [#########################################################################...........................................] 8Setting up libencode-locale-perl (1.05-1.1) ...
+7[17;0f[42m[30mProgress: [ 64%][49m[39m [##########################################################################..........................................] 8Setting up libprotobuf-lite23:amd64 (3.12.4-1ubuntu7.22.04.1) ...
+7[17;0f[42m[30mProgress: [ 66%][49m[39m [############################################################################........................................] 87[17;0f[42m[30mProgress: [ 67%][49m[39m [#############################################################################.......................................] 8Setting up mecab-utils (0.996-14build9) ...
+7[17;0f[42m[30mProgress: [ 68%][49m[39m [##############################################################################......................................] 87[17;0f[42m[30mProgress: [ 68%][49m[39m [###############################################################################.....................................] 8Setting up libio-html-perl (1.004-2) ...
+7[17;0f[42m[30mProgress: [ 69%][49m[39m [################################################################################....................................] 87[17;0f[42m[30mProgress: [ 70%][49m[39m [#################################################################################...................................] 8Setting up libtimedate-perl (2.3300-2) ...
+7[17;0f[42m[30mProgress: [ 72%][49m[39m [###################################################################################.................................] 8Setting up mysql-client-8.0 (8.0.39-0ubuntu0.22.04.1) ...
+7[17;0f[42m[30mProgress: [ 73%][49m[39m [####################################################################################................................] 87[17;0f[42m[30mProgress: [ 74%][49m[39m [#####################################################################################...............................] 8Setting up libfcgi-perl:amd64 (0.82+ds-1build1) ...
+7[17;0f[42m[30mProgress: [ 74%][49m[39m [######################################################################################..............................] 87[17;0f[42m[30mProgress: [ 75%][49m[39m [#######################################################################################.............................] 8Setting up libaio1:amd64 (0.3.112-13build1) ...
+7[17;0f[42m[30mProgress: [ 76%][49m[39m [########################################################################################............................] 8Setting up liburi-perl (5.10-1) ...
+7[17;0f[42m[30mProgress: [ 78%][49m[39m [##########################################################################################..........................] 87[17;0f[42m[30mProgress: [ 79%][49m[39m [###########################################################################################.........................] 8Setting up libevent-pthreads-2.1-7:amd64 (2.1.12-stable-1build3) ...
+7[17;0f[42m[30mProgress: [ 79%][49m[39m [############################################################################################........................] 87[17;0f[42m[30mProgress: [ 80%][49m[39m [#############################################################################################.......................] 8Setting up libhttp-date-perl (6.05-1) ...
+7[17;0f[42m[30mProgress: [ 81%][49m[39m [##############################################################################################......................] 87[17;0f[42m[30mProgress: [ 82%][49m[39m [###############################################################################################.....................] 8Setting up mecab-ipadic (2.7.0-20070801+main-3) ...
+Compiling IPA dictionary for Mecab.  This takes long time...
+reading /usr/share/mecab/dic/ipadic/unk.def ... 40
+emitting double-array:   9% |###                                        | emitting double-array:  18% |#######                                    | emitting double-array:  27% |###########                                | emitting double-array:  36% |###############                            | emitting double-array:  45% |###################                        | emitting double-array:  54% |#######################                    | emitting double-array:  63% |###########################                | emitting double-array:  72% |###############################            | emitting double-array:  81% |###################################        | emitting double-array:  90% |#######################################    | emitting double-array: 100% |###########################################| 
+/usr/share/mecab/dic/ipadic/model.def is not found. skipped.
+reading /usr/share/mecab/dic/ipadic/Adj.csv ... 27210
+reading /usr/share/mecab/dic/ipadic/Adnominal.csv ... 135
+reading /usr/share/mecab/dic/ipadic/Adverb.csv ... 3032
+reading /usr/share/mecab/dic/ipadic/Auxil.csv ... 199
+reading /usr/share/mecab/dic/ipadic/Conjunction.csv ... 171
+reading /usr/share/mecab/dic/ipadic/Filler.csv ... 19
+reading /usr/share/mecab/dic/ipadic/Interjection.csv ... 252
+reading /usr/share/mecab/dic/ipadic/Noun.adjv.csv ... 3328
+reading /usr/share/mecab/dic/ipadic/Noun.adverbal.csv ... 795
+reading /usr/share/mecab/dic/ipadic/Noun.csv ... 60477
+reading /usr/share/mecab/dic/ipadic/Noun.demonst.csv ... 120
+reading /usr/share/mecab/dic/ipadic/Noun.nai.csv ... 42
+reading /usr/share/mecab/dic/ipadic/Noun.name.csv ... 34202
+reading /usr/share/mecab/dic/ipadic/Noun.number.csv ... 42
+reading /usr/share/mecab/dic/ipadic/Noun.org.csv ... 16668
+reading /usr/share/mecab/dic/ipadic/Noun.others.csv ... 151
+reading /usr/share/mecab/dic/ipadic/Noun.place.csv ... 72999
+reading /usr/share/mecab/dic/ipadic/Noun.proper.csv ... 27328
+reading /usr/share/mecab/dic/ipadic/Noun.verbal.csv ... 12146
+reading /usr/share/mecab/dic/ipadic/Others.csv ... 2
+reading /usr/share/mecab/dic/ipadic/Postp-col.csv ... 91
+reading /usr/share/mecab/dic/ipadic/Postp.csv ... 146
+reading /usr/share/mecab/dic/ipadic/Prefix.csv ... 221
+reading /usr/share/mecab/dic/ipadic/Suffix.csv ... 1393
+reading /usr/share/mecab/dic/ipadic/Symbol.csv ... 208
+reading /usr/share/mecab/dic/ipadic/Verb.csv ... 130750
+emitting double-array:   0% |                                           | emitting double-array:   1% |                                           | emitting double-array:   2% |                                           | emitting double-array:   3% |#                                          | emitting double-array:   4% |#                                          | emitting double-array:   5% |##                                         | emitting double-array:   6% |##                                         | emitting double-array:   7% |###                                        | emitting double-array:   8% |###                                        | emitting double-array:   9% |###                                        | emitting double-array:  10% |####                                       | emitting double-array:  11% |####                                       | emitting double-array:  12% |#####                                      | emitting double-array:  13% |#####                                      | emitting double-array:  14% |######                                     | emitting double-array:  15% |######                                     | emitting double-array:  16% |######                                     | emitting double-array:  17% |#######                                    | emitting double-array:  18% |#######                                    | emitting double-array:  19% |########                                   | emitting double-array:  20% |########                                   | emitting double-array:  21% |#########                                  | emitting double-array:  22% |#########                                  | emitting double-array:  23% |#########                                  | emitting double-array:  24% |##########                                 | emitting double-array:  25% |##########                                 | emitting double-array:  26% |###########                                | emitting double-array:  27% |###########                                | emitting double-array:  28% |############                               | emitting double-array:  29% |############                               | emitting double-array:  30% |############                               | emitting double-array:  31% |#############                              | emitting double-array:  32% |#############                              | emitting double-array:  33% |##############                             | emitting double-array:  34% |##############                             | emitting double-array:  35% |###############                            | emitting double-array:  36% |###############                            | emitting double-array:  37% |###############                            | emitting double-array:  38% |################                           | emitting double-array:  39% |################                           | emitting double-array:  40% |#################                          | emitting double-array:  41% |#################                          | emitting double-array:  42% |##################                         | emitting double-array:  43% |##################                         | emitting double-array:  44% |##################                         | emitting double-array:  45% |###################                        | emitting double-array:  46% |###################                        | emitting double-array:  47% |####################                       | emitting double-array:  48% |####################                       | emitting double-array:  49% |#####################                      | emitting double-array:  50% |#####################                      | emitting double-array:  51% |#####################                      | emitting double-array:  52% |######################                     | emitting double-array:  53% |######################                     | emitting double-array:  54% |#######################                    | emitting double-array:  55% |#######################                    | emitting double-array:  56% |########################                   | emitting double-array:  57% |########################                   | emitting double-array:  58% |########################                   | emitting double-array:  59% |#########################                  | emitting double-array:  60% |#########################                  | emitting double-array:  61% |##########################                 | emitting double-array:  62% |##########################                 | emitting double-array:  63% |###########################                | emitting double-array:  64% |###########################                | emitting double-array:  65% |###########################                | emitting double-array:  66% |############################               | emitting double-array:  67% |############################               | emitting double-array:  68% |#############################              | emitting double-array:  69% |#############################              | emitting double-array:  70% |##############################             | emitting double-array:  71% |##############################             | emitting double-array:  72% |##############################             | emitting double-array:  73% |###############################            | emitting double-array:  74% |###############################            | emitting double-array:  75% |################################           | emitting double-array:  76% |################################           | emitting double-array:  77% |#################################          | emitting double-array:  78% |#################################          | emitting double-array:  79% |#################################          | emitting double-array:  80% |##################################         | emitting double-array:  81% |##################################         | emitting double-array:  82% |###################################        | emitting double-array:  83% |###################################        | emitting double-array:  84% |####################################       | emitting double-array:  85% |####################################       | emitting double-array:  86% |####################################       | emitting double-array:  87% |#####################################      | emitting double-array:  88% |#####################################      | emitting double-array:  89% |######################################     | emitting double-array:  90% |######################################     | emitting double-array:  91% |#######################################    | emitting double-array:  92% |#######################################    | emitting double-array:  93% |#######################################    | emitting double-array:  94% |########################################   | emitting double-array:  95% |########################################   | emitting double-array:  96% |#########################################  | emitting double-array:  97% |#########################################  | emitting double-array:  98% |########################################## | emitting double-array:  99% |########################################## | emitting double-array: 100% |###########################################| 
+reading /usr/share/mecab/dic/ipadic/matrix.def ... 1316x1316
+emitting matrix      :   0% |                                           | emitting matrix      :   1% |                                           | emitting matrix      :   2% |                                           | emitting matrix      :   3% |#                                          | emitting matrix      :   4% |#                                          | emitting matrix      :   5% |##                                         | emitting matrix      :   6% |##                                         | emitting matrix      :   7% |###                                        | emitting matrix      :   8% |###                                        | emitting matrix      :   9% |###                                        | emitting matrix      :  10% |####                                       | emitting matrix      :  11% |####                                       | emitting matrix      :  12% |#####                                      | emitting matrix      :  13% |#####                                      | emitting matrix      :  14% |######                                     | emitting matrix      :  15% |######                                     | emitting matrix      :  16% |######                                     | emitting matrix      :  17% |#######                                    | emitting matrix      :  18% |#######                                    | emitting matrix      :  19% |########                                   | emitting matrix      :  20% |########                                   | emitting matrix      :  21% |#########                                  | emitting matrix      :  22% |#########                                  | emitting matrix      :  23% |#########                                  | emitting matrix      :  24% |##########                                 | emitting matrix      :  25% |##########                                 | emitting matrix      :  26% |###########                                | emitting matrix      :  27% |###########                                | emitting matrix      :  28% |############                               | emitting matrix      :  29% |############                               | emitting matrix      :  30% |############                               | emitting matrix      :  31% |#############                              | emitting matrix      :  32% |#############                              | emitting matrix      :  33% |##############                             | emitting matrix      :  34% |##############                             | emitting matrix      :  35% |###############                            | emitting matrix      :  36% |###############                            | emitting matrix      :  37% |###############                            | emitting matrix      :  38% |################                           | emitting matrix      :  39% |################                           | emitting matrix      :  40% |#################                          | emitting matrix      :  41% |#################                          | emitting matrix      :  42% |##################                         | emitting matrix      :  43% |##################                         | emitting matrix      :  44% |##################                         | emitting matrix      :  45% |###################                        | emitting matrix      :  46% |###################                        | emitting matrix      :  47% |####################                       | emitting matrix      :  48% |####################                       | emitting matrix      :  49% |#####################                      | emitting matrix      :  50% |#####################                      | emitting matrix      :  51% |#####################                      | emitting matrix      :  52% |######################                     | emitting matrix      :  53% |######################                     | emitting matrix      :  54% |#######################                    | emitting matrix      :  55% |#######################                    | emitting matrix      :  56% |########################                   | emitting matrix      :  57% |########################                   | emitting matrix      :  58% |########################                   | emitting matrix      :  59% |#########################                  | emitting matrix      :  60% |#########################                  | emitting matrix      :  61% |##########################                 | emitting matrix      :  62% |##########################                 | emitting matrix      :  63% |###########################                | emitting matrix      :  64% |###########################                | emitting matrix      :  65% |###########################                | emitting matrix      :  66% |############################               | emitting matrix      :  67% |############################               | emitting matrix      :  68% |#############################              | emitting matrix      :  69% |#############################              | emitting matrix      :  70% |##############################             | emitting matrix      :  71% |##############################             | emitting matrix      :  72% |##############################             | emitting matrix      :  73% |###############################            | emitting matrix      :  74% |###############################            | emitting matrix      :  75% |################################           | emitting matrix      :  76% |################################           | emitting matrix      :  77% |#################################          | emitting matrix      :  78% |#################################          | emitting matrix      :  79% |#################################          | emitting matrix      :  80% |##################################         | emitting matrix      :  81% |##################################         | emitting matrix      :  82% |###################################        | emitting matrix      :  83% |###################################        | emitting matrix      :  84% |####################################       | emitting matrix      :  85% |####################################       | emitting matrix      :  86% |####################################       | emitting matrix      :  87% |#####################################      | emitting matrix      :  88% |#####################################      | emitting matrix      :  89% |######################################     | emitting matrix      :  90% |######################################     | emitting matrix      :  91% |#######################################    | emitting matrix      :  92% |#######################################    | emitting matrix      :  93% |#######################################    | emitting matrix      :  94% |########################################   | emitting matrix      :  95% |########################################   | emitting matrix      :  96% |#########################################  | emitting matrix      :  97% |#########################################  | emitting matrix      :  98% |########################################## | emitting matrix      :  99% |########################################## | emitting matrix      : 100% |###########################################| 
+
+done!
+update-alternatives: using /var/lib/mecab/dic/ipadic to provide /var/lib/mecab/dic/debian (mecab-dictionary) in auto mode
+7[17;0f[42m[30mProgress: [ 84%][49m[39m [#################################################################################################...................] 8Setting up mysql-server-core-8.0 (8.0.39-0ubuntu0.22.04.1) ...
+7[17;0f[42m[30mProgress: [ 85%][49m[39m [##################################################################################################..................] 87[17;0f[42m[30mProgress: [ 85%][49m[39m [###################################################################################################.................] 8Setting up mecab-ipadic-utf8 (2.7.0-20070801+main-3) ...
+7[17;0f[42m[30mProgress: [ 86%][49m[39m [####################################################################################################................] 8Compiling IPA dictionary for Mecab.  This takes long time...
+reading /usr/share/mecab/dic/ipadic/unk.def ... 40
+emitting double-array:   9% |###                                        | emitting double-array:  18% |#######                                    | emitting double-array:  27% |###########                                | emitting double-array:  36% |###############                            | emitting double-array:  45% |###################                        | emitting double-array:  54% |#######################                    | emitting double-array:  63% |###########################                | emitting double-array:  72% |###############################            | emitting double-array:  81% |###################################        | emitting double-array:  90% |#######################################    | emitting double-array: 100% |###########################################| 
+/usr/share/mecab/dic/ipadic/model.def is not found. skipped.
+reading /usr/share/mecab/dic/ipadic/Adj.csv ... 27210
+reading /usr/share/mecab/dic/ipadic/Adnominal.csv ... 135
+reading /usr/share/mecab/dic/ipadic/Adverb.csv ... 3032
+reading /usr/share/mecab/dic/ipadic/Auxil.csv ... 199
+reading /usr/share/mecab/dic/ipadic/Conjunction.csv ... 171
+reading /usr/share/mecab/dic/ipadic/Filler.csv ... 19
+reading /usr/share/mecab/dic/ipadic/Interjection.csv ... 252
+reading /usr/share/mecab/dic/ipadic/Noun.adjv.csv ... 3328
+reading /usr/share/mecab/dic/ipadic/Noun.adverbal.csv ... 795
+reading /usr/share/mecab/dic/ipadic/Noun.csv ... 60477
+reading /usr/share/mecab/dic/ipadic/Noun.demonst.csv ... 120
+reading /usr/share/mecab/dic/ipadic/Noun.nai.csv ... 42
+reading /usr/share/mecab/dic/ipadic/Noun.name.csv ... 34202
+reading /usr/share/mecab/dic/ipadic/Noun.number.csv ... 42
+reading /usr/share/mecab/dic/ipadic/Noun.org.csv ... 16668
+reading /usr/share/mecab/dic/ipadic/Noun.others.csv ... 151
+reading /usr/share/mecab/dic/ipadic/Noun.place.csv ... 72999
+reading /usr/share/mecab/dic/ipadic/Noun.proper.csv ... 27328
+reading /usr/share/mecab/dic/ipadic/Noun.verbal.csv ... 12146
+reading /usr/share/mecab/dic/ipadic/Others.csv ... 2
+reading /usr/share/mecab/dic/ipadic/Postp-col.csv ... 91
+reading /usr/share/mecab/dic/ipadic/Postp.csv ... 146
+reading /usr/share/mecab/dic/ipadic/Prefix.csv ... 221
+reading /usr/share/mecab/dic/ipadic/Suffix.csv ... 1393
+reading /usr/share/mecab/dic/ipadic/Symbol.csv ... 208
+reading /usr/share/mecab/dic/ipadic/Verb.csv ... 130750
+emitting double-array:   0% |                                           | emitting double-array:   1% |                                           | emitting double-array:   2% |                                           | emitting double-array:   3% |#                                          | emitting double-array:   4% |#                                          | emitting double-array:   5% |##                                         | emitting double-array:   6% |##                                         | emitting double-array:   7% |###                                        | emitting double-array:   8% |###                                        | emitting double-array:   9% |###                                        | emitting double-array:  10% |####                                       | emitting double-array:  11% |####                                       | emitting double-array:  12% |#####                                      | emitting double-array:  13% |#####                                      | emitting double-array:  14% |######                                     | emitting double-array:  15% |######                                     | emitting double-array:  16% |######                                     | emitting double-array:  17% |#######                                    | emitting double-array:  18% |#######                                    | emitting double-array:  19% |########                                   | emitting double-array:  20% |########                                   | emitting double-array:  21% |#########                                  | emitting double-array:  22% |#########                                  | emitting double-array:  23% |#########                                  | emitting double-array:  24% |##########                                 | emitting double-array:  25% |##########                                 | emitting double-array:  26% |###########                                | emitting double-array:  27% |###########                                | emitting double-array:  28% |############                               | emitting double-array:  29% |############                               | emitting double-array:  30% |############                               | emitting double-array:  31% |#############                              | emitting double-array:  32% |#############                              | emitting double-array:  33% |##############                             | emitting double-array:  34% |##############                             | emitting double-array:  35% |###############                            | emitting double-array:  36% |###############                            | emitting double-array:  37% |###############                            | emitting double-array:  38% |################                           | emitting double-array:  39% |################                           | emitting double-array:  40% |#################                          | emitting double-array:  41% |#################                          | emitting double-array:  42% |##################                         | emitting double-array:  43% |##################                         | emitting double-array:  44% |##################                         | emitting double-array:  45% |###################                        | emitting double-array:  46% |###################                        | emitting double-array:  47% |####################                       | emitting double-array:  48% |####################                       | emitting double-array:  49% |#####################                      | emitting double-array:  50% |#####################                      | emitting double-array:  51% |#####################                      | emitting double-array:  52% |######################                     | emitting double-array:  53% |######################                     | emitting double-array:  54% |#######################                    | emitting double-array:  55% |#######################                    | emitting double-array:  56% |########################                   | emitting double-array:  57% |########################                   | emitting double-array:  58% |########################                   | emitting double-array:  59% |#########################                  | emitting double-array:  60% |#########################                  | emitting double-array:  61% |##########################                 | emitting double-array:  62% |##########################                 | emitting double-array:  63% |###########################                | emitting double-array:  64% |###########################                | emitting double-array:  65% |###########################                | emitting double-array:  66% |############################               | emitting double-array:  67% |############################               | emitting double-array:  68% |#############################              | emitting double-array:  69% |#############################              | emitting double-array:  70% |##############################             | emitting double-array:  71% |##############################             | emitting double-array:  72% |##############################             | emitting double-array:  73% |###############################            | emitting double-array:  74% |###############################            | emitting double-array:  75% |################################           | emitting double-array:  76% |################################           | emitting double-array:  77% |#################################          | emitting double-array:  78% |#################################          | emitting double-array:  79% |#################################          | emitting double-array:  80% |##################################         | emitting double-array:  81% |##################################         | emitting double-array:  82% |###################################        | emitting double-array:  83% |###################################        | emitting double-array:  84% |####################################       | emitting double-array:  85% |####################################       | emitting double-array:  86% |####################################       | emitting double-array:  87% |#####################################      | emitting double-array:  88% |#####################################      | emitting double-array:  89% |######################################     | emitting double-array:  90% |######################################     | emitting double-array:  91% |#######################################    | emitting double-array:  92% |#######################################    | emitting double-array:  93% |#######################################    | emitting double-array:  94% |########################################   | emitting double-array:  95% |########################################   | emitting double-array:  96% |#########################################  | emitting double-array:  97% |#########################################  | emitting double-array:  98% |########################################## | emitting double-array:  99% |########################################## | emitting double-array: 100% |###########################################| 
+reading /usr/share/mecab/dic/ipadic/matrix.def ... 1316x1316
+emitting matrix      :   0% |                                           | emitting matrix      :   1% |                                           | emitting matrix      :   2% |                                           | emitting matrix      :   3% |#                                          | emitting matrix      :   4% |#                                          | emitting matrix      :   5% |##                                         | emitting matrix      :   6% |##                                         | emitting matrix      :   7% |###                                        | emitting matrix      :   8% |###                                        | emitting matrix      :   9% |###                                        | emitting matrix      :  10% |####                                       | emitting matrix      :  11% |####                                       | emitting matrix      :  12% |#####                                      | emitting matrix      :  13% |#####                                      | emitting matrix      :  14% |######                                     | emitting matrix      :  15% |######                                     | emitting matrix      :  16% |######                                     | emitting matrix      :  17% |#######                                    | emitting matrix      :  18% |#######                                    | emitting matrix      :  19% |########                                   | emitting matrix      :  20% |########                                   | emitting matrix      :  21% |#########                                  | emitting matrix      :  22% |#########                                  | emitting matrix      :  23% |#########                                  | emitting matrix      :  24% |##########                                 | emitting matrix      :  25% |##########                                 | emitting matrix      :  26% |###########                                | emitting matrix      :  27% |###########                                | emitting matrix      :  28% |############                               | emitting matrix      :  29% |############                               | emitting matrix      :  30% |############                               | emitting matrix      :  31% |#############                              | emitting matrix      :  32% |#############                              | emitting matrix      :  33% |##############                             | emitting matrix      :  34% |##############                             | emitting matrix      :  35% |###############                            | emitting matrix      :  36% |###############                            | emitting matrix      :  37% |###############                            | emitting matrix      :  38% |################                           | emitting matrix      :  39% |################                           | emitting matrix      :  40% |#################                          | emitting matrix      :  41% |#################                          | emitting matrix      :  42% |##################                         | emitting matrix      :  43% |##################                         | emitting matrix      :  44% |##################                         | emitting matrix      :  45% |###################                        | emitting matrix      :  46% |###################                        | emitting matrix      :  47% |####################                       | emitting matrix      :  48% |####################                       | emitting matrix      :  49% |#####################                      | emitting matrix      :  50% |#####################                      | emitting matrix      :  51% |#####################                      | emitting matrix      :  52% |######################                     | emitting matrix      :  53% |######################                     | emitting matrix      :  54% |#######################                    | emitting matrix      :  55% |#######################                    | emitting matrix      :  56% |########################                   | emitting matrix      :  57% |########################                   | emitting matrix      :  58% |########################                   | emitting matrix      :  59% |#########################                  | emitting matrix      :  60% |#########################                  | emitting matrix      :  61% |##########################                 | emitting matrix      :  62% |##########################                 | emitting matrix      :  63% |###########################                | emitting matrix      :  64% |###########################                | emitting matrix      :  65% |###########################                | emitting matrix      :  66% |############################               | emitting matrix      :  67% |############################               | emitting matrix      :  68% |#############################              | emitting matrix      :  69% |#############################              | emitting matrix      :  70% |##############################             | emitting matrix      :  71% |##############################             | emitting matrix      :  72% |##############################             | emitting matrix      :  73% |###############################            | emitting matrix      :  74% |###############################            | emitting matrix      :  75% |################################           | emitting matrix      :  76% |################################           | emitting matrix      :  77% |#################################          | emitting matrix      :  78% |#################################          | emitting matrix      :  79% |#################################          | emitting matrix      :  80% |##################################         | emitting matrix      :  81% |##################################         | emitting matrix      :  82% |###################################        | emitting matrix      :  83% |###################################        | emitting matrix      :  84% |####################################       | emitting matrix      :  85% |####################################       | emitting matrix      :  86% |####################################       | emitting matrix      :  87% |#####################################      | emitting matrix      :  88% |#####################################      | emitting matrix      :  89% |######################################     | emitting matrix      :  90% |######################################     | emitting matrix      :  91% |#######################################    | emitting matrix      :  92% |#######################################    | emitting matrix      :  93% |#######################################    | emitting matrix      :  94% |########################################   | emitting matrix      :  95% |########################################   | emitting matrix      :  96% |#########################################  | emitting matrix      :  97% |#########################################  | emitting matrix      :  98% |########################################## | emitting matrix      :  99% |########################################## | emitting matrix      : 100% |###########################################| 
+
+done!
+update-alternatives: using /var/lib/mecab/dic/ipadic-utf8 to provide /var/lib/mecab/dic/debian (mecab-dictionary) in auto mode
+7[17;0f[42m[30mProgress: [ 87%][49m[39m [#####################################################################################################...............] 8Setting up libhtml-parser-perl:amd64 (3.76-1build2) ...
+7[17;0f[42m[30mProgress: [ 88%][49m[39m [######################################################################################################..............] 8Setting up libhttp-message-perl (6.36-1) ...
+7[17;0f[42m[30mProgress: [ 90%][49m[39m [########################################################################################################............] 87[17;0f[42m[30mProgress: [ 91%][49m[39m [#########################################################################################################...........] 8Setting up mysql-server-8.0 (8.0.39-0ubuntu0.22.04.1) ...
+7[17;0f[42m[30mProgress: [ 91%][49m[39m [##########################################################################################################..........] 8invoke-rc.d: could not determine current runlevel
+ * Stopping MySQL database server mysqld       [138G [132G[ OK ]
+update-alternatives: using /etc/mysql/mysql.cnf to provide /etc/mysql/my.cnf (my.cnf) in auto mode
+Renaming removed key_buffer and myisam-recover options (if present)
+Cannot open /proc/net/unix: No such file or directory
+Cannot stat file /proc/1/fd/4: Operation not permitted
+Cannot stat file /proc/1/fd/7: Operation not permitted
+Cannot stat file /proc/4/fd/4: Operation not permitted
+Cannot stat file /proc/7/fd/8: Operation not permitted
+Cannot stat file /proc/7/fd/4: Operation not permitted
+Cannot stat file /proc/1317/fd/8: Operation not permitted
+Cannot stat file /proc/1317/fd/4: Operation not permitted
+Cannot stat file /proc/9612/fd/8: Operation not permitted
+Cannot stat file /proc/9612/fd/4: Operation not permitted
+mysqld will log errors to /var/log/mysql/error.log
+mysqld is running as pid 13015
+Created symlink /etc/systemd/system/multi-user.target.wants/mysql.service → /lib/systemd/system/mysql.service.
+invoke-rc.d: could not determine current runlevel
+7[17;0f[42m[30mProgress: [ 92%][49m[39m [###########################################################################################################.........] 8Setting up libcgi-pm-perl (4.54-1) ...
+7[17;0f[42m[30mProgress: [ 93%][49m[39m [############################################################################################################........] 87[17;0f[42m[30mProgress: [ 94%][49m[39m [#############################################################################################################.......] 8Setting up libhtml-template-perl (2.97-1.1) ...
+7[17;0f[42m[30mProgress: [ 96%][49m[39m [###############################################################################################################.....] 8Setting up mysql-server (8.0.39-0ubuntu0.22.04.1) ...
+7[17;0f[42m[30mProgress: [ 97%][49m[39m [################################################################################################################....] 87[17;0f[42m[30mProgress: [ 97%][49m[39m [#################################################################################################################...] 8Setting up libcgi-fast-perl (1:2.15-1) ...
+7[17;0f[42m[30mProgress: [ 98%][49m[39m [##################################################################################################################..] 87[17;0f[42m[30mProgress: [ 99%][49m[39m [###################################################################################################################.] 8Processing triggers for man-db (2.10.2-1) ...
+Processing triggers for libc-bin (2.35-0ubuntu3.8) ...
+
+7[0;17r8[1A[J[?2004h]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ [K]0;tomer@DESKTOP-9J2H91V: /mnt/c/Users/PC/Desktop/projects/python/my_project[01;32mtomer@DESKTOP-9J2H91V[00m:[01;34m/mnt/c/Users/PC/Desktop/projects/python/my_project[00m$ d[Ksudo apt install mysql-server[1P-get install netstat[4P[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cp[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Co netstat -tlnp | grep mysql   :  89% |######################################     | emitting matrix      :  90% |######################################     | emitting matrix      :  91% |#######################################    | emitting matrix      :  92% |#######################################    | emitting matrix      :  93% |#######################################    | emitting matrix      :  94% |########################################   | emitting matrix      :  95% |########################################   | emitting matrix      :  96% |#########################################  | emitting matrix      :  97% |#########################################  | emitting matrix      :  98% |########################################## | emitting matrix      :  99% |########################################## | emitting matrix      : 100% |###########################################| 
+
+done!
+update-alternatives: using /var/lib/mecab/dic/ipadic-utf8 to provide /var/lib/mecab/dic/debian (mecab-dictionary) in auto mode
+7[17;0f[42m[30mProgress: [ 87%][49m[39m [#####################################################################################################...............] 8Setting up libhtml-parser-perl:amd64 (3.76-1build2) ...
+7[17;0f[42m[30mProgress: [ 88%][49m[39m [######################################################################################################..............] 8Setting up libhttp-message-perl (6.36-1) ...
+7[17;0f[42m[30mProgress: [ 90%][49m[39m [########################################################################################################............] 87[17;0f[42m[30mProgress: [ 91%][49m[39m [#########################################################################################################...........] 8Setting up mysql-server-8.0 (8.0.39-0ubuntu0.22.04.1) ...
+7[17;0f[42m[30mProgress: [ 91%][49m[39m [##########################################################################################################..........] 8invoke-rc.d: could not determine current runlevel
+ * Stopping MySQL database server mysqld       [138G [132G[ OK ]
+update-alternatives: using /etc/mysql/mysql.cnf to provide /etc/mysql/my.cnf (my.cnf) in auto mode
+Renaming removed key_buffer and myisam-recover options (if present)
+Cannot open /proc/net/unix: No such file or directory
+Cannot stat file /proc/1/fd/4: Operation not permitted
+Cannot stat file /proc/1/fd/7: Operation not permitted
+Cannot stat file /proc/4/fd/4: Operation not permitted
+Cannot stat file /proc/7/fd/8: Operation not permitted
+Cannot stat file /proc/7/fd/4: Operation not permitted
+Cannot stat file /proc/1317/fd/8: Operation not permitted
+Cannot stat file /proc/1317/fd/4: Operation not permitted
+Cannot stat file /proc/9612/fd/8: Operation not permitted
+Cannot stat file /proc/9612/fd/4: Operation not permitted
+mysqld will log errors to /var/log/mysql/error.log
+mysqld is running as pid 13015
+Created symlink /etc/systemd/system/multi-user.target.wants/mysql.service → /lib/systemd/system/mysql.service.
+invoke-rc.d: could not determine current runlevel
+7[17;0f[42m[30mProgress: [ 92%][49m[39m [###########################################################################################################.........] 8Setting up libcgi-pm-perl (4.54-1) ...
+7[17;0f[42m[30mProgress: [ 93%][49m[39m [############################################################################################################........] 87[17;0f[42m[30mProgress: [ 94%][49m[39m [#############################################################################################################.......] 8Setting up libhtml-template-perl (2.97-1.1) ...
+7[17;0f[42m[30mProgress: [ 96%][49m[39m [###############################################################################################################.....] 8Setting up mysql-server (8.0.39-0ubuntu0.22.04.1) ...
+7[17;0f[42m[30mProgress: [ 97%][49m[39m [###############################################################################################################

@@ -1,15 +1,17 @@
-#from flask import Flask, render_template, request, redirect, url_for, session, flash
-#from SQL import create_table, insert_user, review_users, delete_user, modify_user, count_users, find_user_by_id, verify_user, insert_chat_message, get_all_chat_messages
-from flask import *
-from SQLite import *
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask_sqlalchemy import SQLAlchemy
 import os
+from models import User, ChatMessage
+from database_functions import (create_tables, verify_user, insert_user, review_users, 
+                                delete_user, modify_user, count_users, find_user_by_id, 
+                                insert_chat_message, get_all_chat_messages)
+from db_setup import init_db, db
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data/your_database.db'
-# Initialize the database
-create_table()
-create_chat_table()
+
+# Initialize database
+init_db(app)
 
 @app.route('/')
 def index():
