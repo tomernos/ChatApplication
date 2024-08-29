@@ -52,7 +52,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    git branch: 'main', credentialsId: 'git-credentials-id', url: 'https://github.com/your-repo/your-projects.git'
+                    git branch: 'feature/pgrds', credentialsId: 'git-credentials', url: 'https://github.com/your-repo/your-projects.git'
                 
                 }
             }
