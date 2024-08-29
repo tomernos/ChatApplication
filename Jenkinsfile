@@ -96,11 +96,11 @@ pipeline {
                     ./venv/bin/pip3 install --upgrade pip
                     ./venv/bin/pip3 install -r requirements.txt
 
-                    ./venv/bin/pip3 export DB_USER=$DB_CREDENTIALS_USR
-                    ./venv/bin/pip3 export DB_PASSWORD=$DB_CREDENTIALS_PSW
-                    ./venv/bin/pip3 export DB_HOST=$DB_HOST
-                    ./venv/bin/pip3 export DB_NAME=$DB_NAME
-                    ./venv/bin/pip3 export DB_PORT=$DB_PORT
+                    export DB_USER=$DB_CREDENTIALS_USR
+                    export DB_PASSWORD=$DB_CREDENTIALS_PSW
+                    export DB_HOST=$DB_HOST
+                    export DB_NAME=$DB_NAME
+                    export DB_PORT=$DB_PORT
                     # ./venv/bin/pip3 export SECRET_KEY=$FLASK_SECRET_KEY
 
                     # Display information about the Python environment
