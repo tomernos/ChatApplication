@@ -7,7 +7,7 @@ pipeline {
         DB_HOST = 'flask-app-postgres-db.cn4wyakgw2cz.us-east-1.rds.amazonaws.com'
         DB_NAME = 'flaskapp'
         DB_PORT = '5432'
-        FLASK_SECRET_KEY = credentials('flask-secret-key')
+        //FLASK_SECRET_KEY = credentials('flask-secret-key')
     }
 
     stages {
@@ -101,7 +101,7 @@ pipeline {
                     ./venv/bin/pip3 export DB_HOST=$DB_HOST
                     ./venv/bin/pip3 export DB_NAME=$DB_NAME
                     ./venv/bin/pip3 export DB_PORT=$DB_PORT
-                    ./venv/bin/pip3 export SECRET_KEY=$FLASK_SECRET_KEY
+                    # ./venv/bin/pip3 export SECRET_KEY=$FLASK_SECRET_KEY
 
                     # Display information about the Python environment
                     echo "Python version:"
@@ -134,7 +134,7 @@ pipeline {
                     export DB_HOST=$DB_HOST
                     export DB_NAME=$DB_NAME
                     export DB_PORT=$DB_PORT
-                    export SECRET_KEY=$FLASK_SECRET_KEY
+                    # export SECRET_KEY=$FLASK_SECRET_KEY
                     
                     # Use the .env file in your deployment
                     docker-compose --env-file .env up -d
