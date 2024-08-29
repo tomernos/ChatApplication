@@ -126,20 +126,15 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    sh '''
-                    echo "Deploying the application..."
-            
-                    export DB_USER=$DB_CREDENTIALS_USR
-                    export DB_PASSWORD=$DB_CREDENTIALS_PSW
-                    export DB_HOST=$DB_HOST
-                    export DB_NAME=$DB_NAME
-                    export DB_PORT=$DB_PORT
-                    # export SECRET_KEY=$FLASK_SECRET_KEY
-                    
-                    # Use the .env file in your deployment
-                    docker-compose up -d
-                    '''
-                }
+                    withEnv([
+                        "DB_USER=${DB_CREDENTIALS_USR}",
+                        "DB_PASSWORD=${DB_CREDENTIALS_PSW}",
+                        "DB_HOST=flask-app-postgres-db.cn4wyakgw2cz.us-east-1.rds.amazonaws.com",
+                        "DB_NAME=flaskapp",
+                        "DB_PORT=5432"
+                    ]) {
+                        sh 'docker-compose up -d'
+                    }
             }
         }
     }
