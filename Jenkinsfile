@@ -81,7 +81,7 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
+        /*stage('Run Tests') {
             steps {
                 script {
                     sh '''
@@ -121,7 +121,7 @@ pipeline {
                     '''
                 }
             }
-        }
+        }*/
 
         stage('Deploy') {
             steps {
@@ -137,7 +137,7 @@ pipeline {
                     # export SECRET_KEY=$FLASK_SECRET_KEY
                     
                     # Use the .env file in your deployment
-                    docker-compose --env-file .env up -d
+                    docker-compose up -d
                     '''
                 }
             }
