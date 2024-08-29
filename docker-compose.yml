@@ -3,10 +3,15 @@ version: '3.8'
 services:
   flask-app:
     build: .
+    container_name: FlaskAPP
     ports:
       - "5000:5000"
     environment:
       - FLASK_ENV=development
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
     volumes:
       - .:/app
       - ./data:/app/data 

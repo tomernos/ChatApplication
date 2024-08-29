@@ -8,12 +8,12 @@ in my local computer:
 #from flask import Flask, render_template, request, redirect, url_for, session, flash
 #from SQL import create_table, insert_user, review_users, delete_user, modify_user, count_users, find_user_by_id, verify_user, insert_chat_message, get_all_chat_messages
 from flask import *
-from SQL import *
+from SQLite import *
 import os
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
-
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data/your_database.db'
 # Initialize the database
 create_table()
 create_chat_table()
@@ -113,27 +113,25 @@ def chat():
 if __name__ == '__main__':
     print(os.getcwd())
     print(app.template_folder)
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
 
 
 === my-project/requirements.txt ===
 
-blinker==1.8.2
-click==8.1.7
-exceptiongroup==1.2.2
 Flask==2.0.1
-Flask-SQLAlchemy==2.5.1
-mysqlclient==2.0.3
-pymysql==1.0.2
-iniconfig==2.0.0
-itsdangerous==2.2.0
-Jinja2==3.1.4
-MarkupSafe==2.1.5
-packaging==24.1
-pluggy==1.5.0
-pytest==8.3.2
-tomli==2.0.1
-Werkzeug==3.0.3
+Werkzeug==2.0.1
+click==8.0.1
+itsdangerous==2.0.1
+Jinja2==3.0.1
+MarkupSafe==2.0.1
+pytest==6.2.4
+blinker==1.4
+exceptiongroup==1.0.0rc9
+iniconfig==1.1.1
+packaging==21.0
+pluggy==0.13.1
+tomli==1.2.1
+
 
 
 === my-project/SQLite.py ===
@@ -518,14 +516,6 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                script {
-                    git branch: 'main', credentialsId: env.GIT_CREDENTIALS, url: 'https://github.com/tomernos/python-projects.git'
-                
-                }
-            }
-        }
 
         stage('Setup') {
             steps {
@@ -564,7 +554,14 @@ pipeline {
                 }
             }
         }
-
+        stage('Checkout') {
+            steps {
+                script {
+                    git branch: 'main', credentialsId: env.GIT_CREDENTIALS, url: 'https://github.com/tomernos/python-projects.git'
+                
+                }
+            }
+        }
         stage('Build') {
             steps {
                 script {
@@ -634,8 +631,21 @@ pipeline {
     }
 
     post {
-        always {
-            sh 'sudo docker-compose down'
+        /*always {
+            //sh 'sudo docker-compose down'
+           
+            
+        }*/
+        success {
+            sh '''
+                echo 'Application deployed successfully and is running'
+            '''
+        }
+        failure {
+            sh '''
+                echo 'Deployment failed'
+                sudo docker-compose down
+            '''
         }
     }
 }
@@ -644,16 +654,16 @@ pipeline {
 === my-project/Dockerfile ===
 
 # Use the latest Python image as the base
-FROM python:3.9.19-bullseye
+FROM python:3.9-slim
 
 # Set the working directory inside the container
-WORKDIR /python-docker
+WORKDIR /app
+
+# Install SQLite
+RUN apt-get update && apt-get install -y sqlite3
 
 # Copy the requirements.txt file into the container
 COPY requirements.txt requirements.txt
-
-# Install the Python dependencies specified in requirements.txt
-RUN apt-get update && apt-get install -y python3
 
 # Install the Python dependencies specified in requirements.txt
 RUN pip3 install -r requirements.txt
@@ -664,7 +674,7 @@ COPY . .
 EXPOSE 5000
 
 # Define the command to run the Flask application
-CMD ["python3", "-m", "my_flask.py", "--host=0.0.0.0"]
+CMD ["python3", "my_flask.py"]
 
 
 
@@ -675,18 +685,14 @@ version: '3.8'
 services:
   flask-app:
     build: .
+    container_name: FlaskAPP
     ports:
       - "5000:5000"
     environment:
       - FLASK_ENV=development
     volumes:
       - .:/app
-
-  db:
-    image: keinos/sqlite3:latest
-    volumes:
-      - ./example.db:/app/example.db
-
+      - ./data:/app/data 
 
 
 === my-project/test_myflask.py ===

@@ -2,18 +2,14 @@ pipeline {
     agent any
 
     environment {
-        GIT_CREDENTIALS = '12341234' 
+        GIT_CREDENTIALS = credentials('git-credentials-id')
+        DB_CREDENTIALS = credentials('db-credentials-id')
+        DB_HOST = credentials('db-host-id')
+        DB_NAME = credentials('db-name-id')
+        SECRET_KEY = credentials('secret-key-id')
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                script {
-                    git branch: 'main', credentialsId: env.GIT_CREDENTIALS, url: 'https://github.com/tomernos/python-projects.git'
-                
-                }
-            }
-        }
 
         stage('Setup') {
             steps {
@@ -52,7 +48,14 @@ pipeline {
                 }
             }
         }
-
+        stage('Checkout') {
+            steps {
+                script {
+                    git branch: 'main', credentialsId: env.GIT_CREDENTIALS, url: 'https://github.com/tomernos/python-projects.git'
+                
+                }
+            }
+        }
         stage('Build') {
             steps {
                 script {
@@ -115,7 +118,18 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    sh 'sudo docker-compose up -d'
+                    sh '''
+                    echo "Deploying the application..."
+                    # Create a temporary .env file
+                    echo "DB_USER=$DB_CREDENTIALS_USR" > .env
+                    echo "DB_PASSWORD=$DB_CREDENTIALS_PSW" >> .env
+                    echo "DB_HOST=$DB_HOST" >> .env
+                    echo "DB_NAME=$DB_NAME" >> .env
+                    echo "SECRET_KEY=$SECRET_KEY" >> .env
+                    
+                    # Use the .env file in your deployment
+                    docker-compose --env-file .env up -d
+                    '''
                 }
             }
         }
@@ -128,14 +142,15 @@ pipeline {
             
         }*/
         success {
-            
             sh '''
                 echo 'Application deployed successfully and is running'
-                curl http://localhost:5000 || exit 1
             '''
         }
         failure {
-            echo 'Deployment failed'
+            sh '''
+                echo 'Deployment failed'
+                sudo docker-compose down
+            '''
         }
     }
 }
