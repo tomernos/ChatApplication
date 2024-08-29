@@ -126,7 +126,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    withEnv([
+                        withEnv([
                         "DB_USER=${DB_CREDENTIALS_USR}",
                         "DB_PASSWORD=${DB_CREDENTIALS_PSW}",
                         "DB_HOST=flask-app-postgres-db.cn4wyakgw2cz.us-east-1.rds.amazonaws.com",
@@ -134,6 +134,7 @@ pipeline {
                         "DB_PORT=5432"
                     ]) {
                         sh 'docker-compose up -d'
+                    }
                 }
             }
         }
