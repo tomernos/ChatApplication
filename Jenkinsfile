@@ -134,7 +134,7 @@ pipeline {
                         "DB_PORT=5432"
                     ]) {
                         sh 'docker-compose up -d'
-                    }
+                }
             }
         }
     }
