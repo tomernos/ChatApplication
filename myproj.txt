@@ -5,15 +5,26 @@ in my local computer:
 
 === my-project/my_flask.py ===
 
-#from flask import Flask, render_template, request, redirect, url_for, session, flash
-#from SQL import create_table, insert_user, review_users, delete_user, modify_user, count_users, find_user_by_id, verify_user, insert_chat_message, get_all_chat_messages
-from flask import *
-from SQLite import *
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+from database import (
+    SessionLocal, User, ChatMessage, create_table, create_chat_table,
+    insert_user, review_users, delete_user, modify_user, count_users,
+    find_user_by_id, verify_user, insert_chat_message, get_all_chat_messages
+)
 import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data/your_database.db'
+#app.secret_key = os.environ.get('SECRET_KEY', os.urandom(24))
+
+# Database configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 # Initialize the database
 create_table()
 create_chat_table()
@@ -116,6 +127,8 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
 
 
+
+
 === my-project/requirements.txt ===
 
 Flask==2.0.1
@@ -131,163 +144,136 @@ iniconfig==1.1.1
 packaging==21.0
 pluggy==0.13.1
 tomli==1.2.1
+psycopg2-binary==2.9.3
+sqlalchemy==2.0.32
+python-dotenv==1.0.1
 
 
 
-=== my-project/SQLite.py ===
+=== my-project/database.py ===
 
-import sqlite3 as sql3
-import hashlib
 import os
+from sqlalchemy import create_engine, Column, Integer, String, DateTime
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from datetime import datetime
+from dotenv import load_dotenv
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-db_path = os.path.join(BASE_DIR, 'example.db')
 
+load_dotenv()
+# Get database connection details from environment variables
+DB_USER = os.environ.get('DB_USER')
+DB_PASSWORD = os.environ.get('DB_PASSWORD')
+DB_HOST = os.environ.get('DB_HOST')
+DB_NAME = os.environ.get('DB_NAME')
+DB_PORT = os.environ.get('DB_PORT')
+
+# Create the database URL
+DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+
+# Create the SQLAlchemy engine
+engine = create_engine(DATABASE_URL)
+
+# Create a session factory
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Create a base class for declarative models
+Base = declarative_base()
+
+# Define your models
+class User(Base):
+    __tablename__ = "users"
+
+    key = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer)
+    username = Column(String(55))
+    password = Column(String)
+    classification = Column(String(1))
+    age = Column(Integer)
+    email = Column(String(55))
+
+class ChatMessage(Base):
+    __tablename__ = "chat_messages"
+
+    key = Column(Integer, primary_key=True, index=True)
+    username = Column(String)
+    message = Column(String)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+
+# Database operations
 def create_table():
-    conn = sql3.connect(db_path)
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS users (
-        key INTEGER PRIMARY KEY,
-        id INT,
-        username VARCHAR(55),
-        password TEXT,
-        classification CHAR(1),
-        age INT,
-        email VARCHAR(55)
-    )
-    ''')
-    
-    conn.commit()
-    conn.close()
+    Base.metadata.create_all(bind=engine)
 
 def create_chat_table():
-    conn = sql3.connect(db_path)
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS chat_messages (
-        key INTEGER PRIMARY KEY,
-        username TEXT,
-        message TEXT,
-        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-    ''')
-    
-    conn.commit()
-    conn.close()
-
-def verify_user(username, password):
-    conn = sql3.connect(db_path)
-    cursor = conn.cursor()
-    
-    cursor.execute('SELECT password FROM users WHERE username = ?', (username,))
-    row = cursor.fetchone()
-    
-    conn.close()
-    
-    if row:
-        stored_password = row[0]
-        encrypted_password = hashlib.sha256(password.encode()).hexdigest()
-        if stored_password == encrypted_password:
-            return True
-    return False
+    Base.metadata.create_all(bind=engine)
 
 def insert_user(id, username, password, classification, age, email):
-    conn = sql3.connect(db_path)
-    cursor = conn.cursor()
-    
-    # Encrypt the password
-    encrypted_password = hashlib.sha256(password.encode()).hexdigest()
-    
-    cursor.execute('''
-    INSERT INTO users (id, username, password, classification, age, email) VALUES (?, ?, ?, ?, ?, ?)
-    ''', (id, username, encrypted_password, classification, age, email))
-    
-    conn.commit()
-    conn.close()
+    db = SessionLocal()
+    new_user = User(id=id, username=username, password=password, classification=classification, age=age, email=email)
+    db.add(new_user)
+    db.commit()
+    db.close()
 
 def review_users():
-    conn = sql3.connect(db_path)
-    cursor = conn.cursor()
-    
-    cursor.execute('SELECT * FROM users')
-    rows = cursor.fetchall()
-    
-    conn.close()
-    return rows
+    db = SessionLocal()
+    users = db.query(User).all()
+    db.close()
+    return users
 
 def delete_user(user_id):
-    conn = sql3.connect(db_path)
-    cursor = conn.cursor()
-    
-    cursor.execute('DELETE FROM users WHERE id = ?', (user_id,))
-    
-    conn.commit()
-    conn.close()
+    db = SessionLocal()
+    user = db.query(User).filter(User.id == user_id).first()
+    if user:
+        db.delete(user)
+        db.commit()
+    db.close()
 
 def modify_user(user_id, username=None, password=None, classification=None, age=None, email=None):
-    conn = sql3.connect(db_path)
-    cursor = conn.cursor()
-    
-    if username:
-        cursor.execute('UPDATE users SET username = ? WHERE id = ?', (username, user_id))
-    if password:
-        encrypted_password = hashlib.sha256(password.encode()).hexdigest()
-        cursor.execute('UPDATE users SET password = ? WHERE id = ?', (encrypted_password, user_id))
-    if classification:
-        cursor.execute('UPDATE users SET classification = ? WHERE id = ?', (classification, user_id))
-    if age:
-        cursor.execute('UPDATE users SET age = ? WHERE id = ?', (age, user_id))
-    if email:
-        cursor.execute('UPDATE users SET email = ? WHERE id = ?', (email, user_id))
-    
-    conn.commit()
-    conn.close()
+    db = SessionLocal()
+    user = db.query(User).filter(User.id == user_id).first()
+    if user:
+        if username:
+            user.username = username
+        if password:
+            user.password = password
+        if classification:
+            user.classification = classification
+        if age:
+            user.age = age
+        if email:
+            user.email = email
+        db.commit()
+    db.close()
 
 def count_users():
-    conn = sql3.connect(db_path)
-    cursor = conn.cursor()
-    
-    cursor.execute('SELECT COUNT(*) FROM users')
-    count = cursor.fetchone()[0]
-    
-    conn.close()
+    db = SessionLocal()
+    count = db.query(User).count()
+    db.close()
     return count
 
 def find_user_by_id(user_id):
-    conn = sql3.connect(db_path)
-    cursor = conn.cursor()
-    
-    cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))
-    user = cursor.fetchone()
-    
-    conn.close()
+    db = SessionLocal()
+    user = db.query(User).filter(User.id == user_id).first()
+    db.close()
     return user
-##########################################
-#          CHAT FUNCTIONS                #
-##########################################
+
+def verify_user(username, password):
+    db = SessionLocal()
+    user = db.query(User).filter(User.username == username, User.password == password).first()
+    db.close()
+    return user is not None
 
 def insert_chat_message(username, message):
-    conn = sql3.connect(db_path)
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-    INSERT INTO chat_messages (username, message) VALUES (?, ?)
-    ''', (username, message))
-    
-    conn.commit()
-    conn.close()
+    db = SessionLocal()
+    new_message = ChatMessage(username=username, message=message)
+    db.add(new_message)
+    db.commit()
+    db.close()
 
 def get_all_chat_messages():
-    conn = sql3.connect(db_path)
-    cursor = conn.cursor()
-    
-    cursor.execute('SELECT username, message, timestamp FROM chat_messages ORDER BY timestamp ASC')
-    messages = cursor.fetchall()
-    
-    conn.close()
+    db = SessionLocal()
+    messages = db.query(ChatMessage).order_by(ChatMessage.timestamp.asc()).all()
+    db.close()
     return messages
 
 === my-project/templates/chat.html ===
