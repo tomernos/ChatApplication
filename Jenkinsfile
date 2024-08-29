@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        GIT_CREDENTIALS = credentials('git-credentials-id')
+        GIT_CREDENTIALS = credentials('git-credentials')
         DB_CREDENTIALS = credentials('rds-db-credentials')
         DB_HOST = 'flask-app-postgres-db.cn4wyakgw2cz.us-east-1.rds.amazonaws.com'
         DB_NAME = 'flaskapp'
