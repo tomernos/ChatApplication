@@ -3,10 +3,11 @@ pipeline {
 
     environment {
         GIT_CREDENTIALS = credentials('git-credentials-id')
-        DB_CREDENTIALS = credentials('db-credentials-id')
-        DB_HOST = credentials('db-host-id')
-        DB_NAME = credentials('db-name-id')
-        SECRET_KEY = credentials('secret-key-id')
+        DB_CREDENTIALS = credentials('rds-db-credentials')
+        DB_HOST = 'flask-app-postgres-db.cn4wyakgw2cz.us-east-1.rds.amazonaws.com'
+        DB_NAME = 'flaskapp'
+        DB_PORT = '5432'
+        FLASK_SECRET_KEY = credentials('flask-secret-key')
     }
 
     stages {
@@ -51,7 +52,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    git branch: 'main', credentialsId: env.GIT_CREDENTIALS, url: 'https://github.com/tomernos/python-projects.git'
+                    git branch: 'main', credentialsId: 'git-credentials-id', url: 'https://github.com/your-repo/your-projects.git'
                 
                 }
             }
@@ -95,6 +96,13 @@ pipeline {
                     ./venv/bin/pip3 install --upgrade pip
                     ./venv/bin/pip3 install -r requirements.txt
 
+                    ./venv/bin/pip3 export DB_USER=$DB_CREDENTIALS_USR
+                    ./venv/bin/pip3 export DB_PASSWORD=$DB_CREDENTIALS_PSW
+                    ./venv/bin/pip3 export DB_HOST=$DB_HOST
+                    ./venv/bin/pip3 export DB_NAME=$DB_NAME
+                    ./venv/bin/pip3 export DB_PORT=$DB_PORT
+                    ./venv/bin/pip3 export SECRET_KEY=$FLASK_SECRET_KEY
+
                     # Display information about the Python environment
                     echo "Python version:"
                     ./venv/bin/python3 --version
@@ -120,12 +128,13 @@ pipeline {
                 script {
                     sh '''
                     echo "Deploying the application..."
-                    # Create a temporary .env file
-                    echo "DB_USER=$DB_CREDENTIALS_USR" > .env
-                    echo "DB_PASSWORD=$DB_CREDENTIALS_PSW" >> .env
-                    echo "DB_HOST=$DB_HOST" >> .env
-                    echo "DB_NAME=$DB_NAME" >> .env
-                    echo "SECRET_KEY=$SECRET_KEY" >> .env
+            
+                    export DB_USER=$DB_CREDENTIALS_USR
+                    export DB_PASSWORD=$DB_CREDENTIALS_PSW
+                    export DB_HOST=$DB_HOST
+                    export DB_NAME=$DB_NAME
+                    export DB_PORT=$DB_PORT
+                    export SECRET_KEY=$FLASK_SECRET_KEY
                     
                     # Use the .env file in your deployment
                     docker-compose --env-file .env up -d
