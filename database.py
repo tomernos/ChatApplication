@@ -34,7 +34,7 @@ class User(Base):
     __tablename__ = "users"
 
     key = Column(Integer, primary_key=True, index=True)
-    id = Column(Integer)
+    id = Column(String(9), unique=True, nullable=False)
     username = Column(String(55))
     password = Column(String)
     classification = Column(String(1))

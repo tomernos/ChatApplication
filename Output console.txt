@@ -1,22 +1,7 @@
-[ec2-user@ip-172-31-62-30 jenkins]$ docker ps
-CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
-[ec2-user@ip-172-31-62-30 jenkins]$ docker ps -a
-CONTAINER ID   IMAGE                COMMAND                 CREATED         STATUS                     PORTS     NAMES
-d2b684ec680e   flaskrds-flask-app   "python3 my_flask.py"   4 minutes ago   Exited (1) 4 minutes ago             FlaskAPP
-[ec2-user@ip-172-31-62-30 jenkins]$ docker logs FlaskAPP
-Traceback (most recent call last):
-  File "/app/my_flask.py", line 2, in <module>
-    from database import (
-  File "/app/database.py", line 21, in <module>
-    engine = create_engine(DATABASE_URL)
-  File "<string>", line 2, in create_engine
-  File "/usr/local/lib/python3.9/site-packages/sqlalchemy/util/deprecations.py", line 281, in warned
-    return fn(*args, **kwargs)  # type: ignore[no-any-return]
-  File "/usr/local/lib/python3.9/site-packages/sqlalchemy/engine/create.py", line 546, in create_engine
-    u = _url.make_url(url)
-  File "/usr/local/lib/python3.9/site-packages/sqlalchemy/engine/url.py", line 842, in make_url
-    return _parse_url(name_or_url)
-  File "/usr/local/lib/python3.9/site-packages/sqlalchemy/engine/url.py", line 903, in _parse_url
-    components["port"] = int(components["port"])
-ValueError: invalid literal for int() with base 10: 'None'
-[ec2-user@ip-172-31-62-30 jenkins]$ 
+sqlalchemy.exc.DataError: (psycopg2.errors.InvalidTextRepresentation) invalid input syntax for type integer: "ron"
+LINE 1: ...me, password, classification, age, email) VALUES ('ron', '20...
+^
+
+[SQL: INSERT INTO users (id, username, password, classification, age, email) VALUES (%(id)s, %(username)s, %(password)s, %(classification)s, %(age)s, %(email)s) RETURNING users.key]
+[parameters: {'id': 'ron', 'username': '2080', 'password': '12341234', 'classification': 'B', 'age': '26', 'email': 'ron_tsa1@walla.com'}]
+(Background on this error at: https://sqlalche.me/e/20/9h9h)
