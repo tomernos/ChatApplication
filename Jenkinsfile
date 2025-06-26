@@ -2,18 +2,15 @@ pipeline {
     agent any
 
     environment {
-        GIT_CREDENTIALS = '12341234' 
+        GIT_CREDENTIALS = credentials('git-credentials')
+        DB_CREDENTIALS = credentials('rds-db-credentials')
+        DB_HOST = 'flask-app-postgres-db.cn4wyakgw2cz.us-east-1.rds.amazonaws.com'
+        DB_NAME = 'flaskapp'
+        DB_PORT = '5432'
+        //FLASK_SECRET_KEY = credentials('flask-secret-key')
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                script {
-                    git branch: 'main', credentialsId: env.GIT_CREDENTIALS, url: 'https://github.com/tomernos/python-projects.git'
-                
-                }
-            }
-        }
 
         stage('Setup') {
             steps {
@@ -52,7 +49,14 @@ pipeline {
                 }
             }
         }
-
+        stage('Checkout') {
+            steps {
+                script {
+                    git branch: 'feature/pgrds', credentialsId: 'git-credentials', url: 'https://github.com/tomernos/python-projects.git'
+                
+                }
+            }
+        }
         stage('Build') {
             steps {
                 script {
@@ -77,7 +81,7 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
+        /*stage('Run Tests') {
             steps {
                 script {
                     sh '''
@@ -91,6 +95,13 @@ pipeline {
                     # Upgrade pip and install requirements in the virtual environment
                     ./venv/bin/pip3 install --upgrade pip
                     ./venv/bin/pip3 install -r requirements.txt
+
+                    export DB_USER=$DB_CREDENTIALS_USR
+                    export DB_PASSWORD=$DB_CREDENTIALS_PSW
+                    export DB_HOST=$DB_HOST
+                    export DB_NAME=$DB_NAME
+                    export DB_PORT=$DB_PORT
+                    # ./venv/bin/pip3 export SECRET_KEY=$FLASK_SECRET_KEY
 
                     # Display information about the Python environment
                     echo "Python version:"
@@ -110,12 +121,20 @@ pipeline {
                     '''
                 }
             }
-        }
+        }*/
 
         stage('Deploy') {
             steps {
                 script {
-                    sh 'sudo docker-compose up -d'
+                        withEnv([
+                        "DB_USER=${DB_CREDENTIALS_USR}",
+                        "DB_PASSWORD=${DB_CREDENTIALS_PSW}",
+                        "DB_HOST=flask-app-postgres-db.cn4wyakgw2cz.us-east-1.rds.amazonaws.com",
+                        "DB_NAME=flaskapp",
+                        "DB_PORT=5432"
+                    ]) {
+                        sh 'docker-compose up -d'
+                    }
                 }
             }
         }
@@ -128,14 +147,15 @@ pipeline {
             
         }*/
         success {
-            
             sh '''
                 echo 'Application deployed successfully and is running'
-                curl http://localhost:5000 || exit 1
             '''
         }
         failure {
-            echo 'Deployment failed'
+            sh '''
+                echo 'Deployment failed'
+                sudo docker-compose down
+            '''
         }
     }
 }

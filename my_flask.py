@@ -1,12 +1,23 @@
-#from flask import Flask, render_template, request, redirect, url_for, session, flash
-#from SQL import create_table, insert_user, review_users, delete_user, modify_user, count_users, find_user_by_id, verify_user, insert_chat_message, get_all_chat_messages
-from flask import *
-from SQLite import *
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+from database import (
+    SessionLocal, User, ChatMessage, create_table, create_chat_table,
+    insert_user, review_users, delete_user, modify_user, count_users,
+    find_user_by_id, verify_user, insert_chat_message, get_all_chat_messages
+)
 import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data/your_database.db'
+app.secret_key = os.environ.get('SECRET_KEY', os.urandom(24))
+
+# Database configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 # Initialize the database
 create_table()
 create_chat_table()

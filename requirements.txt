@@ -11,3 +11,7 @@ iniconfig==1.1.1
 packaging==21.0
 pluggy==0.13.1
 tomli==1.2.1
+psycopg2-binary==2.9.3
+sqlalchemy==2.0.32
+python-dotenv==1.0.1
+SQLAlchemy-Utils==0.41.2

@@ -14,7 +14,7 @@
     <h2>Messages:</h2>
     <div>
         {% for message in messages %}
-            <p><strong>{{ message[0] }}:</strong> {{ message[1] }} <em>({{ message[2] }})</em></p>
+            <p><strong>{{ message.timestamps }}:</strong> {{ message.username }} <em>({{ message.message }})</em></p>
         {% endfor %}
     </div>
     <a href="{{ url_for('logout') }}">Logout</a>
