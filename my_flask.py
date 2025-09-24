@@ -1,15 +1,84 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
+import redis
+import pika
+import json
+import os
+
 from database import (
     SessionLocal, User, ChatMessage, create_table, create_chat_table,
     insert_user, review_users, delete_user, modify_user, count_users,
     find_user_by_id, verify_user, insert_chat_message, get_all_chat_messages
 )
-import os
 from dotenv import load_dotenv
 
 
 load_dotenv()
 
+class RedisSessionManager:
+    def __init__(self):
+        self.redis_client = redis.Redis(host='redis', port=6379, db=0)
+    
+    def store_session(self, session_id, user_data):
+        """Store user session in Redis"""
+        self.redis_client.setex(
+            f"session:{session_id}", 
+            3600,  # 1 hour expiry
+            json.dumps(user_data)
+        )
+    
+    def get_session(self, session_id):
+        """Get user session from Redis"""
+        data = self.redis_client.get(f"session:{session_id}")
+        return json.loads(data) if data else None
+    
+    def store_online_user(self, username):
+        """Mark user as online"""
+        self.redis_client.sadd("online_users", username)
+        self.redis_client.expire("online_users", 300)  # 5 minutes
+    
+    def get_online_users(self):
+        """Get all online users"""
+        return [user.decode() for user in self.redis_client.smembers("online_users")]
+
+
+class MessageQueue:
+    def __init__(self):
+        connection = pika.BlockingConnection(
+            pika.ConnectionParameters('rabbitmq')
+        )
+        self.channel = connection.channel()
+        
+        # Declare queues
+        self.channel.queue_declare(queue='email_notifications')
+        self.channel.queue_declare(queue='push_notifications')
+    
+    def send_email_notification(self, user_email, message):
+        """Queue email notification"""
+        notification_data = {
+            'email': user_email,
+            'message': message,
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        self.channel.basic_publish(
+            exchange='',
+            routing_key='email_notifications',
+            body=json.dumps(notification_data)
+        )
+    
+    def process_email_queue(self):
+        """Background worker to process email queue"""
+        def callback(ch, method, properties, body):
+            data = json.loads(body)
+            # Send actual email here
+            send_email(data['email'], data['message'])
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+        
+        self.channel.basic_consume(
+            queue='email_notifications',
+            on_message_callback=callback
+        )
+        self.channel.start_consuming()
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', os.urandom(24))

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In - ConnectHub</title>
+    <title>Join ConnectHub - Sign Up</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -16,16 +16,17 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 2rem 0;
         }
         
-        .login-container {
+        .register-container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             padding: 3rem;
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             width: 100%;
-            max-width: 400px;
+            max-width: 500px;
             margin: 2rem;
         }
         
@@ -54,6 +55,7 @@
             margin-bottom: 0.5rem;
             font-weight: 600;
             color: #333;
+            font-size: 0.95rem;
         }
         
         .form-group input {
@@ -73,7 +75,13 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
-        .login-btn {
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .register-btn {
             width: 100%;
             padding: 1rem;
             background: linear-gradient(135deg, #667eea, #764ba2);
@@ -84,10 +92,10 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-bottom: 1.5rem;
+            margin: 1rem 0;
         }
         
-        .login-btn:hover {
+        .register-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
         }
@@ -105,6 +113,12 @@
             border-left: 4px solid #dc3545;
         }
         
+        .success-message {
+            background: #d1edff;
+            color: #0c5460;
+            border-left-color: #17a2b8;
+        }
+        
         .links {
             text-align: center;
             margin-top: 1.5rem;
@@ -114,7 +128,6 @@
             color: #667eea;
             text-decoration: none;
             font-weight: 500;
-            margin: 0 0.5rem;
             transition: color 0.3s ease;
         }
         
@@ -123,48 +136,82 @@
             text-decoration: underline;
         }
         
-        .divider {
-            margin: 1rem 0;
-            text-align: center;
+        .help-text {
+            font-size: 0.85rem;
             color: #666;
+            margin-top: 0.25rem;
+        }
+        
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .register-container {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
+    <div class="register-container">
         <div class="logo">
-            <h1>💬 ConnectHub</h1>
-            <p>Welcome back! Please sign in to continue.</p>
+            <h1>🚀 Join ConnectHub</h1>
+            <p>Create your account and start connecting with your team!</p>
         </div>
         
         {% with messages = get_flashed_messages() %}
             {% if messages %}
                 <div class="messages">
                     {% for message in messages %}
-                        <div class="message">{{ message }}</div>
+                        <div class="message {% if 'success' in message.lower() %}success-message{% endif %}">{{ message }}</div>
                     {% endfor %}
                 </div>
             {% endif %}
         {% endwith %}
         
-        <form action="{{ url_for('auth.login') }}" method="POST">
+        <form action="{{ url_for('auth.register') }}" method="POST">
+            <div class="form-group">
+                <label for="user_id">🆔 User ID</label>
+                <input type="text" id="user_id" name="user_id" maxlength="9" pattern="[0-9]{9}" 
+                       placeholder="Enter 9-digit ID (e.g. 123456789)" required>
+                <div class="help-text">Must be exactly 9 digits</div>
+            </div>
+            
             <div class="form-group">
                 <label for="username">👤 Username</label>
-                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                <input type="text" id="username" name="username" maxlength="55" 
+                       placeholder="Choose your username" required>
+                <div class="help-text">This will be your display name in chats</div>
             </div>
             
             <div class="form-group">
-                <label for="password">🔒 Password</label>
-                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                <label for="email">📧 Email Address</label>
+                <input type="email" id="email" name="email" maxlength="55" 
+                       placeholder="your.email@company.com" required>
             </div>
             
-            <button type="submit" class="login-btn">🚀 Sign In</button>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password">🔒 Password</label>
+                    <input type="password" id="password" name="password" 
+                           placeholder="Create strong password" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="age">🎂 Age (Optional)</label>
+                    <input type="number" id="age" name="age" min="1" max="120" 
+                           placeholder="Your age">
+                </div>
+            </div>
+            
+            <button type="submit" class="register-btn">✨ Create Account</button>
         </form>
         
         <div class="links">
+            <a href="{{ url_for('auth.login') }}">Already have an account? Sign in</a>
+            <br><br>
             <a href="{{ url_for('main.index') }}">← Back to Home</a>
-            <div class="divider">•</div>
-            <a href="{{ url_for('auth.register') }}">Don't have an account? Sign up</a>
         </div>
     </div>
 </body>

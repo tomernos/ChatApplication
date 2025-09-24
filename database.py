@@ -8,15 +8,16 @@ from dotenv import load_dotenv
 
 
 load_dotenv()
-# Get database connection details from environment variables
-DB_USER = os.environ.get('DB_USER')
-DB_PASSWORD = os.environ.get('DB_PASSWORD')
-DB_HOST = os.environ.get('DB_HOST')
-DB_NAME = os.environ.get('DB_NAME')
-DB_PORT = os.environ.get('DB_PORT')
 
-# Create the database URL
-DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+# Get database URL from environment variable (supports both SQLite and PostgreSQL)
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if not DATABASE_URL:
+    # Fallback to SQLite if no DATABASE_URL is set
+    DATABASE_URL = "sqlite:///./example.db"
+    print(f"No DATABASE_URL found, using SQLite: {DATABASE_URL}")
+
+print(f"Using database: {DATABASE_URL}")
 
 # Create the SQLAlchemy engine
 engine = create_engine(DATABASE_URL)
