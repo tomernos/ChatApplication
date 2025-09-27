@@ -1,27 +1,28 @@
 version: '3.8'
 
 services:
-  # PostgreSQL Database - Long-term storage
+  # PostgreSQL Database
   postgres:
     image: postgres:16.10-alpine3.22
     container_name: chatapp-postgres
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-chatapp_db}
+      POSTGRES_USER: ${DB_USER:-chatapp_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-chatapp_password}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "${DB_PORT}:5432"
+      - "${DB_PORT:-5432}:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-chatapp_user} -d ${DB_NAME:-chatapp_db}"]
       interval: 30s
       timeout: 10s
       retries: 5
     networks:
       - chatapp-network
+    restart: unless-stopped
 
-  # Redis - Fast cache and sessions
+  # Redis Cache
   redis:
     image: redis:7-alpine
     container_name: chatapp-redis
@@ -37,8 +38,9 @@ services:
       retries: 5
     networks:
       - chatapp-network
+    restart: unless-stopped
 
-  # RabbitMQ - Message queue
+  # RabbitMQ Message Queue
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: chatapp-rabbitmq
@@ -46,8 +48,8 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-admin}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-admin123}
     ports:
-      - "5672:5672"     # AMQP port
-      - "15672:15672"   # Management UI
+      - "5672:5672"
+      - "15672:15672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
@@ -57,25 +59,21 @@ services:
       retries: 5
     networks:
       - chatapp-network
+    restart: unless-stopped
 
-  # Your Flask Application
-  flask-app:
+  # Flask Application
+  web:
     build: .
-    container_name: chatapp-flask
+    container_name: chatapp-web
     ports:
       - "5000:5000"
     environment:
       - FLASK_ENV=development
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_HOST=postgres  # Service name, not localhost!
-      - DB_NAME=${DB_NAME}
-      - DB_PORT=5432
+      - DATABASE_URL=postgresql://${DB_USER:-chatapp_user}:${DB_PASSWORD:-chatapp_password}@postgres:5432/${DB_NAME:-chatapp_db}
       - REDIS_URL=redis://redis:6379/0
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-admin}:${RABBITMQ_PASSWORD:-admin123}@rabbitmq:5672/
     volumes:
       - .:/app
-      - ./data:/app/data
     depends_on:
       postgres:
         condition: service_healthy
@@ -85,11 +83,27 @@ services:
         condition: service_healthy
     networks:
       - chatapp-network
+    restart: unless-stopped
+
+  # Redis Commander - Redis Management Interface
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: chatapp-redis-commander
+    hostname: redis-commander
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    networks:
+      - chatapp-network
+    restart: unless-stopped
+    depends_on:
+      - redis
 
 volumes:
-  postgres_data:
-  redis_data:
-  rabbitmq_data:
+  postgres_data: 
+  redis_data: 
+  rabbitmq_data: 
 
 networks:
   chatapp-network:

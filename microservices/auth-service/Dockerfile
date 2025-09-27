@@ -1,4 +1,4 @@
-# Multi-stage build for optimization
+# Multi-stage build for Auth Service
 FROM python:3.9-slim as builder
 
 # Install build dependencies
@@ -22,10 +22,11 @@ FROM python:3.9-slim
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y \
     libpq-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user for security
-RUN groupadd -r appuser && useradd -r -g appuser appuser
+RUN groupadd -r authuser && useradd -r -g authuser authuser
 
 # Set working directory
 WORKDIR /app
@@ -38,17 +39,17 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 COPY . .
 
 # Change ownership to non-root user
-RUN chown -R appuser:appuser /app
+RUN chown -R authuser:authuser /app
 
 # Switch to non-root user
-USER appuser
+USER authuser
 
 # Expose port
-EXPOSE 5000
+EXPOSE 3001
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:5000/ || exit 1
+    CMD curl -f http://localhost:3001/health || exit 1
 
 # Run the application
-CMD ["python", "run.py"]
+CMD ["gunicorn", "--bind", "0.0.0.0:3001", "--workers", "2", "--timeout", "120", "app:app"]
