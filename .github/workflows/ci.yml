@@ -81,13 +81,14 @@ jobs:
       - name: Get Code
         uses: actions/checkout@v4
       
-      # Start all services using docker-compose
+      # Start all services using docker compose (V2 plugin)
       - name: Start Services
         run: |
-          sudo apt-get install docker-compose-plugin
-          echo "Starting: PostgreSQL, Redis, RabbitMQ, Backend..."
-          docker-compose up -d
+          echo "Checking Docker Compose version..."
           docker compose version
+          echo ""
+          echo "Starting: PostgreSQL, Redis, RabbitMQ, Backend..."
+          docker compose up -d
           echo "Waiting 30s for services to be ready..."
           sleep 30
       
@@ -134,7 +135,7 @@ jobs:
       - name: Cleanup
         if: always()
         run: |
-          docker-compose down -v
+          docker compose down -v
           echo "Services stopped and cleaned"
 
       
