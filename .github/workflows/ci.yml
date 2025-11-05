@@ -61,6 +61,7 @@ jobs:
       - name: Test Image
         run: |
           docker run --rm connecthub-backend python --version
+          docker ps -a
 
 
 
