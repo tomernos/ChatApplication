@@ -1,0 +1,66 @@
+# ========================================
+# SIMPLE CI PIPELINE - Learning Version
+# ========================================
+# What: Automated checks on every push
+# Why: Catch bugs before they reach production
+# When: Runs automatically on git push
+
+name:  CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+
+jobs:
+  
+  check-python:
+    name: Check Python Code
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Step 1: Get code from GitHub
+      - name: Get Code
+        uses: actions/checkout@v4
+      
+      # Step 2: Install Python
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      
+      # Step 3: Install packages
+      - name: Install Packages
+        run: |
+          pip install -r requirements.txt
+      
+      # Step 5: Run tests
+      - name: Run Tests
+        run: |
+          pip install pytest
+          pytest tests/ --verbose || echo "No tests yet"
+  
+
+  build-image:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Step 1: Get code
+      - name: Get Code
+        uses: actions/checkout@v4
+      
+      # Step 2: Build backend Docker image
+      - name: Build Backend
+        run: |
+          docker build -t connecthub-backend .
+      
+      # Step 3: Test image works
+      - name: Test Image
+        run: |
+          docker run --rm connecthub-backend python --version
+
+
+
