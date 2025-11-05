@@ -1,0 +1,172 @@
+/**
+ * Chat Page Specific Styles
+ */
+
+.chat-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  width: 100%;
+  padding: 0 1rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-container h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Messages list */
+.messages-list {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 1.5rem;
+  min-height: 400px;
+  max-height: 500px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.no-messages {
+  text-align: center;
+  color: #999;
+  padding: 3rem;
+}
+
+/* Individual message */
+.message {
+  background: #f5f5f5;
+  border-radius: 15px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.message.own-message {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  margin-left: auto;
+  max-width: 70%;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.message.own-message .message-header {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.message-time {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.message.own-message .message-time {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.message-content {
+  word-wrap: break-word;
+  line-height: 1.5;
+}
+
+.btn-delete-message {
+  margin-top: 0.5rem;
+  padding: 0.3rem 0.8rem;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+}
+
+.btn-delete-message:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Message input form */
+.message-form {
+  display: flex;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.message-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 25px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.message-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.message-form .btn {
+  width: auto;
+  margin-top: 0;
+  padding: 0.75rem 2rem;
+  border-radius: 25px;
+}
+
+/* Scrollbar styling */
+.messages-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.messages-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.messages-list::-webkit-scrollbar-thumb {
+  background: #667eea;
+  border-radius: 10px;
+}
+
+.messages-list::-webkit-scrollbar-thumb:hover {
+  background: #764ba2;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .message.own-message {
+    max-width: 85%;
+  }
+
+  .navbar-menu {
+    font-size: 0.9rem;
+    gap: 1rem;
+  }
+
+  .message-form {
+    flex-direction: column;
+  }
+
+  .message-form .btn {
+    width: 100%;
+  }
+}

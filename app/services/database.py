@@ -1,10 +1,14 @@
 """
 Database service layer for Chat Application.
-Handles all database operations with proper error handling.
+Handles all database operations with proper error handling and logging.
 """
+import logging
 from app.models import User, ChatMessage, SessionLocal, get_db_session
 from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
+
+# Simple logger
+logger = logging.getLogger(__name__)
 
 class DatabaseService:
     """Service class for database operations."""
@@ -25,32 +29,35 @@ class DatabaseService:
             )
             db.add(new_user)
             db.commit()
-            print(f"User {username} created successfully!")
+            logger.info(f"User {username} created successfully")
             return True
         except IntegrityError as e:
             db.rollback()
-            print(f"Error creating user: {e}")
+            logger.error(f"IntegrityError creating user {username}: {e}")
             return False
         except Exception as e:
             db.rollback()
-            print(f"Unexpected error: {e}")
+            logger.error(f"Unexpected error creating user {username}: {e}")
             return False
         finally:
             db.close()
     
     @staticmethod
-    def verify_user(username: str, password: str) -> bool:
-        """Verify user credentials."""
+    def verify_user(username: str, password: str) -> Optional[User]:
+        """
+        Verify user credentials.
+        Returns User object if valid, None otherwise.
+        """
         db = get_db_session()
         try:
             user = db.query(User).filter(
                 User.username == username, 
                 User.password == password
             ).first()
-            return user is not None
+            return user  # Returns User object or None
         except Exception as e:
-            print(f"Error verifying user: {e}")
-            return False
+            logger.error(f"Error verifying user: {e}")
+            return None
         finally:
             db.close()
     
@@ -62,7 +69,7 @@ class DatabaseService:
             user = db.query(User).filter(User.username == username).first()
             return user
         except Exception as e:
-            print(f"Error getting user: {e}")
+            logger.error(f"Error getting user: {e}")
             return None
         finally:
             db.close()
@@ -88,7 +95,7 @@ class DatabaseService:
             users = db.query(User).all()
             return users
         except Exception as e:
-            print(f"Error getting users: {e}")
+            logger.error(f"Error getting users: {e}")
             return []
         finally:
             db.close()
@@ -172,6 +179,46 @@ class DatabaseService:
         except Exception as e:
             print(f"Error getting messages: {e}")
             return []
+        finally:
+            db.close()
+    
+    @staticmethod
+    def get_message_by_id(message_id: int) -> Optional[ChatMessage]:
+        """
+        Get a specific message by ID.
+        Used for message deletion verification.
+        """
+        db = get_db_session()
+        try:
+            message = db.query(ChatMessage).filter(ChatMessage.id == message_id).first()
+            return message
+        except Exception as e:
+            print(f"Error getting message by ID: {e}")
+            return None
+        finally:
+            db.close()
+    
+    @staticmethod
+    def delete_message(message_id: int) -> bool:
+        """
+        Delete a specific message by ID.
+        Returns True if deleted successfully, False otherwise.
+        """
+        db = get_db_session()
+        try:
+            message = db.query(ChatMessage).filter(ChatMessage.id == message_id).first()
+            if message:
+                db.delete(message)
+                db.commit()
+                print(f"Message {message_id} deleted successfully!")
+                return True
+            else:
+                print(f"Message {message_id} not found")
+                return False
+        except Exception as e:
+            db.rollback()
+            print(f"Error deleting message: {e}")
+            return False
         finally:
             db.close()
 

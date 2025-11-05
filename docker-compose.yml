@@ -1,31 +1,30 @@
-version: '3.8'
-
 services:
   # PostgreSQL Database
-  postgres:
+  database:
     image: postgres:16.10-alpine3.22
-    container_name: chatapp-postgres
+    container_name: connecthub-database
     environment:
-      POSTGRES_DB: ${DB_NAME:-chatapp_db}
-      POSTGRES_USER: ${DB_USER:-chatapp_user}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-chatapp_password}
+      POSTGRES_DB: ${DB_NAME:-connecthub_db}
+      POSTGRES_USER: ${DB_USER:-connecthub_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-connecthub_password}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "${DB_PORT:-5432}:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-chatapp_user} -d ${DB_NAME:-chatapp_db}"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-connecthub_user} -d ${DB_NAME:-connecthub_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
     networks:
-      - chatapp-network
+      - connecthub-network
     restart: unless-stopped
 
   # Redis Cache
-  redis:
+  cache:
     image: redis:7-alpine
-    container_name: chatapp-redis
+    container_name: connecthub-cache
     ports:
       - "6379:6379"
     volumes:
@@ -33,17 +32,18 @@ services:
     command: redis-server --appendonly yes
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
     networks:
-      - chatapp-network
+      - connecthub-network
     restart: unless-stopped
 
   # RabbitMQ Message Queue
-  rabbitmq:
+  message-queue:
     image: rabbitmq:3-management-alpine
-    container_name: chatapp-rabbitmq
+    container_name: connecthub-message-queue
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-admin}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-admin123}
@@ -53,52 +53,94 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 60s
     networks:
-      - chatapp-network
+      - connecthub-network
     restart: unless-stopped
 
-  # Flask Application
-  web:
+  # Flask Backend API
+  backend-api:
     build: .
-    container_name: chatapp-web
+    container_name: connecthub-backend-api
     ports:
       - "5000:5000"
     environment:
+      # Flask Configuration
       - FLASK_ENV=development
-      - DATABASE_URL=postgresql://${DB_USER:-chatapp_user}:${DB_PASSWORD:-chatapp_password}@postgres:5432/${DB_NAME:-chatapp_db}
-      - REDIS_URL=redis://redis:6379/0
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-admin}:${RABBITMQ_PASSWORD:-admin123}@rabbitmq:5672/
+      
+      # PostgreSQL Database Connection
+      # Full URL: postgresql://user:password@host:port/database
+      # Used by: app/__init__.py, app/models/__init__.py
+      - DATABASE_URL=postgresql://${DB_USER:-connecthub_user}:${DB_PASSWORD:-connecthub_password}@database:5432/${DB_NAME:-connecthub_db}
+      - DB_HOST=database
+      - DB_PORT=5432
+      - DB_USER=${DB_USER:-connecthub_user}
+      - DB_PASSWORD=${DB_PASSWORD:-connecthub_password}
+      - DB_NAME=${DB_NAME:-connecthub_db}
+      
+      # Redis Cache Connection
+      # Full URL: redis://host:port/db_number
+      # Used by: app/services/redis_service.py for sessions, caching
+      # Management UI: http://localhost:8081 (Redis Commander)
+      - REDIS_URL=redis://cache:6379/0
+      - REDIS_HOST=cache
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      
+      # RabbitMQ Message Queue Connection
+      # Full URL: amqp://user:password@host:port/
+      # Used by: app/services/queue_service.py for background tasks
+      # Management UI: http://localhost:15672 (user: admin, pass: admin123)
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-admin}:${RABBITMQ_PASSWORD:-admin123}@message-queue:5672/
+      - RABBITMQ_HOST=message-queue
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=${RABBITMQ_USER:-admin}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-admin123}
     volumes:
       - .:/app
     depends_on:
-      postgres:
+      database:
         condition: service_healthy
-      redis:
+      cache:
         condition: service_healthy
-      rabbitmq:
+      message-queue:
         condition: service_healthy
     networks:
-      - chatapp-network
+      - connecthub-network
     restart: unless-stopped
 
-  # Redis Commander - Redis Management Interface
-  redis-commander:
+  # Redis Management UI
+  cache-admin:
     image: rediscommander/redis-commander:latest
-    container_name: chatapp-redis-commander
-    hostname: redis-commander
+    container_name: connecthub-cache-admin
+    hostname: cache-admin
     ports:
-      - "8081:8081"
+      - "8085:8081"
     environment:
-      - REDIS_HOSTS=local:redis:6379
+      - REDIS_HOSTS=local:cache:6379
     networks:
-      - chatapp-network
+      - connecthub-network
     restart: unless-stopped
     depends_on:
-      - redis
+      - cache
+
+  # React Frontend Web Application
+  frontend-web:
+    build:
+      context: ./frontend-service
+      dockerfile: Dockerfile
+    container_name: connecthub-frontend-web
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend-api
+    networks:
+      - connecthub-network
+    restart: unless-stopped
 
 volumes:
   postgres_data: 
@@ -106,5 +148,5 @@ volumes:
   rabbitmq_data: 
 
 networks:
-  chatapp-network:
+  connecthub-network:
     driver: bridge

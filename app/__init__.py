@@ -1,13 +1,23 @@
 """
 Flask application factory and initialization.
 Creates and configures the Flask application with all blueprints and services.
+Pure JSON API - no template rendering.
 """
 import os
-from flask import Flask, render_template, session
+import logging
+from flask import Flask, jsonify
+from flask_cors import CORS
 from config import config
 from app.models import create_tables
 from app.services.redis_service import redis_service
 from app.services.queue_service import queue_service, handle_email_notification, handle_activity_log
+
+# Simple logging setup
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 def create_app(config_name=None):
     """Application factory pattern for creating Flask app."""
@@ -15,23 +25,38 @@ def create_app(config_name=None):
     if config_name is None:
         config_name = os.environ.get('FLASK_ENV', 'development')
     
-    # Create Flask application with correct template path
-    template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
-    app = Flask(__name__, template_folder=template_dir)
+    # Create Flask application (no templates needed - pure API)
+    app = Flask(__name__)
     
     # Load configuration
     app.config.from_object(config[config_name])
     
+    logger.info(f"Starting ConnectHub in {config_name} mode")
+    
+    # Enable CORS for React frontend
+    # This allows React (localhost:3000) to make requests to Flask (localhost:5000)
+    CORS(app, 
+         origins=['http://localhost:3000', 'http://localhost:80'],
+         supports_credentials=True,  # Allow cookies/sessions
+         allow_headers=['Content-Type', 'Authorization'],
+         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
+    
     # Initialize database
     with app.app_context():
-        create_tables()
-        print("Application initialized successfully!")
+        try:
+            create_tables()
+            logger.info("Database initialized")
+        except Exception as e:
+            logger.error(f"Database init failed: {e}")
+            raise
     
-    # Start background workers if services are available
+    # Start background workers if available
     if queue_service.is_available():
         queue_service.start_email_worker(handle_email_notification)
         queue_service.start_activity_logger(handle_activity_log)
-        print("Background workers started successfully!")
+        logger.info("Background workers started")
+    else:
+        logger.warning("RabbitMQ unavailable - skipping workers")
     
     # Register blueprints
     from app.routes.auth import auth_bp
@@ -39,36 +64,25 @@ def create_app(config_name=None):
     from app.routes.chat import chat_bp
     from app.routes.user import user_bp
     
+    # API routes (for React frontend)
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(chat_bp, url_prefix='/api/chat')
+    app.register_blueprint(user_bp, url_prefix='/api/users')
+    
+    # Main routes (API status and health check)
     app.register_blueprint(main_bp)
-    app.register_blueprint(auth_bp, url_prefix='/auth')
-    app.register_blueprint(chat_bp, url_prefix='/chat')
-    app.register_blueprint(user_bp, url_prefix='/user')
     
-    # Context processors for templates
-    @app.context_processor
-    def inject_user():
-        """Inject user information into all templates."""
-        username = session.get('username')
-        online_users = []
-        
-        if username and redis_service.is_available():
-            online_users = redis_service.get_online_users()
-        
-        return {
-            'current_user': username,
-            'online_users': online_users,
-            'redis_available': redis_service.is_available(),
-            'queue_available': queue_service.is_available()
-        }
+    logger.info("API ready")
     
-    # Error handlers
+    # Error handlers - JSON only
     @app.errorhandler(404)
     def not_found(error):
-        return render_template('error.html', error='Page not found'), 404
+        return jsonify({'error': 'Endpoint not found'}), 404
     
     @app.errorhandler(500)
     def internal_error(error):
-        return render_template('error.html', error='Internal server error'), 500
+        logger.error(f"Server error: {error}")
+        return jsonify({'error': 'Internal server error'}), 500
     
     return app
 

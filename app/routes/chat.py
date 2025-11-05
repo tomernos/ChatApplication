@@ -1,8 +1,9 @@
 """
 Chat routes for the Chat Application.
 Handles chat functionality and real-time messaging.
+Pure JSON API for React frontend.
 """
-from flask import Blueprint, render_template, request, jsonify, session, flash, redirect, url_for
+from flask import Blueprint, request, jsonify, session
 from app.services.database import db_service
 from app.services.redis_service import redis_service
 from app.services.queue_service import queue_service
@@ -10,75 +11,117 @@ from app.services.queue_service import queue_service
 # Create blueprint for chat routes
 chat_bp = Blueprint('chat', __name__)
 
-@chat_bp.route('/', methods=['GET', 'POST'])
-def chat_room():
-    """Main chat room page."""
+@chat_bp.route('/messages', methods=['GET'])
+def get_messages():
+    """
+    Get all chat messages as JSON.
+    This is the PRIMARY endpoint React uses to fetch messages.
+    """
+    # Check authentication
     if 'username' not in session:
-        flash('Please log in to access chat')
-        return redirect(url_for('auth.login'))
+        return jsonify({'error': 'Not authenticated'}), 401
     
-    # Handle message sending via POST
-    if request.method == 'POST':
-        message = request.form.get('message')
-        if message:
-            username = session['username']
-            if db_service.create_chat_message(username, message):
-                # Update message count in Redis
-                if redis_service.is_available():
-                    redis_service.increment_message_count(username)
-                flash('Message sent successfully!')
-            else:
-                flash('Failed to send message')
-        return redirect(url_for('chat.chat_room'))
-    
-    # Get chat messages
+    # Fetch all messages from database
     messages = db_service.get_all_messages()
     
-    # Get online users
-    online_users = []
-    if redis_service.is_available():
-        online_users = redis_service.get_online_users()
+    # Convert to JSON format
+    messages_list = []
+    for msg in messages:
+        messages_list.append({
+            'id': msg.id if hasattr(msg, 'id') else None,
+            'user_id': msg.user_id if hasattr(msg, 'user_id') else None,
+            'username': msg.username,
+            'content': msg.message,  # Note: database field is 'message' but React expects 'content'
+            'created_at': msg.timestamp.isoformat() if hasattr(msg, 'timestamp') and msg.timestamp else None
+        })
     
-    return render_template('chat.html', messages=messages, online_users=online_users, current_user=session['username'])
+    return jsonify({
+        'success': True,
+        'messages': messages_list,
+        'count': len(messages_list)
+    }), 200
 
 @chat_bp.route('/send', methods=['POST'])
 def send_message():
-    """Send a chat message."""
+    """
+    Send a new chat message.
+    JSON API only - for React frontend.
+    """
+    # Check authentication
     if 'username' not in session:
-        return jsonify({'error': 'Not logged in'}), 401
+        return jsonify({'error': 'Not authenticated'}), 401
     
     username = session['username']
-    message = request.form.get('message') or request.json.get('message')
+    user_id = session.get('user_id')
     
-    if not message:
+    # Get message content from JSON
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'Invalid request format'}), 400
+    
+    message = data.get('content')
+    
+    # Validate message
+    if not message or not message.strip():
         return jsonify({'error': 'Message cannot be empty'}), 400
     
     # Save message to database
     if db_service.create_chat_message(username, message):
-        # Update message count in Redis
+        # Update message count in Redis cache
         if redis_service.is_available():
             redis_service.increment_message_count(username)
         
-        # Queue message for processing
+        # Queue message for processing (asynchronous)
         if queue_service.is_available():
             queue_service.queue_message_processing({
                 'username': username,
-                'message': message
+                'message': message,
+                'user_id': user_id
             })
         
-        return jsonify({'success': True, 'message': 'Message sent'})
+        # Return success response
+        return jsonify({
+            'success': True,
+            'message': 'Message sent successfully',
+            'data': {
+                'username': username,
+                'content': message
+            }
+        }), 201
     else:
+        # Failed to save message
         return jsonify({'error': 'Failed to send message'}), 500
 
-@chat_bp.route('/messages')
-def get_messages():
-    """Get all chat messages as JSON."""
-    messages = db_service.get_all_messages()
-    return jsonify([{
-        'username': msg.username,
-        'message': msg.message,
-        'timestamp': msg.timestamp.isoformat()
-    } for msg in messages])
+@chat_bp.route('/message/<int:message_id>', methods=['DELETE'])
+def delete_message(message_id):
+    """
+    Delete a specific chat message.
+    Only the message owner can delete their message.
+    """
+    # Check authentication
+    if 'username' not in session:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    username = session['username']
+    
+    # Get the message to verify ownership
+    message = db_service.get_message_by_id(message_id)
+    
+    if not message:
+        return jsonify({'error': 'Message not found'}), 404
+    
+    # Check if user owns the message
+    if message.username != username:
+        return jsonify({'error': 'You can only delete your own messages'}), 403
+    
+    # Delete the message
+    if db_service.delete_message(message_id):
+        return jsonify({
+            'success': True,
+            'message': 'Message deleted successfully'
+        }), 200
+    else:
+        return jsonify({'error': 'Failed to delete message'}), 500
 
 @chat_bp.route('/typing', methods=['POST'])
 def set_typing():

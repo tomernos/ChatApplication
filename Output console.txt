@@ -1,7 +1,0 @@
-sqlalchemy.exc.DataError: (psycopg2.errors.InvalidTextRepresentation) invalid input syntax for type integer: "ron"
-LINE 1: ...me, password, classification, age, email) VALUES ('ron', '20...
-^
-
-[SQL: INSERT INTO users (id, username, password, classification, age, email) VALUES (%(id)s, %(username)s, %(password)s, %(classification)s, %(age)s, %(email)s) RETURNING users.key]
-[parameters: {'id': 'ron', 'username': '2080', 'password': '12341234', 'classification': 'B', 'age': '26', 'email': 'ron_tsa1@walla.com'}]
-(Background on this error at: https://sqlalche.me/e/20/9h9h)

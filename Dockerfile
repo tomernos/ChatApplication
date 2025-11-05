@@ -16,12 +16,17 @@ COPY requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+
+###################################################
+###################################################
+
 # Production stage
 FROM python:3.9-slim
 
-# Install runtime dependencies
+# Install runtime dependencies including netcat for health checks
 RUN apt-get update && apt-get install -y \
     libpq-dev \
+    netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user for security
@@ -37,6 +42,10 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 # Copy application code
 COPY . .
 
+# Copy wait script and make it executable
+COPY wait-for-services.sh /wait-for-services.sh
+RUN chmod +x /wait-for-services.sh
+
 # Change ownership to non-root user
 RUN chown -R appuser:appuser /app
 
@@ -50,5 +59,5 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:5000/ || exit 1
 
-# Run the application
-CMD ["python", "run.py"]
+# Run the application with wait script
+CMD ["/wait-for-services.sh", "python3", "run.py"]
