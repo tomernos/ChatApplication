@@ -53,18 +53,90 @@ jobs:
       - name: Build Backend
         run: |
           docker build -t connecthub-backend .
-          echo "Image built successfully"
+          echo "✅ Image built successfully"
       
       - name: Test Image Runs
         run: |
           echo "Testing: Can container start?"
           docker run --rm connecthub-backend python --version
-          echo "Container can execute commands"
+          echo "✅ Container can execute commands"
       
       - name: Verify Image Structure
         run: |
           docker run --rm connecthub-backend ls -la /app
+          echo "✅ App files exist"
+
+  # ============================================
+  # JOB 3: Integration Test (Real Services)
+  # ============================================
+  # WHY: Test app with actual database, redis, rabbitmq
+  # CATCHES: Connection issues, config errors, missing env vars
+  # TARGET: Ensure app works before deploying to K8s
+  integration-test:
+    name: Integration Test
+    runs-on: ubuntu-latest
+    needs: build-image  # Only run if build-image passes
+    
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v4
       
+      # Start all services using docker-compose
+      - name: Start Services
+        run: |
+          echo "Starting: PostgreSQL, Redis, RabbitMQ, Backend..."
+          docker-compose up -d
+          echo "Waiting 30s for services to be ready..."
+          sleep 30
+      
+      # Check all containers are running
+      - name: Check Services Status
+        run: |
+          echo "=== Running Containers ==="
+          docker ps
+          echo ""
+          echo "=== Container Health ==="
+          docker ps --format "table {{.Names}}\t{{.Status}}"
+      
+      # Test health endpoints (like Kubernetes will)
+      - name: Test Health Endpoint
+        run: |
+          echo "Testing: /health endpoint (liveness probe)"
+          curl -f http://localhost:5000/health || exit 1
+          echo "Health check passed"
+      
+      - name: Test Ready Endpoint
+        run: |
+          echo "Testing: /ready endpoint (readiness probe)"
+          curl -f http://localhost:5000/ready || exit 1
+          echo "Readiness check passed"
+      
+      # Test actual API functionality
+      - name: Test API Endpoints
+        run: |
+          echo "Testing: API root endpoint"
+          curl -f http://localhost:5000/ | grep "ConnectHub" || exit 1
+          echo "API is responding"
+      
+      # Show logs if something fails
+      - name: Show Logs (if failure)
+        if: failure()
+        run: |
+          echo "=== Backend Logs ==="
+          docker logs connecthub-backend-api
+          echo ""
+          echo "=== Database Logs ==="
+          docker logs connecthub-database
+      
+      # Always cleanup
+      - name: Cleanup
+        if: always()
+        run: |
+          docker-compose down -v
+          echo "Services stopped and cleaned"
+
+      
+
 
 
 
