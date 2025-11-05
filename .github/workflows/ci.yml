@@ -187,20 +187,33 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       
-      # Build and tag with commit SHA
-      - name: Build and Tag Image
+      # Build and tag backend with commit SHA
+      - name: Build and Tag Backend Image
         run: |
           SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
           docker build -t tomernos/connecthub-backend:$SHORT_SHA .
           echo "Built: tomernos/connecthub-backend:$SHORT_SHA"
       
-      # Push to Docker Hub
-      - name: Push to Docker Hub
+      # Build and tag frontend with commit SHA
+      - name: Build and Tag Frontend Image
         run: |
           SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          docker build -t tomernos/connecthub-frontend:$SHORT_SHA ./frontend-service
+          echo "Built: tomernos/connecthub-frontend:$SHORT_SHA"
+      
+      # Push both images to Docker Hub
+      - name: Push Images to Docker Hub
+        run: |
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          echo "Pushing backend..."
           docker push tomernos/connecthub-backend:$SHORT_SHA
-          echo "Pushed to Docker Hub!"
-          echo "View at: https://hub.docker.com/r/tomernos/connecthub-backend/tags"
+          echo "Pushing frontend..."
+          docker push tomernos/connecthub-frontend:$SHORT_SHA
+          echo "✅ Both images pushed successfully!"
+          echo ""
+          echo "View at:"
+          echo "  https://hub.docker.com/r/tomernos/connecthub-backend/tags"
+          echo "  https://hub.docker.com/r/tomernos/connecthub-frontend/tags"
 
       
 
