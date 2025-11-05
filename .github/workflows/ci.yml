@@ -53,18 +53,18 @@ jobs:
       - name: Build Backend
         run: |
           docker build -t connecthub-backend .
-          echo "✅ Image built successfully"
+          echo "Image built successfully"
       
       - name: Test Image Runs
         run: |
           echo "Testing: Can container start?"
           docker run --rm connecthub-backend python --version
-          echo "✅ Container can execute commands"
+          echo "Container can execute commands"
       
       - name: Verify Image Structure
         run: |
           docker run --rm connecthub-backend ls -la /app
-          echo "✅ App files exist"
+          echo "App files exist"
 
   # ============================================
   # JOB 3: Integration Test (Real Services)
@@ -84,9 +84,6 @@ jobs:
       # Start all services using docker compose (V2 plugin)
       - name: Start Services
         run: |
-          echo "Checking Docker Compose version..."
-          docker compose version
-          echo ""
           echo "Starting: PostgreSQL, Redis, RabbitMQ, Backend..."
           docker compose up -d
           echo "Waiting 30s for services to be ready..."
@@ -137,6 +134,43 @@ jobs:
         run: |
           docker compose down -v
           echo "Services stopped and cleaned"
+
+
+  # ========================================
+  # PUSH TO DOCKER HUB (main branch only)
+  # ========================================
+  push-image:
+    name: Push Image to Docker Hub
+    runs-on: ubuntu-latest
+    needs: [check-python, build-image, integration-test]
+    # Only run on main branch (not on feature branches or PRs)
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v4
+      
+      # Login to Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      # Build and tag with commit SHA
+      - name: Build and Tag Image
+        run: |
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          docker build -t tomernos/connecthub-backend:$SHORT_SHA .
+          echo "Built: tomernos/connecthub-backend:$SHORT_SHA"
+      
+      # Push to Docker Hub
+      - name: Push to Docker Hub
+        run: |
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          docker push tomernos/connecthub-backend:$SHORT_SHA
+          echo "Pushed to Docker Hub!"
+          echo "View at: https://hub.docker.com/r/tomernos/connecthub-backend/tags"
 
       
 
