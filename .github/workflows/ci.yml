@@ -48,20 +48,24 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      # Step 1: Get code
       - name: Get Code
-        uses: actions/checkout@v4
-      
-      # Step 2: Build backend Docker image
+        uses: actions/checkout@v4 
       - name: Build Backend
         run: |
           docker build -t connecthub-backend .
+          echo "Image built successfully"
       
-      # Step 3: Test image works
-      - name: Test Image
+      - name: Test Image Runs
         run: |
+          echo "Testing: Can container start?"
           docker run --rm connecthub-backend python --version
-          docker ps -a
+          echo "Container can execute commands"
+      
+      - name: Verify Image Structure
+        run: |
+          docker run --rm connecthub-backend ls -la /app
+      
+
 
 
 
