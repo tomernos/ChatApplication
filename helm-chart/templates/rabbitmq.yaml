@@ -1,0 +1,82 @@
+# =========================================
+# RabbitMQ Message Queue - Deployment
+# =========================================
+# WHY Deployment?
+# - Message queue for async tasks
+# - Like Redis, stateless in our setup
+# - Management UI available for debugging
+#
+# PORTS:
+# - 5672: AMQP protocol (backend connects here)
+# - 15672: Management UI (for you to see queues)
+# =========================================
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: message-queue
+  labels:
+    app: rabbitmq
+spec:
+  type: ClusterIP
+  selector:
+    app: rabbitmq
+  ports:
+  - name: amqp
+    port: 5672
+    targetPort: 5672
+  - name: management
+    port: 15672
+    targetPort: 15672
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq2
+spec:
+  replicas: 1
+  
+  selector:
+    matchLabels:
+      app: rabbitmq
+  
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:3-management-alpine
+        
+        ports:
+        - containerPort: 5672
+          name: amqp
+        - containerPort: 15672
+          name: management
+        
+        # Default credentials (in production, use Secret!)
+        env:
+        - name: RABBITMQ_DEFAULT_USER
+          value: "guest"
+        - name: RABBITMQ_DEFAULT_PASS
+          value: "guest"
+      
+        
+        # Health check - RabbitMQ takes longer to start
+        readinessProbe:
+          exec:
+            command:
+            - rabbitmq-diagnostics
+            - ping
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        
+        livenessProbe:
+          exec:
+            command:
+            - rabbitmq-diagnostics
+            - ping
+          initialDelaySeconds: 60
+          periodSeconds: 20

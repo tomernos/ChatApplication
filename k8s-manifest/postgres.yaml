@@ -1,0 +1,111 @@
+# =========================================
+# PostgreSQL Database - StatefulSet
+# =========================================
+# WHY StatefulSet? 
+# - Database needs stable network identity
+# - Data must persist across pod restarts
+# - Uses PersistentVolume for storage
+#
+# THEORY → PRACTICE:
+# - StatefulSet creates: postgres-0 (stable name)
+# - Pod has persistent storage attached
+# - If pod dies, new pod gets SAME storage
+# =========================================
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  labels:
+    app: postgres
+spec:
+  # Headless service (no ClusterIP) - StatefulSet requirement
+  # Provides stable DNS: postgres-0.postgres-service.default.svc.cluster.local
+  clusterIP: None
+  selector:
+    app: postgres
+  ports:
+  - name: postgres
+    port: 5432
+    targetPort: 5432
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  # Service name must match Service above
+  serviceName: postgres-service
+  
+  # Single replica (not a cluster for now - learning mode)
+  replicas: 1
+  
+  selector:
+    matchLabels:
+      app: postgres
+  
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:16-alpine
+        
+        ports:
+        - containerPort: 5432
+          name: postgres
+        
+        # Environment variables for PostgreSQL
+        env:
+        - name: POSTGRES_DB
+          value: "chatapp"
+        - name: POSTGRES_USER
+          value: "chatuser"
+        - name: POSTGRES_PASSWORD
+          # In production, use Secret! For learning, hardcoded is OK
+          value: "chatpass"
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        
+        # Volume mount - where PostgreSQL stores data
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+        
+        # Readiness probe - when is pod ready to accept traffic?
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - chatuser
+            - -d
+            - chatapp
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        
+        # Liveness probe - is pod healthy?
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - chatuser
+            - -d
+            - chatapp
+          initialDelaySeconds: 30
+          periodSeconds: 10
+  
+  # VolumeClaimTemplates - creates PersistentVolumeClaim per pod
+  # This is what makes data persist!
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]  # Single pod can read/write
+      resources:
+        requests:
+          storage: 1Gi  # 1GB storage for database

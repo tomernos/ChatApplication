@@ -1,0 +1,69 @@
+# =========================================
+# Backend Configuration
+# =========================================
+# ConfigMap: Non-sensitive configuration
+# Secret: Sensitive data (passwords, keys)
+#
+# WHY SEPARATE?
+# - ConfigMap can be viewed by anyone with kubectl access
+# - Secret is base64 encoded (minimal security, but signals "sensitive")
+# - In production: use external secret managers (AWS Secrets Manager, Vault)
+#
+# KUBERNETES SERVICE DISCOVERY:
+# - postgres-service resolves to PostgreSQL pod IP
+# - redis-service resolves to Redis pod IP
+# - rabbitmq-service resolves to RabbitMQ pod IP
+# - This is DNS-based service discovery!
+# =========================================
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+data:
+  # Flask configuration
+  FLASK_APP: "run.py"
+  FLASK_ENV: "production"
+  
+  # Database connection (using K8s Service DNS!)
+  DB_HOST: "postgres-service"
+  DB_PORT: "5432"
+  DB_NAME: "chatapp"
+  DB_USER: "chatuser"
+  
+  # Redis connection (using K8s Service DNS!)
+  # Backend wait script looks for "cache"
+  REDIS_HOST: "cache"
+  REDIS_PORT: "6379"
+  
+  # RabbitMQ connection (using K8s Service DNS!)
+  # Backend wait script looks for "message-queue"
+  RABBITMQ_HOST: "message-queue"
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_USER: "guest"
+  
+  # Connection URLs (alternative format)
+  DATABASE_URL: "postgresql://chatuser:chatpass@postgres-service:5432/chatapp"
+  REDIS_URL: "redis://cache:6379/0"
+  RABBITMQ_URL: "amqp://guest:guest@message-queue:5672/"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backend-secret
+type: Opaque
+data:
+  DB_PASSWORD: Y2hhdHBhc3M=
+  SECRET_KEY: eW91ci1zZWNyZXQta2V5LWhlcmU=
+  RABBITMQ_PASSWORD: Z3Vlc3Q=
+
+---
+apiVersion: v1
+data:
+  .dockerconfigjson: eyJhdXRocyI6eyJodHRwczovL2luZGV4LmRvY2tlci5pby92MS8iOnsidXNlcm5hbWUiOiJ0b21lcm5vcyIsInBhc3N3b3JkIjoiZGNrcl9wYXRfc3lmV2RoM3hxdTlkWG90RGFtUnoxdU1TYmhRIiwiZW1haWwiOiJ0b21lcm5vczFAZW1haWwuY29tIiwiYXV0aCI6ImRHOXRaWEp1YjNNNlpHTnJjbDl3WVhSZmMzbG1WMlJvTTNoeGRUbGtXRzkwUkdGdFVub3hkVTFUWW1oUiJ9fX0=
+kind: Secret
+metadata:
+  creationTimestamp: null
+  name: dockerhub-secret
+type: kubernetes.io/dockerconfigjson

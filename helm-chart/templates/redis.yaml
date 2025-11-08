@@ -1,0 +1,82 @@
+# =========================================
+# Redis Cache - Deployment
+# =========================================
+# WHY Deployment (not StatefulSet)?
+# - Redis is stateless in our app (cache only)
+# - If pod dies, new pod starts fresh - OK for cache
+# - No persistent storage needed
+#
+# THEORY → PRACTICE:
+# - Deployment manages ReplicaSet
+# - Can scale to multiple replicas (we use 1 for simplicity)
+# - Service provides stable DNS: redis-service
+# =========================================
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: cache
+  labels:
+    app: redis
+spec:
+  # ClusterIP (default) - internal access only
+  # Backend pods will use: cache:6379
+  type: ClusterIP
+  selector:
+    app: redis
+  ports:
+  - name: redis
+    port: 6379
+    targetPort: 6379
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+spec:
+  # Single replica for now (can scale later)
+  replicas: 1
+  
+  selector:
+    matchLabels:
+      app: redis
+  
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        
+        ports:
+        - containerPort: 6379
+          name: redis
+        
+        # Resource limits (best practice)
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        
+        # Health checks
+        readinessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        
+        livenessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 10
+          periodSeconds: 10

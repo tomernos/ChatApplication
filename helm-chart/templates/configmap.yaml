@@ -1,0 +1,27 @@
+# =========================================
+# Dynamic ConfigMaps - Simple Loop
+# =========================================
+# One template that creates ConfigMaps for all components
+# Just loops through components and their env vars
+# =========================================
+
+{{- range $component := list "backend" "postgres" "rabbitmq" }}
+{{- $config := index $.Values $component }}
+{{- if and $config.enabled (hasKey $config "configMap") $config.configMap.create }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $.Release.Name }}-{{ $config.configMap.name }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: {{ $component }}
+    {{- include "connecthub.labels" $ | nindent 4 }}
+
+data:
+  {{- range $key, $value := $config.env }}
+  {{ $key | upper }}: {{ $value | toString | quote }}
+  {{- end }}
+
+{{- end }}
+{{- end }}

@@ -64,7 +64,8 @@ services:
 
   # Flask Backend API
   backend-api:
-    build: .
+    #build: .
+    image: tomernos/connecthub-backend:1b46d09
     container_name: connecthub-backend-api
     ports:
       - "5000:5000"
@@ -130,9 +131,10 @@ services:
 
   # React Frontend Web Application
   frontend-web:
-    build:
-      context: ./frontend-service
-      dockerfile: Dockerfile
+  #  build:
+  #    context: ./frontend-service
+  #    dockerfile: Dockerfile
+    image: tomernos/connecthub-frontend:1b46d09
     container_name: connecthub-frontend-web
     ports:
       - "3000:80"
