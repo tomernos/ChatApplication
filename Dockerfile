@@ -56,4 +56,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:5000/ || exit 1
 
 # Run the application with wait script
-#CMD ["/wait-for-services.sh", "python3", "run.py"]
+CMD ["python3", "run.py"]
