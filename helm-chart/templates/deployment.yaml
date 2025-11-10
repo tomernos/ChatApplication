@@ -33,6 +33,22 @@ spec:
         - name: {{ include "connecthub.fullname" $ }}{{ $.Values.global.dockerhubSecretName }}
       {{- end }}
 
+      {{- if $config.initContainers }}
+      initContainers:
+      {{- range $config.initContainers }}
+      - name: {{ .name }}
+        image: {{ .image }}
+        command: {{ .command | toJson }}
+        {{- if .env }}
+        env:
+        {{- range $key, $value := .env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
+      {{- end }}
+      {{- end }}
+
       containers:
       - name: {{ $name }}
         image: "{{ $config.image.repository }}:{{ $config.image.tag }}"

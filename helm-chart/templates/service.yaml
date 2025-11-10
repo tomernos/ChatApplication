@@ -15,8 +15,7 @@ spec:
   type: {{ $config.type | default "ClusterIP" }}
   selector:
     # Must match Deployment pod labels
-    app.kubernetes.io/name: {{ $name }}
-    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app: {{ $name }}
   ports:
   {{- range $config.ports }}
   - name: {{ .name }}
