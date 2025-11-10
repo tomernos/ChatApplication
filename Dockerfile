@@ -43,7 +43,6 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 COPY . .
 
 # Copy wait script and make it executable
-COPY wait-for-services.sh /wait-for-services.sh
 RUN chmod +x /wait-for-services.sh
 
 # Change ownership to non-root user
