@@ -42,9 +42,6 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 # Copy application code
 COPY . .
 
-# Copy wait script and make it executable
-RUN chmod +x /wait-for-services.sh
-
 # Change ownership to non-root user
 RUN chown -R appuser:appuser /app
 
