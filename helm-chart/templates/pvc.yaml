@@ -1,0 +1,22 @@
+{{- range $name, $config := .Values.deployments }}
+{{- if and $config.enabled $config.persistence $config.persistence.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $name }}-pvc
+  namespace: {{ include "connecthub.namespace" $ }}
+  labels:
+    app: {{ $name }}
+    {{- include "connecthub.labels" $ | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ $config.persistence.size }}
+  {{- if $config.persistence.storageClass }}
+  storageClassName: {{ $config.persistence.storageClass }}
+  {{- end }}
+{{- end }}
+{{- end }}

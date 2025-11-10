@@ -35,10 +35,8 @@ kind: StatefulSet
 metadata:
   name: postgres
 spec:
-  # Service name must match Service above
   serviceName: postgres-service
   
-  # Single replica (not a cluster for now - learning mode)
   replicas: 1
   
   selector:

@@ -1,0 +1,31 @@
+{{- range $name, $config := .Values.services }}
+{{- if $config.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "connecthub.fullname" $ }}{{ $name }}
+  namespace: {{ include "connecthub.namespace" $ }}
+  labels:
+    app.kubernetes.io/name: {{ $name }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/component: {{ $name }}
+    {{- include "connecthub.labels" $ | nindent 4 }}
+spec:
+  type: {{ $config.type | default "ClusterIP" }}
+  selector:
+    # Must match Deployment pod labels
+    app.kubernetes.io/name: {{ $name }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+  ports:
+  {{- range $config.ports }}
+  - name: {{ .name }}
+    port: {{ .port }}
+    targetPort: {{ .targetPort | default .port }}
+    protocol: {{ .protocol | default "TCP" }}
+    {{- if and (eq $config.type "NodePort") .nodePort }}
+    nodePort: {{ .nodePort }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

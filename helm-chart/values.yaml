@@ -1,216 +1,291 @@
 # =========================================
 # ConnectHub - Default Values
 # =========================================
-# This file contains default configuration values for the chart.
-# Override these values using:
-#   helm install my-release ./helm-chart -f custom-values.yaml
-# Or:
-#   helm install my-release ./helm-chart --set backend.replicas=3
-# =========================================
 
 # Global settings applied to all components
 global:
-  # Image pull secrets for private Docker Hub repos
-  imagePullSecrets:
-    - name: dockerhub-secret
+  dockerhubSecretName: dockerhub-secret
 
-# Backend API configuration
-backend:
-  enabled: true
-  replicas: 2
-  
-  image:
-    repository: tomernos/connecthub-backend
-    tag: 1b46d09  # Update this with your latest image SHA
-    pullPolicy: Always
-  
-  service:
-    name: backend-api
-    type: ClusterIP
-    port: 5000
-  
-  resources:
-    requests:
-      memory: 128Mi
-      cpu: 100m
-    limits:
-      memory: 256Mi
-      cpu: 200m
-  
-  # Environment configuration for backend
-  env:
-    # Flask application settings
-    flaskApp: run.py
-    flaskEnv: production
-    
-    # Database connection settings
-    dbHost: postgres-service
-    dbPort: 5432
-    dbName: chatapp
-    dbUser: chatuser
-    
-    # Redis connection settings
-    redisHost: cache
-    redisPort: 6379
-    
-    # RabbitMQ connection settings
-    rabbitmqHost: message-queue
-    rabbitmqPort: 5672
-    rabbitmqUser: guest
-  
-  # ConfigMap configuration
-  configMap:
-    name: backend-config
-    create: true
+# Namespace configuration
+# Override with: helm install ... --namespace custom-ns --create-namespace
+namespaceOverride: ""  # Leave empty to use .Release.Namespace
 
-# Frontend configuration
-frontend:
-  enabled: true
-  replicas: 2
-  
-  image:
-    repository: tomernos/connecthub-frontend
-    tag: 1b46d09  # Update this with your latest image SHA
-    pullPolicy: Always
-  
-  service:
-    name: frontend-service
-    type: NodePort
-    port: 80
-    nodePort: 30080
-  
-  resources:
-    requests:
-      memory: 64Mi
-      cpu: 50m
-    limits:
-      memory: 128Mi
-      cpu: 100m
-  
-  # Environment configuration for frontend (if needed)
-  env:
-    # API endpoint configuration
-    apiUrl: http://backend-api:5000
-    nodeEnv: production
-
-# PostgreSQL database configuration
-postgres:
-  enabled: true
-  replicas: 1
-  
-  image:
-    repository: postgres
-    tag: 16-alpine
-    pullPolicy: IfNotPresent
-  
-  service:
-    name: postgres-service
-    port: 5432
-  
-  # Database credentials (in production, use external secrets!)
-  database:
-    name: chatapp
-    user: chatuser
-    password: chatpass  # TODO: Move to Kubernetes Secret
-  
-  # Environment configuration for postgres
-  env:
-    postgresDb: chatapp
-    postgresUser: chatuser
-    pgdata: /var/lib/postgresql/data/pgdata
-  
-  # ConfigMap configuration
-  configMap:
-    name: postgres-config
-    create: true
-
-  # Persistent storage
-  persistence:
-    enabled: true
-    size: 1Gi
-    storageClass: ""
-
-# Redis cache configuration
-redis:
-  enabled: true
-  replicas: 1
-  
-  image:
-    repository: redis
-    tag: 7-alpine
-    pullPolicy: IfNotPresent
-  
-  service:
-    name: cache
-    port: 6379
-  
-  resources:
-    requests:
-      memory: 64Mi
-      cpu: 50m
-    limits:
-      memory: 128Mi
-      cpu: 100m
-  
-  # Environment configuration for redis (if needed)
-  env: {}  # Redis typically needs no env vars
-  
-  # ConfigMap configuration
-  configMap:
-    name: redis-config
-    create: false  # Redis doesn't need ConfigMap
-
-# RabbitMQ message queue configuration
-rabbitmq:
-  enabled: true
-  replicas: 1
-  
-  image:
-    repository: rabbitmq
-    tag: 3-management-alpine
-    pullPolicy: IfNotPresent
-  
-  service:
-    name: message-queue
-    amqpPort: 5672
-    managementPort: 15672
-  
-  # Default credentials (in production, use Kubernetes Secret!)
-  auth:
-    username: guest
-    password: guest  # TODO: Move to Kubernetes Secret
-  
-  resources:
-    requests:
-      memory: 128Mi
-      cpu: 100m
-    limits:
-      memory: 256Mi
-      cpu: 200m
-  
-  # Environment configuration for rabbitmq
-  env:
-    rabbitmqDefaultUser: guest
-    rabbitmqDefaultPass: guest
-  
-  # ConfigMap configuration
-  configMap:
-    name: rabbitmq-config
-    create: true
+namespace:
+  create: false  # Set to false if deploying to existing namespace (like "default")
+  name: connecthub  # Only used if create=true
 
 # =========================================
 # SECRETS CONFIGURATION
 # =========================================
 secrets:
-  enabled: true
-  dbPassword: "chatpass"
-  secretKey: "your-secret-key-here"
-  rabbitmqPassword: "guest"
+
+  backend:
+    DB_PASSWORD: "chatpass"
+    SECRET_KEY: "your-secret-key-here"
+    RABBITMQ_PASSWORD: "guest"
+    
+  postgres:
+    POSTGRES_PASSWORD: "chatpass"
+    
+  rabbitmq:
+    RABBITMQ_DEFAULT_PASS: "guest"
   
-  # =========================================
-  # Docker Hub Registry Credentials
-  # =========================================
+  # Docker Hub registry secret
   dockerhub:
     enabled: true
     secretName: "dockerhub-secret"
-    config: "eyJhdXRocyI6eyJodHRwczovL2luZGV4LmRvY2tlci5pby92MS8iOnsidXNlcm5hbWUiOiJ0b21lcm5vcyIsInBhc3N3b3JkIjoiZGNrcl9wYXRfc3lmV2RoM3hxdTlkWG90RGFtUnoxdU1TYmhRIiwiZW1haWwiOiJ0b21lcm5vczFAZW1haWwuY29tIiwiYXV0aCI6ImRHOXRaWEp1YjNNNlpHTnJjbDl3WVhSZmMzbG1WMlJvTTNoeGRUbGtXRzkwUkdGdFVub3hkVTFUWW1oUiJ9fX0="  # Leave empty to auto-generate from username/password
+    config: "eyJhdXRocyI6eyJodHRwczovL2luZGV4LmRvY2tlci5pby92MS8iOnsidXNlcm5hbWUiOiJ0b21lcm5vcyIsInBhc3N3b3JkIjoiZGNrcl9wYXRfc3lmV2RoM3hxdTlkWG90RGFtUnoxdU1TYmhRIiwiZW1haWwiOiJ0b21lcm5vczFAZW1haWwuY29tIiwiYXV0aCI6ImRHOXRaWEp1YjNNNlpHTnJjbDl3WVhSZmMzbG1WMlJvTTNoeGRUbGtXRzkwUkdGdFVub3hkVTFUWW1oUiJ9fX0="
+
+# =========================================
+# DEPLOYMENTS - All application workloads
+# =========================================
+deployments:
+  backend:
+    enabled: true
+    replicas: 2
+    
+    privateRepository:
+      enabled: true
+
+    image:
+      repository: tomernos/connecthub-backend
+      tag: 1b46d09
+      pullPolicy: Always
+    
+    ports:
+      - name: http
+        containerPort: 5000
+        protocol: TCP
+    
+    # Environment variables from secrets
+    envFrom:
+      - secretRef:
+          name: backend-secret
+    
+    # Plain environment variables
+    env:
+      FLASK_APP: run.py
+      FLASK_ENV: production
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: chatapp
+      DB_USER: chatuser
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USER: guest
+    
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 100m
+      limits:
+        memory: 256Mi
+        cpu: 200m
+
+  frontend:
+    enabled: true
+    replicas: 2
+    
+    image:
+      repository: tomernos/connecthub-frontend
+      tag: 1b46d09
+      pullPolicy: Always
+    
+    ports:
+      - name: http
+        containerPort: 80
+        protocol: TCP
+    
+    env:
+      API_URL: http://backend:5000
+      NODE_ENV: production
+    
+    resources:
+      requests:
+        memory: 64Mi
+        cpu: 50m
+      limits:
+        memory: 128Mi
+        cpu: 100m
+
+  postgres:
+    enabled: true
+    replicas: 1
+    
+    image:
+      repository: postgres
+      tag: 16-alpine
+      pullPolicy: IfNotPresent
+    
+    ports:
+      - name: postgres
+        containerPort: 5432
+        protocol: TCP
+    
+    env:
+      POSTGRES_DB: chatapp
+      POSTGRES_USER: chatuser
+      PGDATA: /var/lib/postgresql/data/pgdata
+    
+    envFrom:
+      - secretRef:
+          name: postgres-secret
+    
+    # persistence:
+    #   enabled: true
+    #   size: 1Gi
+    #   mountPath: /var/lib/postgresql/data
+    #   storageClass: ""
+
+  redis:
+    enabled: true
+    replicas: 1
+    
+    image:
+      repository: redis
+      tag: 7-alpine
+      pullPolicy: IfNotPresent
+    
+    ports:
+      - name: redis
+        containerPort: 6379
+        protocol: TCP
+    
+    resources:
+      requests:
+        memory: 64Mi
+        cpu: 50m
+      limits:
+        memory: 128Mi
+        cpu: 100m
+
+  rabbitmq:
+    enabled: true
+    replicas: 1
+    
+    image:
+      repository: rabbitmq
+      tag: 3-management-alpine
+      pullPolicy: IfNotPresent
+    
+    ports:
+      - name: amqp
+        containerPort: 5672
+        protocol: TCP
+      - name: management
+        containerPort: 15672
+        protocol: TCP
+    
+    env:
+      RABBITMQ_DEFAULT_USER: guest
+    
+    envFrom:
+      - secretRef:
+          name: rabbitmq-secret
+    
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 100m
+      limits:
+        memory: 256Mi
+        cpu: 200m
+
+# =========================================
+# SERVICES - Network exposure for deployments
+# =========================================
+services:
+  backend:
+    enabled: true
+    type: ClusterIP
+    ports:
+      - name: http
+        port: 5000
+        targetPort: 5000
+        protocol: TCP
+
+  frontend:
+    enabled: true
+    type: NodePort
+    ports:
+      - name: http
+        port: 80
+        targetPort: 80
+        nodePort: 30080
+        protocol: TCP
+
+  postgres:
+    enabled: true
+    type: ClusterIP
+    ports:
+      - name: postgres
+        port: 5432
+        targetPort: 5432
+        protocol: TCP
+
+  redis:
+    enabled: true
+    type: ClusterIP
+    ports:
+      - name: redis
+        port: 6379
+        targetPort: 6379
+        protocol: TCP
+
+  rabbitmq:
+    enabled: true
+    type: ClusterIP
+    ports:
+      - name: amqp
+        port: 5672
+        targetPort: 5672
+        protocol: TCP
+      - name: management
+        port: 15672
+        targetPort: 15672
+        protocol: TCP
+
+# =========================================
+# CONFIGMAPS - Configuration data
+# =========================================
+configMaps:
+  backend:
+    enabled: true
+    data:
+      app.conf: |
+        # Backend application configuration
+        LOG_LEVEL=INFO
+  
+  postgres:
+    enabled: true
+    data:
+      postgresql.conf: |
+        # PostgreSQL configuration
+        max_connections = 100
+  
+  rabbitmq:
+    enabled: true
+    data:
+      enabled_plugins: |
+        [rabbitmq_management].
+
+# # =========================================
+# # INGRESS - External access
+# # =========================================
+# ingress:
+#   enabled: false
+#   className: nginx
+#   annotations: {}
+#   hosts:
+#     - host: connecthub.local
+#       paths:
+#         - path: /api
+#           pathType: Prefix
+#           service: backend
+#           port: 5000
+#         - path: /
+#           pathType: Prefix
+#           service: frontend
+#           port: 80

@@ -1,0 +1,100 @@
+{{- range $name, $config := .Values.deployments }}
+{{- if $config.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "connecthub.fullname" $ }}{{ $name }}
+  namespace: {{ include "connecthub.namespace" $ }}
+  labels:
+    app: {{ $name }}
+spec:
+  replicas: {{ $config.replicas | default 1 }}
+  
+  selector:
+    matchLabels:
+      app: {{ $name }}
+  
+  # Rolling update strategy (zero downtime deployments!)
+  # strategy:
+  #   type: RollingUpdate
+  #   rollingUpdate:
+  #     maxSurge: 1        # Can have 1 extra pod during update
+  #     maxUnavailable: 0  # Never have less than 2 pods running
+  
+  template:
+    metadata:
+      labels:
+        app: {{ $name }}
+    spec:
+      {{- if and (hasKey $config "privateRepository") $config.privateRepository.enabled }}
+      # Docker Hub authentication for private images ( can use also 'with' here)
+      imagePullSecrets:
+        - name: {{ include "connecthub.fullname" $ }}{{ $.Values.global.dockerhubSecretName }}
+      {{- end }}
+
+      containers:
+      - name: {{ $name }}
+        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        
+        # Always pull image (ensures latest version)
+        imagePullPolicy: {{ $config.image.pullPolicy }}
+
+        ports:
+        {{- range $config.ports }}
+        - name: {{ .name }}
+          containerPort: {{ .containerPort }}
+          protocol: {{ .protocol }}
+        {{- end }}
+
+        {{- if or $config.env $config.envFrom }}
+        {{- if $config.env }}
+        # Inject ALL ConfigMap values as environment variables
+        env:
+        {{- range $key, $value := $config.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
+
+        {{- if $config.envFrom }}
+        envFrom:
+        {{- range $config.envFrom }}
+        {{- if .secretRef }}
+        - secretRef:
+            name: {{ include "connecthub.fullname" $ }}{{ .secretRef.name }}
+        {{- end }}
+        {{- if .configMapRef }}
+        - configMapRef:
+            name: {{ include "connecthub.fullname" $ }}{{ .configMapRef.name }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+
+        {{- if $config.resources }}
+        resources:
+          {{- toYaml $config.resources | nindent 10 }}
+        {{- end }}
+        {{- if $config.livenessProbe }}
+        livenessProbe:
+          {{- toYaml $config.livenessProbe | nindent 10 }}
+        {{- end }}
+        {{- if $config.readinessProbe }}
+        readinessProbe:
+          {{- toYaml $config.readinessProbe | nindent 10 }}
+        {{- end }}
+        {{- if and $config.persistence $config.persistence.enabled }}
+        volumeMounts:
+        - name: {{ $name }}-data
+          mountPath: {{ $config.persistence.mountPath }}
+        {{- end }}
+      
+      {{- if and $config.persistence $config.persistence.enabled }}
+      volumes:
+      - name: {{ $name }}-data
+        persistentVolumeClaim:
+          claimName: {{ include "connecthub.fullname" $ }}{{ $name }}-pvc
+      {{- end }}
+{{- end }}
+{{- end }}
