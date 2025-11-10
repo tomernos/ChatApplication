@@ -115,9 +115,9 @@ jobs:
       - name: Start Services
         run: |
           echo "Starting: PostgreSQL, Redis, RabbitMQ, Backend..."
-          docker compose up -d
-          echo "Waiting 30s for services to be ready..."
-          sleep 30
+          docker compose up -d --build
+          echo "Waiting 60s for services to be ready..."
+          sleep 60
       
       # Check all containers are running
       - name: Check Services Status
