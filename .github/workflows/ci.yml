@@ -233,7 +233,15 @@ jobs:
       - name: Update Helm Chart Values
         run: |
           SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
-          sed -i 's/tag: .*/tag: '"$SHORT_SHA"'/' helm-chart/values.yaml
+          
+          # Only update backend and frontend tags (not redis, postgres, rabbitmq!)
+          # Update backend tag (line containing "tomernos/connecthub-backend" then next tag)
+          sed -i "/tomernos\/connecthub-backend/,/tag:/ s/tag: .*/tag: $SHORT_SHA/" helm-chart/values.yaml
+          
+          # Update frontend tag
+          sed -i "/tomernos\/connecthub-frontend/,/tag:/ s/tag: .*/tag: $SHORT_SHA/" helm-chart/values.yaml
+          
+          echo "✅ Updated backend and frontend tags to: $SHORT_SHA"
 
       # Step 4: Commit the updated file
       - name: Commit and Push Changes
