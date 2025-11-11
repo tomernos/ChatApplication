@@ -64,7 +64,7 @@ deployments:
 
     image:
       repository: tomernos/connecthub-backend
-      tag: 2033699
+      tag: 7f84767
       pullPolicy: Always
     
     ports:
@@ -105,7 +105,7 @@ deployments:
     
     image:
       repository: tomernos/connecthub-frontend
-      tag: 2033699
+      tag: 7f84767
       pullPolicy: Always
     
     ports:
@@ -131,7 +131,7 @@ deployments:
     
     image:
       repository: postgres
-      tag: 2033699
+      tag: 16-alpine
       pullPolicy: IfNotPresent
     
     ports:
@@ -160,7 +160,7 @@ deployments:
     
     image:
       repository: redis
-      tag: 2033699
+      tag: 7-alpine
       pullPolicy: IfNotPresent
     
     ports:
@@ -182,7 +182,7 @@ deployments:
     
     image:
       repository: rabbitmq
-      tag: 2033699
+      tag: 3-management-alpine
       pullPolicy: IfNotPresent
     
     ports:
