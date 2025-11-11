@@ -10,6 +10,11 @@ name:  CI
 on:
   push:
     branches: [ main, develop, feature/* ]
+    paths-ignore:
+      - 'helm-chart/**'           # Ignore Helm chart changes to prevent recursion
+      - 'k8s-manifest/**'         # Ignore K8s manifests
+      - '*.md'                    # Ignore documentation
+      - '.gitignore'              # Ignore config files
   pull_request:
     branches: [ main, develop, feature/* ]
   workflow_dispatch:
@@ -220,3 +225,15 @@ jobs:
           echo "View at:"
           echo "  https://hub.docker.com/r/tomernos/connecthub-backend/tags"
           echo "  https://hub.docker.com/r/tomernos/connecthub-frontend/tags"
+
+      - name: Update Helm Chart Values
+        run: |
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          sed -i 's/tag: .*/tag: '"$SHORT_SHA"'/' helm-chart/values.yaml
+
+      # Step 4: Commit the updated file
+      - name: Commit and Push Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update image tags to ${{ github.sha }}"
+          file_pattern: 'helm-chart/values.yaml'
