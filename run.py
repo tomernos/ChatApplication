@@ -8,7 +8,7 @@ from app import create_app
 app = create_app()
 
 if __name__ == '__main__':
-    print("🚀 Starting Chat Application Chat...")
+    print("🚀 Starting Chat Application Chat again...")
     print("📍 Available at: http://localhost:5000")
     print("🔧 Environment: Development")
     print("💾 Database: PostgreSQL")
