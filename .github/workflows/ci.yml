@@ -187,6 +187,10 @@ jobs:
     # Only run on main branch (not on feature branches or PRs)
     if: github.ref == 'refs/heads/main'
     
+    # Grant write permission to push commits back to repo
+    permissions:
+      contents: write  # Allows git push
+    
     steps:
       - name: Get Code
         uses: actions/checkout@v4
