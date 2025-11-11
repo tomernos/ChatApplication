@@ -220,10 +220,3 @@ jobs:
           echo "View at:"
           echo "  https://hub.docker.com/r/tomernos/connecthub-backend/tags"
           echo "  https://hub.docker.com/r/tomernos/connecthub-frontend/tags"
-
-      
-
-
-
-
-

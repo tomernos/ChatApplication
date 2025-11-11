@@ -1,0 +1,34 @@
+# ArgoCD Application - Connects Git to Kubernetes
+# Source: https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: chatapp
+  namespace: argocd
+spec:
+  # Project (ArgoCD organizational unit)
+  project: default  # Use default project
+  
+  # Where is your code?
+  source:
+    repoURL: https://github.com/tomernos/ChatApplication.git
+    targetRevision: main  # Which branch to watch
+    path: helm-chart      # Path to Helm chart in repo
+    
+    # Helm-specific settings
+    helm:
+      valueFiles:
+        - values.yaml
+  
+  # Where to deploy?
+  destination:
+    server: https://kubernetes.default.svc  # Local cluster
+    namespace: default  # Target namespace
+  
+  # Sync policy (how ArgoCD behaves)
+  syncPolicy:
+    automated:
+      prune: false      # Don't auto-delete resources (safe for learning)
+      selfHeal: false   # Don't auto-fix manual changes (safe for learning)
+    syncOptions:
+      - CreateNamespace=false  # Don't create namespace (already exists)
