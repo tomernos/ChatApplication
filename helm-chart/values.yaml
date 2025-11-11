@@ -64,7 +64,7 @@ deployments:
 
     image:
       repository: tomernos/connecthub-backend
-      tag: 7f84767
+      tag: 83e1341
       pullPolicy: Always
     
     ports:
@@ -105,7 +105,7 @@ deployments:
     
     image:
       repository: tomernos/connecthub-frontend
-      tag: 7f84767
+      tag: 83e1341
       pullPolicy: Always
     
     ports:
