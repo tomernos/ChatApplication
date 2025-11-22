@@ -1,0 +1,8 @@
+apiVersion: v2
+name: redis
+description: Redis in-memory data store as a StatefulSet
+type: application
+version: 1.0.0
+appVersion: "7.2"
+
+# This is a subchart - it will be included in the parent connecthub chart

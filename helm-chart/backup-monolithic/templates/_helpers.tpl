@@ -1,13 +1,16 @@
 {{/*
 Expand the name of the chart.
 */}}
+
 {{- define "connecthub.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create a default fully qualified app name.
+Returns empty string - component names are used directly
 */}}
+
 {{- define "connecthub.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
@@ -19,6 +22,7 @@ Create a default fully qualified app name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
+
 {{- define "connecthub.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
@@ -26,6 +30,7 @@ Create chart name and version as used by the chart label.
 {{/*
 Common labels
 */}}
+
 {{- define "connecthub.labels" -}}
 helm.sh/chart: {{ include "connecthub.chart" . }}
 {{ include "connecthub.selectorLabels" . }}
@@ -38,6 +43,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
+
 {{- define "connecthub.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "connecthub.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
@@ -46,6 +52,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{/*
 Allow the namespace to be overridden
 */}}
+
 {{- define "connecthub.namespace" -}}
 {{- if .Values.namespaceOverride }}
 {{- .Values.namespaceOverride }}

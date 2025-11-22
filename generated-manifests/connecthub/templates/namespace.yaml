@@ -1,0 +1,12 @@
+---
+# Source: connecthub/templates/namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: chatapp-prod
+  labels:
+    helm.sh/chart: connecthub-1.0.0
+    app.kubernetes.io/name: connecthub
+    app.kubernetes.io/instance: chatapp
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: Helm

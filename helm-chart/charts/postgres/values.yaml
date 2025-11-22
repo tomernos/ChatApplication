@@ -1,0 +1,81 @@
+# =========================================
+# Postgres Subchart - Default Values
+# =========================================
+
+enabled: true
+replicaCount: 1
+
+image:
+  repository: postgres
+  tag: "16-alpine"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 5432
+  targetPort: 5432
+
+# Database configuration
+env:
+  POSTGRES_DB: chatapp
+  POSTGRES_USER: chatuser
+  PGDATA: /var/lib/postgresql/data/pgdata
+
+# Secret reference for password
+envFrom:
+  - secretRef:
+      name: postgres-secret
+
+# Secrets Provider (AWS Secrets Manager CSI Driver)
+secretsProvider:
+  enabled: false  # Set to true in parent values.yaml for production
+  className: "chatapp-secrets"  # SecretProviderClass name
+  volumeName: "secrets-store-inline"
+
+# Persistence
+persistence:
+  enabled: false  # Enable in production
+  # storageClass: "gp3"
+  # accessMode: ReadWriteOnce
+  # size: 5Gi
+  # mountPath: /var/lib/postgresql/data
+
+resources:
+  requests:
+    memory: 128Mi
+    cpu: 100m
+  limits:
+    memory: 256Mi
+    cpu: 200m
+
+livenessProbe:
+  enabled: true
+  exec:
+    command:
+      - /bin/sh
+      - -c
+      - pg_isready -U chatuser
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+readinessProbe:
+  enabled: true
+  exec:
+    command:
+      - /bin/sh
+      - -c
+      - pg_isready -U chatuser
+  initialDelaySeconds: 5
+  periodSeconds: 5
+
+# securityContext:
+#   runAsNonRoot: true
+#   runAsUser: 999
+#   fsGroup: 999
+
+# podSecurityContext:
+#   fsGroup: 999
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

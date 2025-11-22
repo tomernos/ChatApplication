@@ -1,0 +1,135 @@
+---
+# Source: connecthub/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: chatapp-prod
+  labels:
+    app.kubernetes.io/name: backend
+    app.kubernetes.io/instance: chatapp
+    app.kubernetes.io/component: backend
+    helm.sh/chart: connecthub-1.0.0
+    app.kubernetes.io/name: connecthub
+    app.kubernetes.io/instance: chatapp
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  selector:
+    # Must match Deployment pod labels
+    app: backend
+  ports:
+  - name: http
+    port: 5000
+    targetPort: 5000
+    protocol: TCP
+---
+# Source: connecthub/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: chatapp-prod
+  labels:
+    app.kubernetes.io/name: frontend
+    app.kubernetes.io/instance: chatapp
+    app.kubernetes.io/component: frontend
+    helm.sh/chart: connecthub-1.0.0
+    app.kubernetes.io/name: connecthub
+    app.kubernetes.io/instance: chatapp
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: NodePort
+  selector:
+    # Must match Deployment pod labels
+    app: frontend
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    protocol: TCP
+    nodePort: 30080
+---
+# Source: connecthub/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: chatapp-prod
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/instance: chatapp
+    app.kubernetes.io/component: postgres
+    helm.sh/chart: connecthub-1.0.0
+    app.kubernetes.io/name: connecthub
+    app.kubernetes.io/instance: chatapp
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  selector:
+    # Must match Deployment pod labels
+    app: postgres
+  ports:
+  - name: postgres
+    port: 5432
+    targetPort: 5432
+    protocol: TCP
+---
+# Source: connecthub/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  namespace: chatapp-prod
+  labels:
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/instance: chatapp
+    app.kubernetes.io/component: rabbitmq
+    helm.sh/chart: connecthub-1.0.0
+    app.kubernetes.io/name: connecthub
+    app.kubernetes.io/instance: chatapp
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  selector:
+    # Must match Deployment pod labels
+    app: rabbitmq
+  ports:
+  - name: amqp
+    port: 5672
+    targetPort: 5672
+    protocol: TCP
+  - name: management
+    port: 15672
+    targetPort: 15672
+    protocol: TCP
+---
+# Source: connecthub/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: chatapp-prod
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: chatapp
+    app.kubernetes.io/component: redis
+    helm.sh/chart: connecthub-1.0.0
+    app.kubernetes.io/name: connecthub
+    app.kubernetes.io/instance: chatapp
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  selector:
+    # Must match Deployment pod labels
+    app: redis
+  ports:
+  - name: redis
+    port: 6379
+    targetPort: 6379
+    protocol: TCP

@@ -1,0 +1,31 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-pod-identity
+  namespace: chatapp-prod
+spec:
+  serviceAccountName: chatapp-sa
+  containers:
+  - name: aws-cli
+    image: amazon/aws-cli:latest
+    command: ["/bin/sh"]
+    args:
+    - -c
+    - |
+      echo "=== Testing Pod Identity ==="
+      echo ""
+      echo "1. AWS Environment Variables:"
+      env | grep AWS
+      echo ""
+      echo "2. Testing AWS STS (who am I?):"
+      aws sts get-caller-identity
+      echo ""
+      echo "3. Testing Secrets Manager access:"
+      aws secretsmanager get-secret-value \
+        --secret-id chatapp/test-secret \
+        --region eu-central-1
+      echo ""
+      echo "=== Test complete ==="
+      sleep 3600
+`

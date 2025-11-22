@@ -31,14 +31,18 @@ FROM nginx:alpine
 # Copy built React app from builder stage
 COPY --from=builder /app/build /usr/share/nginx/html
 
-# Copy custom Nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx template and startup script
+COPY nginx.conf.template /etc/nginx/conf.d/default.conf.template
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+
+# Make entrypoint script executable
+RUN chmod +x /docker-entrypoint.sh
 
 # Expose port 80
 EXPOSE 80
 
-# Start Nginx server
-CMD ["nginx", "-g", "daemon off;"]
+# Use custom entrypoint that processes template and starts nginx
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 # Why multi-stage build?
 # - Stage 1 builds the app (needs Node.js and all dev dependencies)

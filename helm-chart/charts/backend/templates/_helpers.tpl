@@ -1,55 +1,50 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "connecthub.name" -}}
+{{- define "backend.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create a default fully qualified app name.
 */}}
-{{- define "connecthub.fullname" -}}
+{{- define "backend.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
-{{- "" }}
+{{- $name := default .Chart.Name .Values.nameOverride }}
+{{- if contains $name .Release.Name }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
 {{- end }}
 {{- end }}
 
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "connecthub.chart" -}}
+{{- define "backend.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "connecthub.labels" -}}
-helm.sh/chart: {{ include "connecthub.chart" . }}
-{{ include "connecthub.selectorLabels" . }}
+{{- define "backend.labels" -}}
+helm.sh/chart: {{ include "backend.chart" . }}
+{{ include "backend.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/component: backend
 {{- end }}
 
 {{/*
 Selector labels
 */}}
-{{- define "connecthub.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "connecthub.name" . }}
+{{- define "backend.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "backend.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end }}
-
-{{/*
-Allow the namespace to be overridden
-*/}}
-{{- define "connecthub.namespace" -}}
-{{- if .Values.namespaceOverride }}
-{{- .Values.namespaceOverride }}
-{{- else }}
-{{- .Release.Namespace }}
-{{- end }}
 {{- end }}

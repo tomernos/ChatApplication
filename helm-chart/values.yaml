@@ -1,306 +1,278 @@
 # =========================================
-# ConnectHub - Default Values
+# ConnectHub - Parent Chart Values
+# Microservices Architecture with Subcharts
 # =========================================
 
-# Global settings applied to all components
+# Global settings (accessible to all subcharts via .Values.global)
 global:
   dockerhubSecretName: dockerhub-secret
-
-# Namespace configuration
-# Override with: helm install ... --namespace custom-ns --create-namespace
-namespaceOverride: ""  # Leave empty to use .Release.Namespace
-
-namespace:
-  create: false  # Set to false if deploying to existing namespace (like "default")
-  name: connecthub  # Only used if create=true
+  namespace: chatapp-prod
 
 # =========================================
-# SECRETS CONFIGURATION
+# BACKEND SUBCHART
 # =========================================
-secrets:
-
-  backend:
-    DB_PASSWORD: "chatpass"
-    SECRET_KEY: "your-secret-key-here"
-    RABBITMQ_PASSWORD: "guest"
-    
-  postgres:
-    POSTGRES_PASSWORD: "chatpass"
-    
-  rabbitmq:
-    RABBITMQ_DEFAULT_PASS: "guest"
+backend:
+  enabled: true
+  replicaCount: 2
   
-  # Docker Hub registry secret
+  image:
+    repository: tomernos/connecthub-backend
+    tag: "83e1341"
+    pullPolicy: Always
+  
+  privateRepository:
+    enabled: true
+    secretName: dockerhub-secret
+  
+  serviceAccount:
+    create: false
+    name: "chatapp-sa"
+  
+  # Enable AWS Secrets Manager integration
+  secretsProvider:
+    enabled: true
+    className: "chatapp-secrets"
+  
+  initContainers:
+    - name: wait-for-postgres
+      image: busybox:1.36
+      command:
+        - 'sh'
+        - '-c'
+        - |
+          echo "Waiting for PostgreSQL..."
+          until nc -z chatapp-postgres 5432; do sleep 2; done
+          echo "PostgreSQL ready!"
+  
+  env:
+    FLASK_APP: run.py
+    FLASK_ENV: production
+    DB_HOST: chatapp-postgres
+    DB_PORT: "5432"
+    DB_NAME: chatapp
+    DB_USER: chatuser
+    REDIS_HOST: chatapp-redis
+    REDIS_PORT: "6379"
+    RABBITMQ_HOST: chatapp-rabbitmq
+    RABBITMQ_PORT: "5672"
+    RABBITMQ_USER: guest
+  
+  envFrom:
+    - secretRef:
+        name: backend-secret
+  
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 200m
+
+# =========================================
+# FRONTEND SUBCHART
+# =========================================
+frontend:
+  enabled: true
+  replicaCount: 2
+  
+  image:
+    repository: tomernos/connecthub-frontend
+    tag: "83e1341"
+    pullPolicy: Always
+  
+  env:
+    API_URL: http://chatapp-backend:5000
+    BACKEND_URL: http://chatapp-backend:5000  # For nginx.conf proxy_pass substitution
+    NODE_ENV: production
+  
+  resources:
+    requests:
+      memory: 64Mi
+      cpu: 50m
+    limits:
+      memory: 128Mi
+      cpu: 100m
+
+# =========================================
+# REDIS SUBCHART
+# =========================================
+redis:
+  enabled: true
+  replicaCount: 1
+  
+  image:
+    repository: redis
+    tag: "7-alpine"
+    pullPolicy: IfNotPresent
+  
+  persistence:
+    enabled: false  # Enable in production
+  
+  resources:
+    requests:
+      memory: 64Mi
+      cpu: 50m
+    limits:
+      memory: 128Mi
+      cpu: 100m
+
+# =========================================
+# POSTGRES SUBCHART
+# =========================================
+postgres:
+  enabled: true
+  replicaCount: 1
+  
+  image:
+    repository: postgres
+    tag: "16-alpine"
+    pullPolicy: IfNotPresent
+  
+  env:
+    POSTGRES_DB: chatapp
+    POSTGRES_USER: chatuser
+    PGDATA: /var/lib/postgresql/data/pgdata
+  
+  envFrom:
+    - secretRef:
+        name: postgres-secret
+  
+  secretsProvider:
+    enabled: true  # Enable AWS Secrets Manager CSI Driver
+    className: "chatapp-secrets"
+    volumeName: "secrets-store-inline"
+  
+  persistence:
+    enabled: false  # Enable in production
+  
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 200m
+
+# =========================================
+# RABBITMQ SUBCHART
+# =========================================
+rabbitmq:
+  enabled: true
+  replicaCount: 1
+  
+  image:
+    repository: rabbitmq
+    tag: "3-management-alpine"
+    pullPolicy: IfNotPresent
+  
+  env:
+    RABBITMQ_DEFAULT_USER: guest
+    RABBITMQ_VM_MEMORY_HIGH_WATERMARK: "0.8"  # Allow using 80% of allocated memory before alarm
+  
+  envFrom:
+    - secretRef:
+        name: rabbitmq-secret
+  
+  secretsProvider:
+    enabled: true  # Enable AWS Secrets Manager CSI Driver
+    className: "chatapp-secrets"
+    volumeName: "secrets-store-inline"
+  
+  persistence:
+    enabled: false  # Enable in production
+  
+  resources:
+    requests:
+      memory: 256Mi  # Increased from 128Mi to avoid memory high watermark alarm
+      cpu: 100m
+    limits:
+      memory: 512Mi  # Increased from 256Mi
+      cpu: 200m
+
+# =========================================
+# PARENT CHART RESOURCES
+# (Shared resources, secrets, ingress)
+# =========================================
+
+secrets:
+  backend: {}
+  postgres: {}
+  rabbitmq: {}
+  
   dockerhub:
     enabled: true
     secretName: "dockerhub-secret"
     config: "eyJhdXRocyI6eyJodHRwczovL2luZGV4LmRvY2tlci5pby92MS8iOnsidXNlcm5hbWUiOiJ0b21lcm5vcyIsInBhc3N3b3JkIjoiZGNrcl9wYXRfc3lmV2RoM3hxdTlkWG90RGFtUnoxdU1TYmhRIiwiZW1haWwiOiJ0b21lcm5vczFAZW1haWwuY29tIiwiYXV0aCI6ImRHOXRaWEp1YjNNNlpHTnJjbDl3WVhSZmMzbG1WMlJvTTNoeGRUbGtXRzkwUkdGdFVub3hkVTFUWW1oUiJ9fX0="
 
-# =========================================
-# DEPLOYMENTS - All application workloads
-# =========================================
-deployments:
-  backend:
-    enabled: true
-    replicas: 3
-    
-    privateRepository:
-      enabled: true
+# SecretProviderClass (AWS Secrets Manager - ENABLED for production)
+secretProviderClasses:
+  chatapp-secrets:
+    enabled: true  # Using AWS Secrets Manager
+    provider: aws
+    parameters:
+      region: "eu-central-1"
+      usePodIdentity: "true"
+      objects:
+        - objectName: "chatapp/secret-key"
+          objectType: "secretsmanager"
+          objectAlias: "SECRET_KEY"
+        - objectName: "chatapp/db-password"
+          objectType: "secretsmanager"
+          objectAlias: "DB_PASSWORD"
+        - objectName: "chatapp/rabbitmq-password"
+          objectType: "secretsmanager"
+          objectAlias: "RABBITMQ_PASSWORD"
+    secretObjects:
+      - secretName: backend-secret
+        type: Opaque
+        data:
+          - objectName: "SECRET_KEY"
+            key: "SECRET_KEY"
+          - objectName: "DB_PASSWORD"
+            key: "DB_PASSWORD"
+          - objectName: "RABBITMQ_PASSWORD"
+            key: "RABBITMQ_PASSWORD"
+      - secretName: postgres-secret
+        type: Opaque
+        data:
+          - objectName: "DB_PASSWORD"
+            key: "POSTGRES_PASSWORD"
+      - secretName: rabbitmq-secret
+        type: Opaque
+        data:
+          - objectName: "RABBITMQ_PASSWORD"
+            key: "RABBITMQ_DEFAULT_PASS"
 
-    # Wait for PostgreSQL to be ready before starting
-    initContainers:
-      - name: wait-for-postgres
-        image: busybox:1.36
-        command:
-          - 'sh'
-          - '-c'
-          - |
-            echo "Waiting for PostgreSQL to be ready..."
-            until nc -z postgres 5432; do
-              echo "PostgreSQL is unavailable - sleeping"
-              sleep 2
-            done
-            echo "PostgreSQL is up - starting backend"
+# ServiceAccounts (Pod Identity)
+serviceAccounts:
+  chatapp-sa:
+    enabled: true  # Enable for AWS Pod Identity
+    annotations: {}
 
-    image:
-      repository: tomernos/connecthub-backend
-      tag: 30925c3
-      pullPolicy: Always
-    
-    ports:
-      - name: http
-        containerPort: 5000
-        protocol: TCP
-    
-    # Environment variables from secrets
-    envFrom:
-      - secretRef:
-          name: backend-secret
-    
-    # Plain environment variables
-    env:
-      FLASK_APP: run.py
-      FLASK_ENV: production
-      DB_HOST: postgres
-      DB_PORT: "5432"
-      DB_NAME: chatapp
-      DB_USER: chatuser
-      REDIS_HOST: redis
-      REDIS_PORT: "6379"
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: "5672"
-      RABBITMQ_USER: guest
-    
-    resources:
-      requests:
-        memory: 128Mi
-        cpu: 100m
-      limits:
-        memory: 256Mi
-        cpu: 200m
-
-  frontend:
-    enabled: true
-    replicas: 2
-    
-    image:
-      repository: tomernos/connecthub-frontend
-      tag: 30925c3
-      pullPolicy: Always
-    
-    ports:
-      - name: http
-        containerPort: 80
-        protocol: TCP
-    
-    env:
-      API_URL: http://backend:5000
-      NODE_ENV: production
-    
-    resources:
-      requests:
-        memory: 64Mi
-        cpu: 50m
-      limits:
-        memory: 128Mi
-        cpu: 100m
-
-  postgres:
-    enabled: true
-    replicas: 1
-    
-    image:
-      repository: postgres
-      tag: 16-alpine
-      pullPolicy: IfNotPresent
-    
-    ports:
-      - name: postgres
-        containerPort: 5432
-        protocol: TCP
-    
-    env:
-      POSTGRES_DB: chatapp
-      POSTGRES_USER: chatuser
-      PGDATA: /var/lib/postgresql/data/pgdata
-    
-    envFrom:
-      - secretRef:
-          name: postgres-secret
-    
-    # persistence:
-    #   enabled: true
-    #   size: 1Gi
-    #   mountPath: /var/lib/postgresql/data
-    #   storageClass: ""
-
-  redis:
-    enabled: true
-    replicas: 1
-    
-    image:
-      repository: redis
-      tag: 7-alpine
-      pullPolicy: IfNotPresent
-    
-    ports:
-      - name: redis
-        containerPort: 6379
-        protocol: TCP
-    
-    resources:
-      requests:
-        memory: 64Mi
-        cpu: 50m
-      limits:
-        memory: 128Mi
-        cpu: 100m
-
-  rabbitmq:
-    enabled: true
-    replicas: 1
-    
-    image:
-      repository: rabbitmq
-      tag: 3-management-alpine
-      pullPolicy: IfNotPresent
-    
-    ports:
-      - name: amqp
-        containerPort: 5672
-        protocol: TCP
-      - name: management
-        containerPort: 15672
-        protocol: TCP
-    
-    env:
-      RABBITMQ_DEFAULT_USER: guest
-    
-    envFrom:
-      - secretRef:
-          name: rabbitmq-secret
-    
-    resources:
-      requests:
-        memory: 128Mi
-        cpu: 100m
-      limits:
-        memory: 256Mi
-        cpu: 200m
-
-# =========================================
-# SERVICES - Network exposure for deployments
-# =========================================
-services:
-  backend:
-    enabled: true
-    type: ClusterIP
-    ports:
-      - name: http
-        port: 5000
-        targetPort: 5000
-        protocol: TCP
-
-  frontend:
-    enabled: true
-    type: NodePort
-    ports:
-      - name: http
-        port: 80
-        targetPort: 80
-        nodePort: 30080
-        protocol: TCP
-
-  postgres:
-    enabled: true
-    type: ClusterIP
-    ports:
-      - name: postgres
-        port: 5432
-        targetPort: 5432
-        protocol: TCP
-
-  redis:
-    enabled: true
-    type: ClusterIP
-    ports:
-      - name: redis
-        port: 6379
-        targetPort: 6379
-        protocol: TCP
-
-  rabbitmq:
-    enabled: true
-    type: ClusterIP
-    ports:
-      - name: amqp
-        port: 5672
-        targetPort: 5672
-        protocol: TCP
-      - name: management
-        port: 15672
-        targetPort: 15672
-        protocol: TCP
-
-# =========================================
-# CONFIGMAPS - Configuration data
-# =========================================
-configMaps:
-  backend:
-    enabled: true
-    data:
-      app.conf: |
-        # Backend application configuration
-        LOG_LEVEL=INFO
-  
-  postgres:
-    enabled: true
-    data:
-      postgresql.conf: |
-        # PostgreSQL configuration
-        max_connections = 100
-  
-  rabbitmq:
-    enabled: true
-    data:
-      enabled_plugins: |
-        [rabbitmq_management].
-
-# =========================================
-# INGRESS - External access
-# =========================================
+# Ingress
 ingress:
   enabled: true
   className: nginx
+  
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-http01  
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  
   hosts:
-    - host: chatapp.local
+    - host: chatapp.tomernos.xyz  
       paths:
         - path: /api
           pathType: Prefix
-          serviceName: backend
+          serviceName: chatapp-backend
           servicePort: 5000
         - path: /
           pathType: Prefix
-          serviceName: frontend
+          serviceName: chatapp-frontend
           servicePort: 80
-  tls: []
+  
+  tls:
+    - secretName: chatapp-tls
+      hosts:
+        - chatapp.tomernos.xyz

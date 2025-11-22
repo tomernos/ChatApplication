@@ -1,0 +1,38 @@
+# =========================================
+# Frontend Subchart - Default Values
+# =========================================
+
+enabled: true
+replicaCount: 2
+
+image:
+  repository: tomernos/connecthub-frontend
+  tag: "83e1341"
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+env:
+  API_URL: http://backend:5000
+  BACKEND_URL: http://chatapp-backend:5000  # For nginx proxy_pass
+  NODE_ENV: production
+
+resources:
+  requests:
+    memory: 64Mi
+    cpu: 50m
+  limits:
+    memory: 128Mi
+    cpu: 100m
+
+livenessProbe:
+  enabled: false
+readinessProbe:
+  enabled: false
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

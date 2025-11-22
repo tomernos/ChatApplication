@@ -27,6 +27,7 @@ spec:
       labels:
         app: {{ $name }}
     spec:
+      serviceAccountName: {{ $config.serviceAccountName | default "default" }}
       {{- if and (hasKey $config "privateRepository") $config.privateRepository.enabled }}
       # Docker Hub authentication for private images ( can use also 'with' here)
       imagePullSecrets:
@@ -100,17 +101,35 @@ spec:
         readinessProbe:
           {{- toYaml $config.readinessProbe | nindent 10 }}
         {{- end }}
-        {{- if and $config.persistence $config.persistence.enabled }}
+        
+        {{- if or (and $config.persistence $config.persistence.enabled) $config.secretsProvider }}
         volumeMounts:
+        {{- if and $config.persistence $config.persistence.enabled }}
         - name: {{ $name }}-data
           mountPath: {{ $config.persistence.mountPath }}
         {{- end }}
+        {{- if $config.secretsProvider }}
+        - name: secrets-store
+          mountPath: "/mnt/secrets-store"
+          readOnly: true
+        {{- end }}
+        {{- end }}
       
-      {{- if and $config.persistence $config.persistence.enabled }}
+      {{- if or (and $config.persistence $config.persistence.enabled) $config.secretsProvider }}
       volumes:
+      {{- if and $config.persistence $config.persistence.enabled }}
       - name: {{ $name }}-data
         persistentVolumeClaim:
           claimName: {{ include "connecthub.fullname" $ }}{{ $name }}-pvc
+      {{- end }}
+      {{- if $config.secretsProvider }}
+      - name: secrets-store
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: {{ $config.secretsProvider.className | quote }}
+      {{- end }}
       {{- end }}
 {{- end }}
 {{- end }}

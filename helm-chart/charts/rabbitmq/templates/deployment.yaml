@@ -1,0 +1,108 @@
+{{- if .Values.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "rabbitmq.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "rabbitmq.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "rabbitmq.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "rabbitmq.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: rabbitmq
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        
+        ports:
+        - name: amqp
+          containerPort: {{ .Values.service.amqpPort }}
+          protocol: TCP
+        - name: management
+          containerPort: {{ .Values.service.managementPort }}
+          protocol: TCP
+        
+        env:
+        {{- range $key, $value := .Values.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+        
+        {{- if .Values.envFrom }}
+        envFrom:
+        {{- range .Values.envFrom }}
+        {{- if .secretRef }}
+        - secretRef:
+            name: {{ .secretRef.name }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+        
+        {{- if .Values.livenessProbe.enabled }}
+        livenessProbe:
+          exec:
+            {{- toYaml .Values.livenessProbe.exec | nindent 12 }}
+          initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+        {{- end }}
+        
+        {{- if .Values.readinessProbe.enabled }}
+        readinessProbe:
+          exec:
+            {{- toYaml .Values.readinessProbe.exec | nindent 12 }}
+          initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+        {{- end }}
+        
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        
+        volumeMounts:
+        {{- if .Values.secretsProvider.enabled }}
+        - name: {{ .Values.secretsProvider.volumeName }}
+          mountPath: "/mnt/secrets-store"
+          readOnly: true
+        {{- end }}
+        {{- if .Values.persistence.enabled }}
+        - name: rabbitmq-data
+          mountPath: {{ .Values.persistence.mountPath | default "/var/lib/rabbitmq" }}
+        {{- end }}
+      
+      {{- if .Values.secretsProvider.enabled }}
+      serviceAccountName: {{ .Values.global.serviceAccountName | default "chatapp-sa" }}
+      {{- end }}
+      volumes:
+      {{- if .Values.secretsProvider.enabled }}
+      - name: {{ .Values.secretsProvider.volumeName }}
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: {{ .Values.secretsProvider.className }}
+      {{- end }}
+      {{- if .Values.persistence.enabled }}
+      - name: rabbitmq-data
+        persistentVolumeClaim:
+          claimName: {{ include "rabbitmq.fullname" . }}-pvc
+      {{- end }}
+      
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

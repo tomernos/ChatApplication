@@ -1,0 +1,39 @@
+---
+# Source: connecthub/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: connecthub-ingress
+  namespace: chatapp-prod
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  labels:
+    app.kubernetes.io/name: connecthub
+    app.kubernetes.io/component: ingress
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - "chatapp.yourdomain.com"
+    secretName: chatapp-tls
+  
+  rules:
+  - host: "chatapp.yourdomain.com"
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: backend
+            port:
+              number: 5000
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 80

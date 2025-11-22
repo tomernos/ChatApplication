@@ -1,0 +1,331 @@
+# =========================================
+# ChatApplication - Production Values (AWS EKS)
+# =========================================
+
+# =========================================
+# SECRETS - TO BE MOVED TO AWS SECRETS MANAGER
+# =========================================
+# TEMPORARY: Will be replaced with External Secrets
+secrets:
+  backend:
+    # TODO: Move to AWS Secrets Manager
+    DB_PASSWORD: "prodChatPass2024"
+    SECRET_KEY: "prod-secret-key-change-me-later-12345"
+    RABBITMQ_PASSWORD: "prodRabbitPass2024"
+    
+  postgres:
+    POSTGRES_PASSWORD: "prodChatPass2024"
+    
+  rabbitmq:
+    RABBITMQ_DEFAULT_PASS: "prodRabbitPass2024"
+  
+  # Docker Hub - TODO: Move to AWS Secrets Manager
+  dockerhub:
+    enabled: true
+    secretName: "dockerhub-secret"
+    config: "eyJhdXRocyI6eyJodHRwczovL2luZGV4LmRvY2tlci5pby92MS8iOnsidXNlcm5hbWUiOiJ0b21lcm5vcyIsInBhc3N3b3JkIjoiZGNrcl9wYXRfc3lmV2RoM3hxdTlkWG90RGFtUnoxdU1TYmhRIiwiZW1haWwiOiJ0b21lcm5vczFAZW1haWwuY29tIiwiYXV0aCI6ImRHOXRaWEp1YjNNNlpHTnJjbDl3WVhSZmMzbG1WMlJvTTNoeGRUbGtXRzkwUkdGdFVub3hkVTFUWW1oUiJ9fX0="
+
+# =========================================
+# DEPLOYMENTS - Production Configuration
+# =========================================
+deployments:
+  backend:
+    enabled: true
+    replicas: 2  # HA setup
+    
+    privateRepository:
+      enabled: true
+
+    initContainers:
+      - name: wait-for-postgres
+        image: busybox:1.36
+        command:
+          - 'sh'
+          - '-c'
+          - |
+            echo "Waiting for PostgreSQL..."
+            until nc -z postgres 5432; do sleep 2; done
+            echo "PostgreSQL ready!"
+
+    image:
+      repository: tomernos/connecthub-backend
+      tag: 83e1341  # Use existing built image
+      pullPolicy: Always
+    
+    ports:
+      - name: http
+        containerPort: 5000
+        protocol: TCP
+    
+    # ServiceAccount with Pod Identity for AWS Secrets Manager
+    serviceAccountName: chatapp-sa
+    
+    # CSI Driver will mount secrets from AWS Secrets Manager
+    secretsProvider:
+      className: chatapp-secrets  # References the SecretProviderClass you'll deploy manually
+    
+    # Read secrets from the Kubernetes Secret created by CSI Driver
+    envFrom:
+      - secretRef:
+          name: backend-secret
+    
+    # Configuration (non-secret) environment variables
+    env:
+      FLASK_APP: run.py
+      FLASK_ENV: production
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: chatapp
+      DB_USER: chatuser
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USER: guest
+    
+    # Production resource limits
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 200m
+      limits:
+        memory: 512Mi
+        cpu: 500m
+    
+    # Health checks for production
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 5000
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 5000
+      initialDelaySeconds: 10
+      periodSeconds: 5
+
+  frontend:
+    enabled: true
+    replicas: 2
+    
+    image:
+      repository: tomernos/connecthub-frontend
+      tag: 83e1341  # Use existing built image
+      pullPolicy: Always
+    
+    ports:
+      - name: http
+        containerPort: 80
+        protocol: TCP
+    
+    env:
+      API_URL: http://backend:5000
+      NODE_ENV: production
+    
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 100m
+      limits:
+        memory: 256Mi
+        cpu: 200m
+
+  # PostgreSQL - Consider moving to AWS RDS later
+  postgres:
+    enabled: true
+    replicas: 1
+    
+    image:
+      repository: postgres
+      tag: 16-alpine
+      pullPolicy: IfNotPresent
+    
+    ports:
+      - name: postgres
+        containerPort: 5432
+        protocol: TCP
+    
+    env:
+      POSTGRES_DB: chatapp
+      POSTGRES_USER: chatuser
+      PGDATA: /var/lib/postgresql/data/pgdata
+    
+    envFrom:
+      - secretRef:
+          name: postgres-secret
+    
+    #  persistence in production
+    persistence:
+      enabled: false
+      # size: 5Gi
+      # mountPath: /var/lib/postgresql/data
+      # storageClass: "gp2"
+
+  redis:
+    enabled: true
+    replicas: 1
+    
+    image:
+      repository: redis
+      tag: 7-alpine
+      pullPolicy: IfNotPresent
+    
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 100m
+      limits:
+        memory: 256Mi
+        cpu: 200m
+
+  rabbitmq:
+    enabled: true
+    replicas: 1
+    
+    image:
+      repository: rabbitmq
+      tag: 3-management-alpine
+      pullPolicy: IfNotPresent
+    
+    env:
+      RABBITMQ_DEFAULT_USER: guest
+    
+    envFrom:
+      - secretRef:
+          name: rabbitmq-secret
+    
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 200m
+      limits:
+        memory: 512Mi
+        cpu: 500m
+
+# =========================================
+# SERVICES - Override defaults for production
+# =========================================
+services:
+  backend:
+    enabled: true
+    type: ClusterIP  # Internal only - accessed via Ingress
+    ports:
+      - name: http
+        port: 5000
+        targetPort: 5000
+        protocol: TCP
+
+  frontend:
+    enabled: true
+    type: ClusterIP  # Changed from NodePort - accessed via Ingress
+    ports:
+      - name: http
+        port: 80
+        targetPort: 80
+        protocol: TCP
+
+  postgres:
+    enabled: true
+    type: ClusterIP
+    ports:
+      - name: postgres
+        port: 5432
+        targetPort: 5432
+        protocol: TCP
+
+  redis:
+    enabled: true
+    type: ClusterIP
+    ports:
+      - name: redis
+        port: 6379
+        targetPort: 6379
+        protocol: TCP
+
+  rabbitmq:
+    enabled: true
+    type: ClusterIP
+    ports:
+      - name: rabbitmq
+        port: 5672
+        targetPort: 5672
+        protocol: TCP
+      - name: management
+        port: 15672
+        targetPort: 15672
+        protocol: TCP
+
+
+
+# =========================================
+# INGRESS - AWS Application Load Balancer
+# =========================================
+ingress:
+  enabled: true
+  className: nginx
+  
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-http01  
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  
+  hosts:
+    - host: chatapp.tomernos.xyz  
+      paths:
+        - path: /api
+          pathType: Prefix
+          serviceName: backend
+          servicePort: 5000
+        - path: /
+          pathType: Prefix
+          serviceName: frontend
+          servicePort: 80
+  
+  tls:
+    - secretName: chatapp-tls
+      hosts:
+        - chatapp.tomernos.xyz
+
+
+
+# =========================================
+# SECRET PROVIDER CLASSES - AWS Secrets Manager
+# =========================================
+secretProviderClasses:
+  chatapp-secrets:
+    enabled: true  # Enable SecretProviderClass in production
+    provider: aws
+    parameters:
+      region: "eu-central-1"  # Your AWS region
+      usePodIdentity: "true"  # Uses EKS Pod Identity
+      objects:
+        - objectName: "chatapp/secret-key"
+          objectType: "secretsmanager"
+        - objectName: "chatapp/db-password"
+          objectType: "secretsmanager"
+        - objectName: "chatapp/rabbitmq-password"
+          objectType: "secretsmanager"
+    
+    # Create Kubernetes Secret from AWS secrets
+    secretObjects:
+      - secretName: backend-secret
+        type: Opaque
+        data:
+          - objectName: "chatapp/secret-key"
+            key: "SECRET_KEY"
+          - objectName: "chatapp/db-password"
+            key: "DB_PASSWORD"
+          - objectName: "chatapp/rabbitmq-password"
+            key: "RABBITMQ_PASSWORD"
+
+# =========================================
+# ServiceAccounts - Pod Identity for AWS
+# =========================================
+serviceAccounts:
+  chatapp-sa:
+    enabled: true
+    annotations: {}  
+ 

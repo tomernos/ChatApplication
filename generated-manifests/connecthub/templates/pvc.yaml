@@ -1,0 +1,21 @@
+---
+# Source: connecthub/templates/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: chatapp-prod
+  labels:
+    app: postgres
+    helm.sh/chart: connecthub-1.0.0
+    app.kubernetes.io/name: connecthub
+    app.kubernetes.io/instance: chatapp
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: gp3
