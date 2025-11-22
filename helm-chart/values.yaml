@@ -17,7 +17,7 @@ backend:
   
   image:
     repository: tomernos/connecthub-backend
-    tag: "83e1341"
+    tag: 2cd5dbc
     pullPolicy: Always
   
   privateRepository:
@@ -78,7 +78,7 @@ frontend:
   
   image:
     repository: tomernos/connecthub-frontend
-    tag: "83e1341"
+    tag: 2cd5dbc
     pullPolicy: Always
   
   env:
