@@ -119,7 +119,7 @@ redis:
 
 # =========================================
 # POSTGRES SUBCHART
-# =========================================
+# =========================================# 
 postgres:
   enabled: true
   replicaCount: 1
@@ -168,7 +168,6 @@ rabbitmq:
   
   env:
     RABBITMQ_DEFAULT_USER: guest
-    RABBITMQ_VM_MEMORY_HIGH_WATERMARK: "0.8"  # Allow using 80% of allocated memory before alarm
   
   envFrom:
     - secretRef:

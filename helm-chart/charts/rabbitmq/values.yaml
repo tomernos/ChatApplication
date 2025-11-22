@@ -17,7 +17,6 @@ service:
 
 env:
   RABBITMQ_DEFAULT_USER: guest
-  RABBITMQ_VM_MEMORY_HIGH_WATERMARK: "0.8"
 
 envFrom:
   - secretRef:
@@ -37,23 +36,29 @@ resources:
     memory: 512Mi
     cpu: 400m
 
-livenessProbe:
-  enabled: true
-  exec:
-    command:
-      - rabbitmq-diagnostics
-      - ping
-  initialDelaySeconds: 60
-  periodSeconds: 10
-
 readinessProbe:
-  enabled: true
   exec:
     command:
-      - rabbitmq-diagnostics
-      - check_running
+      - sh
+      - -c
+      - rabbitmq-diagnostics check_running
   initialDelaySeconds: 10
-  periodSeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 5  # Increased from 1 to 5 seconds
+  successThreshold: 1
+  failureThreshold: 3
+
+livenessProbe:
+  exec:
+    command:
+      - sh
+      - -c
+      - rabbitmq-diagnostics ping
+  initialDelaySeconds: 30
+  periodSeconds: 30
+  timeoutSeconds: 5  # Increased from 1 to 5 seconds
+  successThreshold: 1
+  failureThreshold: 3
 
 persistence:
   enabled: false
