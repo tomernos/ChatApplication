@@ -4,15 +4,15 @@ services:
     image: postgres:16.10-alpine3.22
     container_name: connecthub-database
     environment:
-      POSTGRES_DB: ${DB_NAME:-connecthub_db}
-      POSTGRES_USER: ${DB_USER:-connecthub_user}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-connecthub_password}
+      POSTGRES_DB: ${DB_NAME:-chatapp_db}
+      POSTGRES_USER: ${DB_USER:-chatapp_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-chatapp_password}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "${DB_PORT:-5432}:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-connecthub_user} -d ${DB_NAME:-connecthub_db}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-chatapp_user} -d ${DB_NAME:-chatapp_db}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -64,8 +64,8 @@ services:
 
   # Flask Backend API
   backend-api:
-    #build: .
-    image: tomernos/connecthub-backend:1b46d09
+    build: .
+    #image: tomernos/connecthub-backend:1b46d09
     container_name: connecthub-backend-api
     ports:
       - "5000:5000"
@@ -76,12 +76,12 @@ services:
       # PostgreSQL Database Connection
       # Full URL: postgresql://user:password@host:port/database
       # Used by: app/__init__.py, app/models/__init__.py
-      - DATABASE_URL=postgresql://${DB_USER:-connecthub_user}:${DB_PASSWORD:-connecthub_password}@database:5432/${DB_NAME:-connecthub_db}
+      - DATABASE_URL=postgresql://${DB_USER:-chatapp_user}:${DB_PASSWORD:-chatapp_password}@database:5432/${DB_NAME:-chatapp_db}
       - DB_HOST=database
       - DB_PORT=5432
-      - DB_USER=${DB_USER:-connecthub_user}
-      - DB_PASSWORD=${DB_PASSWORD:-connecthub_password}
-      - DB_NAME=${DB_NAME:-connecthub_db}
+      - DB_USER=${DB_USER:-chatapp_user}
+      - DB_PASSWORD=${DB_PASSWORD:-chatapp_password}
+      - DB_NAME=${DB_NAME:-chatapp_db}
       
       # Redis Cache Connection
       # Full URL: redis://host:port/db_number

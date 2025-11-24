@@ -58,16 +58,25 @@ def create_app(config_name=None):
     else:
         logger.warning("RabbitMQ unavailable - skipping workers")
     
+    # Initialize monitoring (BEFORE blueprints to track all requests)
+    from app.services.monitoring_service import monitoring_service
+    monitoring_service.register_middleware(app)
+    logger.info("Monitoring enabled - metrics at /metrics")
+    
     # Register blueprints
     from app.routes.auth import auth_bp
     from app.routes.main import main_bp
     from app.routes.chat import chat_bp
     from app.routes.user import user_bp
+    from app.routes.monitoring import monitoring_bp
     
     # API routes (for React frontend)
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(chat_bp, url_prefix='/api/chat')
     app.register_blueprint(user_bp, url_prefix='/api/users')
+    
+    # Monitoring routes (Prometheus scrapes this)
+    app.register_blueprint(monitoring_bp)
     
     # Main routes (API status and health check)
     app.register_blueprint(main_bp)
