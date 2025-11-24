@@ -1,0 +1,21 @@
+{{- if .Values.enabled }}
+{{- if .Values.monitoring.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "backend.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "backend.labels" . | nindent 4 }}
+    release: kube-prometheus-stack  # Important: Prometheus Operator needs this label to discover the ServiceMonitor
+spec:
+  selector:
+    matchLabels:
+      {{- include "backend.selectorLabels" . | nindent 6 }}
+  endpoints:
+  - port: http  # Must match the port name in the Service
+    path: /metrics
+    interval: {{ .Values.monitoring.scrapeInterval }}
+    scrapeTimeout: {{ .Values.monitoring.scrapeTimeout }}
+{{- end }}
+{{- end }}

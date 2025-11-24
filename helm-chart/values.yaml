@@ -68,6 +68,11 @@ backend:
     limits:
       memory: 256Mi
       cpu: 200m
+  
+  monitoring:
+    enabled: true
+    scrapeInterval: 15s
+    scrapeTimeout: 10s
 
 # =========================================
 # FRONTEND SUBCHART
@@ -117,9 +122,9 @@ redis:
       memory: 128Mi
       cpu: 100m
 
-# =========================================
+# ========================================= 
 # POSTGRES SUBCHART
-# =========================================# 
+# =========================================#
 postgres:
   enabled: true
   replicaCount: 1
