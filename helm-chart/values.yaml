@@ -17,7 +17,7 @@ backend:
   
   image:
     repository: tomernos/connecthub-backend
-    tag: 2cd5dbc
+    tag: f22ecab
     pullPolicy: Always
   
   privateRepository:
@@ -78,7 +78,7 @@ frontend:
   
   image:
     repository: tomernos/connecthub-frontend
-    tag: 2cd5dbc
+    tag: f22ecab
     pullPolicy: Always
   
   env:
