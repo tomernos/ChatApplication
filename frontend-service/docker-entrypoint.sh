@@ -2,7 +2,7 @@
 # Startup script for nginx with environment variable substitution
 
 # Set default if not provided
-export BACKEND_URL=${BACKEND_URL:-http://chatapp-backend:5000}
+export BACKEND_URL=${BACKEND_URL:-http://backend-api:5000}
 
 echo "Substituting BACKEND_URL=${BACKEND_URL} in nginx.conf"
 
