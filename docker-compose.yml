@@ -139,7 +139,7 @@ services:
     ports:
       - "3000:80"
     environment:
-      BACKEND_URL=http://backend-api:5000
+      BACKEND_URL: http://backend-api:5000
     depends_on:
       - backend-api
     networks:
