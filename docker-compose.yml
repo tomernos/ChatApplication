@@ -64,8 +64,8 @@ services:
 
   # Flask Backend API
   backend-api:
-    build: .
-    #image: tomernos/connecthub-backend:1b46d09
+    #build: .
+    image: tomernos/connecthub-backend:1b46d09
     container_name: connecthub-backend-api
     ports:
       - "5000:5000"
