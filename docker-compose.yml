@@ -1,6 +1,6 @@
 services:
   # PostgreSQL Database
-  database:
+  chatapp-database:
     image: postgres:16.10-alpine3.22
     container_name: connecthub-database
     environment:
@@ -22,7 +22,7 @@ services:
     restart: unless-stopped
 
   # Redis Cache
-  cache:
+  chatapp-cache:
     image: redis:7-alpine
     container_name: connecthub-cache
     ports:
@@ -41,7 +41,7 @@ services:
     restart: unless-stopped
 
   # RabbitMQ Message Queue
-  message-queue:
+  chatapp-message-queue:
     image: rabbitmq:3-management-alpine
     container_name: connecthub-message-queue
     environment:
@@ -63,7 +63,7 @@ services:
     restart: unless-stopped
 
   # Flask Backend API
-  backend-api:
+  chatapp-backend-api:
     #build: .
     image: tomernos/connecthub-backend:f22ecab
     container_name: connecthub-backend-api
@@ -115,7 +115,7 @@ services:
     restart: unless-stopped
 
   # Redis Management UI
-  cache-admin:
+  chatapp-cache-admin:
     image: rediscommander/redis-commander:latest
     container_name: connecthub-cache-admin
     hostname: cache-admin
@@ -130,7 +130,7 @@ services:
       - cache
 
   # React Frontend Web Application
-  frontend-web:
+  chatapp-frontend-web:
   #  build:
   #    context: ./frontend-service
   #    dockerfile: Dockerfile
