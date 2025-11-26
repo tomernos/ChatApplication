@@ -99,6 +99,19 @@ jobs:
           docker run --rm connecthub-backend ls -la /app
           echo "App files exist"
 
+      - name: Save Docker Image
+        run: |
+          echo "Saving image to tar file..."
+          docker save connecthub-backend:latest -o backend-image.tar
+          echo "Image saved: $(du -h backend-image.tar)"
+      
+      - name: Upload Image Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-docker-image
+          path: backend-image.tar
+          retention-days: 2 
+          
   # ============================================
   # JOB 3: Integration Test (Real Services)
   # ============================================
