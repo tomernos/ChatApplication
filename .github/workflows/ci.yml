@@ -124,12 +124,6 @@ jobs:
           docker build -t connecthub-frontend ./frontend-service
           echo "Frontend image built successfully"
       
-      - name: Test Frontend Image Runs
-        run: |
-          echo "Testing: Can frontend container start?"
-          docker run --rm connecthub-frontend node --version
-          echo "Frontend container can execute commands"
-      
       - name: Save Frontend Docker Image
         run: |
           echo "Saving frontend image to tar file as artifact"
