@@ -65,7 +65,7 @@ services:
   # Flask Backend API
   backend-api:
     #build: .
-    image: tomernos/connecthub-backend:f22ecab
+    image: tomernos/connecthub-backend:latest
     container_name: connecthub-backend-api
     ports:
       - "5000:5000"
@@ -134,7 +134,7 @@ services:
   #  build:
   #    context: ./frontend-service
   #    dockerfile: Dockerfile
-    image: tomernos/connecthub-frontend:f22ecab
+    image: tomernos/connecthub-frontend:latest
     container_name: connecthub-frontend-web
     ports:
       - "3000:80"
