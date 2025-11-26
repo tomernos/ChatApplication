@@ -147,8 +147,8 @@ jobs:
   # TARGET: Ensure app works before deploying to K8s
   integration-test:
     name: Integration Test
+    needs: build-image
     runs-on: ubuntu-latest
-    needs: build-image  # Only run if build-image passes
     # Skip if manually triggered with skip_tests=true
     if: ${{ !inputs.skip_tests }}
     
@@ -156,22 +156,67 @@ jobs:
       - name: Get Code
         uses: actions/checkout@v4
       
-      - name: Login Docker Hub
-        uses: docker/login-action@v3
+      # ========================================
+      # 🆕 DOWNLOAD ARTIFACTS
+      # ========================================
+      - name: Download Backend Image
+        uses: actions/download-artifact@v4
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      # Start all services using docker compose (V2 plugin)
+          name: backend-docker-image
+          path: /tmp
+    
+      - name: Download Frontend Image
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-docker-image
+          path: /tmp
+    
+      # ========================================
+      # 🆕 LOAD DOCKER IMAGES
+      # ========================================
+      - name: Load Backend Image
+        run: |
+          echo "Loading backend image from artifact..."
+          docker load -i /tmp/backend-image.tar
+          docker images | grep connecthub-backend
+          echo "✅ Backend image loaded"
+    
+      - name: Load Frontend Image
+        run: |
+          echo "Loading frontend image from artifact..."
+          docker load -i /tmp/frontend-image.tar
+          docker images | grep connecthub-frontend
+          echo "✅ Frontend image loaded"
+    
+      # ========================================
+      # 🆕 TAG IMAGES TO MATCH DOCKER-COMPOSE
+      # ========================================
+      - name: Tag Images for docker-compose
+        run: |
+          # Tag backend with the exact name docker-compose expects
+          docker tag connecthub-backend:latest tomernos/connecthub-backend:latest
+          
+          # Tag frontend with the exact name docker-compose expects
+          docker tag connecthub-frontend:latest tomernos/connecthub-frontend:latest
+          
+          echo "✅ Images tagged for docker-compose"
+          docker images | grep connecthub
+    
+      # ========================================
+      # START SERVICES (NO REBUILD!)
+      # ========================================
       - name: Start Services
         run: |
-          echo "Starting: PostgreSQL, Redis, RabbitMQ, Backend..."
-          docker compose up -d --build
-          echo "Waiting 60s for services to be ready..."
-          sleep 60
-      
-      # Check all containers are running
-      - name: Check Services Status
+          echo "Starting services with docker-compose"
+          docker-compose up -d
+          echo "Waiting for containers to start..."
+          sleep 10
+          docker-compose ps
+    
+      # ========================================
+      # WAIT FOR HEALTH CHECKS
+      # ========================================
+      - name: Wait for Services to be Healthy
         run: |
           echo "=== Running Containers ==="
           docker ps
@@ -182,7 +227,7 @@ jobs:
       # Test health endpoints (like Kubernetes will)
       - name: Test Health Endpoint
         run: |
-          echo "Testing: /health endpoint (liveness probe)"
+          echo "Testing backend health endpoint..."
           curl -f http://localhost:5000/health || exit 1
           echo "Health check passed"
       
