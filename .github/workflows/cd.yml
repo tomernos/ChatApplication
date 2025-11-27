@@ -10,6 +10,10 @@ name: CD
 on:
   workflow_dispatch:
     inputs:
+      ci_run_id:
+        description: 'CI Run ID to deploy (e.g., 1234567890)'
+        required: true
+        type: string
       environment:
         description: 'Environment to deploy to'
         required: false
@@ -38,6 +42,7 @@ jobs:
           echo "=========================================="
           echo "🚀 DEPLOYMENT WORKFLOW"
           echo "=========================================="
+          echo "CI Run ID: ${{ inputs.ci_run_id }}"
           echo "Environment: ${{ inputs.environment }}"
           echo "Triggered by: ${{ github.actor }}"
           echo "Commit SHA: ${{ github.sha }}"
@@ -54,12 +59,16 @@ jobs:
         with:
           name: backend-docker-image
           path: /tmp
+          run-id: ${{ inputs.ci_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Download Frontend Image Artifact
         uses: actions/download-artifact@v4
         with:
           name: frontend-docker-image
           path: /tmp
+          run-id: ${{ inputs.ci_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       
       # ==========================================
       # LOAD DOCKER IMAGES FROM ARTIFACTS
