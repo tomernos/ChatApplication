@@ -1,11 +1,11 @@
 # ========================================
-# SIMPLE CI PIPELINE - Learning Version
+# CI PIPELINE - Build, Test, Create Artifacts
 # ========================================
-# What: Automated checks on every push
-# Why: Catch bugs before they reach production
-# When: Runs automatically on git push OR manually triggered
+# What: Build Docker images, run tests, upload artifacts
+# Why: Ensure code quality before deployment
+# When: Every push to main/develop/feature branches
 
-name:  CI
+name: CI
 
 on:
   push:
@@ -36,13 +36,14 @@ on:
 
 
 jobs:
-  
+  # ==================
+  # JOB 1: Python Test 
+  # ==================
   check-python:
     name: Check Python Code
     runs-on: ubuntu-latest
     
     steps:
-      # Show manual trigger info (if applicable)
       - name: Workflow Info
         if: github.event_name == 'workflow_dispatch'
         run: |
@@ -54,28 +55,26 @@ jobs:
           echo "Triggered by: ${{ github.actor }}"
           echo "=========================================="
       
-      # Step 1: Get code from GitHub
       - name: Get Code
         uses: actions/checkout@v4
       
-      # Step 2: Install Python
       - name: Install Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
       
-      # Step 3: Install packages
       - name: Install Packages
         run: |
           pip install -r requirements.txt
       
-      # Step 5: Run tests
       - name: Run Tests
         run: |
           pip install pytest
           pytest tests/ --verbose || echo "No tests yet"
   
-
+  # =======================
+  # JOB 2: Build Images 
+  # =======================
   build-image:
     name: Build Docker Image
     runs-on: ubuntu-latest
@@ -84,9 +83,9 @@ jobs:
       - name: Get Code
         uses: actions/checkout@v4
       
-      # ========================================
+      # =============
       # BACKEND IMAGE
-      # ========================================
+      # =============
       - name: Build Backend
         run: |
           docker build -t connecthub-backend .
@@ -116,9 +115,9 @@ jobs:
           path: backend-image.tar
           retention-days: 2
     
-      # ========================================
+      # ==============
       # FRONTEND IMAGE
-      # ========================================
+      # ==============
       - name: Build Frontend
         run: |
           docker build -t connecthub-frontend ./frontend-service
@@ -137,14 +136,9 @@ jobs:
           path: frontend-image.tar
           retention-days: 2
 
-
-
-  # ============================================
-  # JOB 3: Integration Test (Real Services)
-  # ============================================
-  # WHY: Test app with actual database, redis, rabbitmq
-  # CATCHES: Connection issues, config errors, missing env vars
-  # TARGET: Ensure app works before deploying to K8s
+  # =======================
+  # JOB 3: Integration Test 
+  # =======================
   integration-test:
     name: Integration Test
     needs: build-image
@@ -156,9 +150,9 @@ jobs:
       - name: Get Code
         uses: actions/checkout@v4
       
-      # ========================================
-      # 🆕 DOWNLOAD ARTIFACTS
-      # ========================================
+      # ==================
+      # DOWNLOAD ARTIFACTS
+      # ==================
       - name: Download Backend Image
         uses: actions/download-artifact@v4
         with:
@@ -171,9 +165,9 @@ jobs:
           name: frontend-docker-image
           path: /tmp
     
-      # ========================================
-      # 🆕 LOAD DOCKER IMAGES
-      # ========================================
+      # ==================
+      # LOAD DOCKER IMAGES
+      # ==================
       - name: Load Backend Image
         run: |
           echo "Loading backend image from artifact..."
@@ -262,75 +256,3 @@ jobs:
           echo "Services stopped and cleaned"
 
 
-  # ========================================
-  # PUSH TO DOCKER HUB (main branch only)
-  # ========================================
-  push-image:
-    name: Push Image to Docker Hub
-    runs-on: ubuntu-latest
-    needs: [check-python, build-image, integration-test]
-    # Only run on main branch (not on feature branches or PRs)
-    if: github.ref == 'refs/heads/main'
-    
-    # Grant write permission to push commits back to repo
-    permissions:
-      contents: write  # Allows git push
-    
-    steps:
-      - name: Get Code
-        uses: actions/checkout@v4
-      
-      # Login to Docker Hub docker compose image pull
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
-      # Build and tag backend with commit SHA
-      - name: Build and Tag Backend Image
-        run: |
-          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
-          docker build -t tomernos/connecthub-backend:$SHORT_SHA .
-          echo "Built: tomernos/connecthub-backend:$SHORT_SHA"
-      
-      # Build and tag frontend with commit SHA
-      - name: Build and Tag Frontend Image
-        run: |
-          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
-          docker build -t tomernos/connecthub-frontend:$SHORT_SHA ./frontend-service
-          echo "Built: tomernos/connecthub-frontend:$SHORT_SHA"
-      
-      # Push both images to Docker Hub
-      - name: Push Images to Docker Hub
-        run: |
-          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
-          echo "Pushing backend..."
-          docker push tomernos/connecthub-backend:$SHORT_SHA
-          echo "Pushing frontend..."
-          docker push tomernos/connecthub-frontend:$SHORT_SHA
-          echo "✅ Both images pushed successfully!"
-          echo ""
-          echo "View at:"
-          echo "  https://hub.docker.com/r/tomernos/connecthub-backend/tags"
-          echo "  https://hub.docker.com/r/tomernos/connecthub-frontend/tags"
-
-      - name: Update Helm Chart Values
-        run: |
-          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
-          
-          # Only update backend and frontend tags (not redis, postgres, rabbitmq!)
-          # Update backend tag (line containing "tomernos/connecthub-backend" then next tag)
-          sed -i "/tomernos\/connecthub-backend/,/tag:/ s/tag: .*/tag: $SHORT_SHA/" helm-chart/values.yaml
-          
-          # Update frontend tag
-          sed -i "/tomernos\/connecthub-frontend/,/tag:/ s/tag: .*/tag: $SHORT_SHA/" helm-chart/values.yaml
-          
-          echo "✅ Updated backend and frontend tags to: $SHORT_SHA"
-
-      # Step 4: Commit the updated file
-      - name: Commit and Push Changes
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore: update image tags to ${{ github.sha }}"
-          file_pattern: 'helm-chart/values.yaml'

@@ -1,0 +1,147 @@
+# ========================================
+# CD PIPELINE - Deploy to Docker Hub & K8s
+# ========================================
+# What: Download artifacts, push to Docker Hub, update Helm
+# Why: Deploy tested images to production
+# When: Manually triggered (will add auto-trigger later)
+
+name: CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: false
+        default: 'production'
+        type: choice
+        options:
+          - dev
+          - staging
+          - production
+
+jobs:
+  # ========================================
+  # DEPLOY JOB - Push & Update Helm
+  # ========================================
+  deploy:
+    name: Deploy to Docker Hub
+    runs-on: ubuntu-latest
+    
+    # Grant write permission to push commits back to repo
+    permissions:
+      contents: write  # Allows git push
+    
+    steps:
+      - name: Deploy Info
+        run: |
+          echo "=========================================="
+          echo "🚀 DEPLOYMENT WORKFLOW"
+          echo "=========================================="
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Triggered by: ${{ github.actor }}"
+          echo "Commit SHA: ${{ github.sha }}"
+          echo "=========================================="
+      
+      - name: Get Code
+        uses: actions/checkout@v4
+      
+      # ==========================================
+      # DOWNLOAD ARTIFACTS FROM CI WORKFLOW
+      # ==========================================
+      - name: Download Backend Image Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-docker-image
+          path: /tmp
+      
+      - name: Download Frontend Image Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-docker-image
+          path: /tmp
+      
+      # ==========================================
+      # LOAD DOCKER IMAGES FROM ARTIFACTS
+      # ==========================================
+      - name: Load Backend Image
+        run: |
+          echo "Loading backend image from artifact..."
+          docker load -i /tmp/backend-image.tar
+          docker images | grep connecthub-backend
+          echo "✅ Backend image loaded"
+      
+      - name: Load Frontend Image
+        run: |
+          echo "Loading frontend image from artifact..."
+          docker load -i /tmp/frontend-image.tar
+          docker images | grep connecthub-frontend
+          echo "✅ Frontend image loaded"
+      
+      # ==========================================
+      # LOGIN TO DOCKER HUB
+      # ==========================================
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      # ==========================================
+      # TAG & PUSH BACKEND
+      # ==========================================
+      - name: Tag Backend Image
+        run: |
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          docker tag connecthub-backend:latest tomernos/connecthub-backend:$SHORT_SHA
+          echo "Tagged backend: tomernos/connecthub-backend:$SHORT_SHA"
+      
+      - name: Push Backend to Docker Hub
+        run: |
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          echo "Pushing backend..."
+          docker push tomernos/connecthub-backend:$SHORT_SHA
+          echo "✅ Backend pushed successfully!"
+          echo "View at: https://hub.docker.com/r/tomernos/connecthub-backend/tags"
+      
+      # ==========================================
+      # TAG & PUSH FRONTEND
+      # ==========================================
+      - name: Tag Frontend Image
+        run: |
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          docker tag connecthub-frontend:latest tomernos/connecthub-frontend:$SHORT_SHA
+          echo "Tagged frontend: tomernos/connecthub-frontend:$SHORT_SHA"
+      
+      - name: Push Frontend to Docker Hub
+        run: |
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          echo "Pushing frontend..."
+          docker push tomernos/connecthub-frontend:$SHORT_SHA
+          echo "✅ Frontend pushed successfully!"
+          echo "View at: https://hub.docker.com/r/tomernos/connecthub-frontend/tags"
+      
+      # ==========================================
+      # UPDATE HELM CHART VALUES
+      # ==========================================
+      - name: Update Helm Chart Values
+        run: |
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          
+          # Only update backend and frontend tags (not redis, postgres, rabbitmq!)
+          # Update backend tag (line containing "tomernos/connecthub-backend" then next tag)
+          sed -i "/tomernos\/connecthub-backend/,/tag:/ s/tag: .*/tag: $SHORT_SHA/" helm-chart/values.yaml
+          
+          # Update frontend tag
+          sed -i "/tomernos\/connecthub-frontend/,/tag:/ s/tag: .*/tag: $SHORT_SHA/" helm-chart/values.yaml
+          
+          echo "✅ Updated backend and frontend tags to: $SHORT_SHA"
+      
+      # ==========================================
+      # COMMIT & PUSH HELM CHANGES (Triggers ArgoCD)
+      # ==========================================
+      - name: Commit and Push Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update image tags to ${{ github.sha }}"
+          file_pattern: 'helm-chart/values.yaml'
