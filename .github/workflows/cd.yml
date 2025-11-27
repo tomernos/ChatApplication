@@ -17,7 +17,7 @@ on:
       environment:
         description: 'Environment to deploy to'
         required: false
-        default: 'production'
+        default: 'dev'
         type: choice
         options:
           - dev
@@ -29,12 +29,12 @@ jobs:
   # DEPLOY JOB - Push & Update Helm
   # ========================================
   deploy:
-    name: Deploy to Docker Hub
+    name: Deploy to ${{ inputs.environment }}
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     
-    # Grant write permission to push commits back to repo
     permissions:
-      contents: write  # Allows git push
+      contents: write  
     
     steps:
       - name: Deploy Info
