@@ -29,7 +29,7 @@ on:
 jobs:
   create-hotfix:
     name: Create Hotfix Branch
-    uses: ./.github/workflows/ci2.yml
+    uses: ./.github/workflows/reusable_hotfix.yml
     with:
       name: ${{ inputs.developer_name }}
       app: ${{ inputs.app }}
