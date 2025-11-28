@@ -1,0 +1,35 @@
+# ========================================
+# HOTFIX TRIGGER - Manually Create Hotfix
+# ========================================
+# What: Calls the reusable hotfix workflow
+# Why: Create emergency fix branch with versioning
+# When: Production bug needs immediate fix
+
+name: Create Hotfix
+
+on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: 'Which microservice needs hotfix?'
+        required: true
+        type: choice
+        options:
+          - backend
+          - frontend
+          - user-service
+          - chat-service
+          - auth-service
+      developer_name:
+        description: 'Your name (for audit trail)'
+        required: true
+        type: string
+        default: 'DevOps Team'
+
+jobs:
+  create-hotfix:
+    name: Create Hotfix Branch
+    uses: ./.github/workflows/ci2.yml
+    with:
+      name: ${{ inputs.developer_name }}
+      app: ${{ inputs.app }}
