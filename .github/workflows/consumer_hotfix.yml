@@ -1,11 +1,9 @@
-# ========================================
-# HOTFIX TRIGGER - Manually Create Hotfix
-# ========================================
-# What: Calls the reusable hotfix workflow
-# Why: Create emergency fix branch with versioning
-# When: Production bug needs immediate fix
-
 name: Create Hotfix
+
+permissions:
+  id-token: write
+  contents: write
+  actions: read
 
 on:
   workflow_dispatch:
