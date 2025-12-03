@@ -9,7 +9,7 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop, feature/* ]
+    branches: [ main, develop, feature/*, hotfix/* ]
     paths-ignore:
       - 'helm-chart/**'           # Ignore Helm chart changes to prevent recursion
       - 'k8s-manifest/**'         # Ignore K8s manifests

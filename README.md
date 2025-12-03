@@ -1,6 +1,6 @@
 # ConnectHub Chat Application
 
-Modern chat application with React frontend and Flask API backend, ready for Kubernetes deployment.
+chat application with React frontend and Flask API backend.
 
 ## 🏗️ **Architecture**
 
@@ -20,23 +20,6 @@ Modern chat application with React frontend and Flask API backend, ready for Kub
 
 ## 📁 **Project Structure**
 
-```
-ChatApplication/
-├── app/                      # Flask backend API
-│   ├── routes/              # API endpoints (auth, chat, users)
-│   ├── services/            # Business logic (database, redis, queue)
-│   └── models/              # Database models
-├── frontend-service/         # React frontend
-│   ├── src/
-│   │   ├── pages/           # React pages (Login, Chat, Profile, etc.)
-│   │   ├── services/        # API client (axios)
-│   │   └── styles/          # CSS files
-│   ├── public/              # Static files
-│   └── Dockerfile           # Frontend container (Nginx)
-├── docker-compose.yml        # Multi-container orchestration
-├── Dockerfile               # Backend container
-└── requirements.txt          # Python dependencies
-```
 
 ## 🚀 **Quick Start**
 
@@ -104,86 +87,3 @@ npm start
 - Redis (caching, sessions)
 - RabbitMQ (message queue)
 - Gunicorn (production WSGI server)
-
-## 📦 **Production Deployment**
-
-### **Build Images**
-```bash
-# Backend
-docker build -t connecthub-backend:latest .
-
-# Frontend
-cd frontend-service
-docker build -t connecthub-frontend:latest .
-```
-
-### **Run in Production**
-```bash
-# Set environment variables
-export DATABASE_URL=postgresql://user:pass@host:5432/db
-export REDIS_URL=redis://host:6379/0
-
-# Run backend
-docker run -p 5000:5000 -e DATABASE_URL=$DATABASE_URL connecthub-backend:latest
-
-# Run frontend
-docker run -p 3000:80 connecthub-frontend:latest
-```
-
-## 🧪 **Testing**
-
-```bash
-# Run backend tests
-pytest
-
-# Run frontend tests
-cd frontend-service
-npm test
-```
-
-## 🔒 **Security Features**
-
-- ✅ CORS configured for frontend-backend communication
-- ✅ Session management with Flask sessions
-- ✅ Password hashing (database level)
-- ✅ SQL injection protection (parameterized queries)
-- ✅ Input validation on all endpoints
-
-## 📊 **Monitoring**
-
-- Structured logging with timestamps
-- Health check endpoints for Kubernetes
-- Ready probe checks database connectivity
-- Error tracking in logs
-
-## 🎯 **Next Steps (DevOps Journey)**
-
-1. **Kubernetes Deployment**
-   - Create K8s manifests (deployments, services, ingress)
-   - Deploy to Minikube/Kind locally
-   - Deploy to cloud (EKS, GKE, AKS)
-
-2. **Helm Charts**
-   - Package application for easy deployment
-   - Manage different environments (dev, staging, prod)
-
-3. **CI/CD Pipeline**
-   - Automated testing
-   - Build Docker images
-   - Deploy to Kubernetes
-   - GitOps with ArgoCD
-
-4. **Infrastructure as Code**
-   - Terraform for cloud resources
-   - Provision Kubernetes clusters
-   - Manage databases, networking
-
-5. **Monitoring & Observability**
-   - Prometheus metrics
-   - Grafana dashboards
-   - ELK stack for logs
-   - Distributed tracing
-
-## 📝 **License**
-
-MIT License - Learning project for DevOps best practices

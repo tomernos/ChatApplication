@@ -13,5 +13,5 @@ echo "Generated nginx configuration:"
 cat /etc/nginx/conf.d/default.conf
 
 # Start nginx
-echo "Starting nginx..."
+echo "Starting nginx"
 nginx -g 'daemon off;'
