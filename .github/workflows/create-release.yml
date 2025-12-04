@@ -1,0 +1,106 @@
+# ========================================
+# CREATE RELEASE - Promote Tag to Release
+# ========================================
+# What: Creates GitHub Release from tag
+# Why: Publish release notes, changelog, artifacts
+# When: After hotfix is deployed to production
+
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to create release from (e.g., app/backend/v1.0.1)'
+        required: true
+        type: string
+      release_notes:
+        description: 'Release notes (describe the changes)'
+        required: true
+        type: string
+      is_prerelease:
+        description: 'Is this a pre-release?'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Verify tag exists
+        run: |
+          if ! git tag -l "${{ inputs.tag }}" | grep -q .; then
+            echo "❌ Tag ${{ inputs.tag }} does not exist!"
+            git tag -l "app/*" | head -n 10
+            exit 1
+          fi
+          echo "✅ Tag ${{ inputs.tag }} exists"
+      
+      - name: Extract version info
+        id: version
+        run: |
+          TAG="${{ inputs.tag }}"
+          # Extract: app/backend/v1.0.1 → backend, 1.0.1
+          APP=$(echo "$TAG" | cut -d'/' -f2)
+          VERSION=$(echo "$TAG" | cut -d'v' -f2)
+          
+          echo "app=$APP" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "📦 App: $APP"
+          echo "🏷️  Version: $VERSION"
+      
+      - name: Get commit since last release
+        id: commits
+        run: |
+          # Find previous tag for this app
+          CURRENT_TAG="${{ inputs.tag }}"
+          APP="${{ steps.version.outputs.app }}"
+          
+          PREVIOUS_TAG=$(git tag -l "app/$APP/v*" --sort=-version:refname | grep -v "$CURRENT_TAG" | head -n 1)
+          
+          if [ -n "$PREVIOUS_TAG" ]; then
+            echo "📋 Changes since $PREVIOUS_TAG:"
+            git log --oneline $PREVIOUS_TAG..$CURRENT_TAG
+            COMMIT_COUNT=$(git rev-list --count $PREVIOUS_TAG..$CURRENT_TAG)
+            echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+          else
+            echo "📋 Initial release (no previous tag)"
+            echo "commit_count=0" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ inputs.tag }}
+          release_name: "${{ steps.version.outputs.app }} v${{ steps.version.outputs.version }}"
+          body: |
+            ## ${{ steps.version.outputs.app }} v${{ steps.version.outputs.version }}
+            
+            ${{ inputs.release_notes }}
+            
+            ---
+            
+            **Tag:** `${{ inputs.tag }}`
+            **Commits:** ${{ steps.commits.outputs.commit_count }} changes
+            **Released:** $(date -u +"%Y-%m-%d %H:%M UTC")
+            **Released by:** @${{ github.actor }}
+          draft: false
+          prerelease: ${{ inputs.is_prerelease }}
+      
+      - name: Release created
+        run: |
+          echo "✅ Release created successfully!"
+          echo "🔗 View at: https://github.com/${{ github.repository }}/releases/tag/${{ inputs.tag }}"
