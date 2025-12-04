@@ -41,11 +41,11 @@ jobs:
       - name: Verify tag exists
         run: |
           if ! git tag -l "${{ inputs.tag }}" | grep -q .; then
-            echo "❌ Tag ${{ inputs.tag }} does not exist!"
+            echo "Tag ${{ inputs.tag }} does not exist!"
             git tag -l "app/*" | head -n 10
             exit 1
           fi
-          echo "✅ Tag ${{ inputs.tag }} exists"
+          echo "Tag ${{ inputs.tag }} exists"
       
       - name: Extract version info
         id: version
@@ -102,5 +102,5 @@ jobs:
       
       - name: Release created
         run: |
-          echo "✅ Release created successfully!"
-          echo "🔗 View at: https://github.com/${{ github.repository }}/releases/tag/${{ inputs.tag }}"
+          echo "Release created successfully!"
+          echo "View at: https://github.com/${{ github.repository }}/releases/tag/${{ inputs.tag }}"
