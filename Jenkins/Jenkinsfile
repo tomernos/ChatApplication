@@ -1,0 +1,25 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            when {
+                branch 'feature/jenkins'
+            }
+            steps {
+                echo "Checking out branch feature/jenkins"
+                checkout scm
+            }
+        }
+
+        stage('List Files') {
+            when {
+                branch 'feature/jenkins'
+            }
+            steps {
+                sh 'ls -la'
+            }
+        }
+    }
+}
