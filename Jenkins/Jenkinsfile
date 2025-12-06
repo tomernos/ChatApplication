@@ -4,9 +4,6 @@ pipeline {
     stages {
 
         stage('Checkout') {
-            when {
-                branch 'feature/jenkins'
-            }
             steps {
                 echo "Checking out branch feature/jenkins"
                 checkout scm
@@ -14,9 +11,6 @@ pipeline {
         }
 
         stage('List Files') {
-            when {
-                branch 'feature/jenkins'
-            }
             steps {
                 sh 'ls -la'
             }
