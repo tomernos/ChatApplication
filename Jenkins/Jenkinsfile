@@ -320,8 +320,7 @@ pipeline {
                         def branch = env.BRANCH
                         return branch ==~ /.*main$/ || 
                                branch ==~ /.*staging$/ || 
-                               branch ==~ /.*develop$/ ||
-                               branch ==~ /.*feature\/jenkins$/  // For testing only
+                               branch ==~ /.*develop$/ 
                     }
                 }
             }
