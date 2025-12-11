@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jenkins-local
+    privileged: true
+    user: root
+    ports:
+      - "8080:8080"      # Jenkins UI
+      - "50000:50000"    # Jenkins agent port
+    volumes:
+      # Persist Jenkins data
+      - jenkins_home:/var/jenkins_home
+      
+      # Mount Docker socket (Docker-in-Docker)
+      - /var/run/docker.sock:/var/run/docker.sock
+      
+      # Mount project code
+    #  - ../:/workspace
+    #environment:
+    #  - DOCKER_HOST=unix:///var/run/docker.sock
+    networks:
+      - jenkins-network
+
+  # Optional: Jenkins agent for distributed builds
+  jenkins-agent:
+    image: jenkins/inbound-agent:latest
+    container_name: jenkins-agent
+    environment:
+      - JENKINS_URL=http://jenkins:8080
+      - JENKINS_AGENT_NAME=docker-agent
+      - JENKINS_SECRET=${JENKINS_AGENT_SECRET:-changeme}
+      - JENKINS_AGENT_WORKDIR=/home/jenkins/agent
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - jenkins-network
+    depends_on:
+      - jenkins
+
+volumes:
+  jenkins_home:
+    driver: local
+
+networks:
+  jenkins-network:
+    driver: bridge

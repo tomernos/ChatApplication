@@ -1,0 +1,159 @@
+=== Frontend Container Logs ===
++ docker logs connecthub-frontend-web
+Substituting BACKEND_URL=http://backend-api:5000 in nginx.conf
+Generated nginx configuration:
+# Nginx Configuration for React SPA
+# Handles client-side routing properly
+
+server {
+    listen 80;
+    server_name localhost;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Enable gzip compression for faster loading
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml text/javascript;
+
+    # Main location block
+    location / {
+        # Try to serve file directly, otherwise serve index.html
+        # This is CRITICAL for React Router to work!
+        # Without this, refreshing /chat would give 404 error
+        try_files $uri $uri/ /index.html;
+        
+        # Cache control for index.html (don't cache)
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
+    }
+
+    # Cache static assets (JS, CSS, images)
+    location /static/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Proxy API requests to Flask backend
+    # BACKEND_URL will be substituted at runtime from environment variable
+    location /api/ {
+        proxy_pass http://backend-api:5000/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    # Error pages
+    error_page 404 /index.html;
+}
+
+# Why "try_files $uri $uri/ /index.html"?
+# React Router handles routes in JavaScript, not on the server
+# When you visit /chat, Nginx needs to serve index.html (which loads React)Starting nginx
+2025/12/09 11:49:36 [notice] 9#9: using the "epoll" event method
+2025/12/09 11:49:36 [notice] 9#9: nginx/1.29.3
+2025/12/09 11:49:36 [notice] 9#9: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/12/09 11:49:36 [notice] 9#9: OS: Linux 5.15.167.4-microsoft-standard-WSL2
+2025/12/09 11:49:36 [notice] 9#9: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/12/09 11:49:36 [notice] 9#9: start worker processes
+2025/12/09 11:49:36 [notice] 9#9: start worker process 10
+2025/12/09 11:49:36 [notice] 9#9: start worker process 11
+2025/12/09 11:49:36 [notice] 9#9: start worker process 12
+2025/12/09 11:49:36 [notice] 9#9: start worker process 13
+2025/12/09 11:49:36 [notice] 9#9: start worker process 14
+2025/12/09 11:49:36 [notice] 9#9: start worker process 15
+2025/12/09 11:49:36 [notice] 9#9: start worker process 16
+2025/12/09 11:49:36 [notice] 9#9: start worker process 17
+2025/12/09 11:49:36 [notice] 9#9: start worker process 18
+2025/12/09 11:49:36 [notice] 9#9: start worker process 19
+2025/12/09 11:49:36 [notice] 9#9: start worker process 20
+2025/12/09 11:49:36 [notice] 9#9: start worker process 21
+2025/12/09 11:49:36 [notice] 9#9: start worker process 22
+2025/12/09 11:49:36 [notice] 9#9: start worker process 23
+2025/12/09 11:49:36 [notice] 9#9: start worker process 24
+2025/12/09 11:49:36 [notice] 9#9: start worker process 25
+2025/12/09 11:49:36 [notice] 9#9: start worker process 26
+2025/12/09 11:49:36 [notice] 9#9: start worker process 27
+2025/12/09 11:49:36 [notice] 9#9: start worker process 28
+2025/12/09 11:49:36 [notice] 9#9: start worker process 29
+2025/12/09 11:49:36 [notice] 9#9: start worker process 30
+2025/12/09 11:49:36 [notice] 9#9: start worker process 31
+2025/12/09 11:49:36 [notice] 9#9: start worker process 32
+2025/12/09 11:49:36 [notice] 9#9: start worker process 33
+2025/12/09 11:49:36 [notice] 9#9: start worker process 34
+2025/12/09 11:49:36 [notice] 9#9: start worker process 35
+2025/12/09 11:49:36 [notice] 9#9: start worker process 36
+2025/12/09 11:49:36 [notice] 9#9: start worker process 37
+2025/12/09 11:49:36 [notice] 9#9: start worker process 38
+2025/12/09 11:49:36 [notice] 9#9: start worker process 39
+2025/12/09 11:49:36 [notice] 9#9: start worker process 40
+2025/12/09 11:49:36 [notice] 9#9: start worker process 41
++ echo 
+
++ echo === Backend Container Logs ===
+=== Backend Container Logs ===
++ docker logs connecthub-backend-api
+2025-12-09 11:49:36,508 - INFO - Starting ConnectHub in development mode
+2025-12-09 11:49:36,532 - INFO - Database initialized
+2025-12-09 11:49:36,532 - INFO - Background workers started
+2025-12-09 11:49:36,534 - INFO - Pika version 1.3.2 connecting to ('172.21.0.3', 5672)
+2025-12-09 11:49:36,534 - INFO - Pika version 1.3.2 connecting to ('172.21.0.3', 5672)
+2025-12-09 11:49:36,535 - INFO - Socket connected: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('172.21.0.6', 57238), raddr=('172.21.0.3', 5672)>
+2025-12-09 11:49:36,535 - INFO - Socket connected: <socket.socket fd=11, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('172.21.0.6', 57244), raddr=('172.21.0.3', 5672)>
+2025-12-09 11:49:36,535 - INFO - Streaming transport linked up: (<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7fe356976490>, _StreamingProtocolShim: <SelectConnection PROTOCOL transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7fe356976490> params=<ConnectionParameters host=message-queue port=5672 virtual_host=/ ssl=False>>).
+2025-12-09 11:49:36,536 - INFO - Streaming transport linked up: (<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7fe3569763d0>, _StreamingProtocolShim: <SelectConnection PROTOCOL transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7fe3569763d0> params=<ConnectionParameters host=message-queue port=5672 virtual_host=/ ssl=False>>).
+2025-12-09 11:49:36,540 - INFO - AMQPConnector - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7fe3569763d0> params=<ConnectionParameters host=message-queue port=5672 virtual_host=/ ssl=False>>
+2025-12-09 11:49:36,541 - INFO - AMQPConnector - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7fe356976490> params=<ConnectionParameters host=message-queue port=5672 virtual_host=/ ssl=False>>
+2025-12-09 11:49:36,541 - INFO - AMQPConnectionWorkflow - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7fe3569763d0> params=<ConnectionParameters host=message-queue port=5672 virtual_host=/ ssl=False>>
+2025-12-09 11:49:36,541 - INFO - AMQPConnectionWorkflow - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7fe356976490> params=<ConnectionParameters host=message-queue port=5672 virtual_host=/ ssl=False>>
+2025-12-09 11:49:36,541 - INFO - Connection workflow succeeded: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7fe3569763d0> params=<ConnectionParameters host=message-queue port=5672 virtual_host=/ ssl=False>>
+2025-12-09 11:49:36,541 - INFO - Connection workflow succeeded: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7fe356976490> params=<ConnectionParameters host=message-queue port=5672 virtual_host=/ ssl=False>>
+2025-12-09 11:49:36,541 - INFO - Created channel=1
+2025-12-09 11:49:36,542 - INFO - Created channel=1
+2025-12-09 11:49:36,554 - INFO - ✅ Monitoring middleware registered
+2025-12-09 11:49:36,554 - INFO - Monitoring enabled - metrics at /metrics
+2025-12-09 11:49:36,563 - INFO - API ready
+Using database: postgresql://chatapp_user:chatapp_password@database:5432/chatapp_db
+Redis connection established successfully!
+RabbitMQ connection established successfully!
+Database tables created successfully!
+🚀 Starting Chat Application Chat again...
+📍 Available at: http://localhost:5000
+🔧 Environment: Development
+💾 Database: PostgreSQL
+⚡ Cache: Redis (if available)
+📬 Queue: RabbitMQ (if available)
+--------------------------------------------------
+Email worker started. Waiting for messages...
+Activity logger started. Waiting for messages...
+ * Serving Flask app 'app' (lazy loading)
+ * Environment: development
+ * Debug mode: off
+2025-12-09 11:49:36,565 - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2025-12-09 11:49:36,565 - INFO -  * Running on http://172.21.0.6:5000/ (Press CTRL+C to quit)
+2025-12-09 11:49:36,565 - INFO -  * Restarting with stat
+2025-12-09 11:49:37,082 - INFO - Starting ConnectHub in development mode
+2025-12-09 11:49:37,091 - INFO - Database initialized
+2025-12-09 11:49:37,092 - INFO - Background workers started
+2025-12-09 11:49:37,093 - INFO - Pika version 1.3.2 connecting to ('172.21.0.3', 5672)
+2025-12-09 11:49:37,093 - INFO - Pika version 1.3.2 connecting to ('172.21.0.3', 5672)
+2025-12-09 11:49:37,094 - INFO - Socket connected: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('172.21.0.6', 57256), raddr=('172.21.0.3', 5672)>
+2025-12-09 11:49:37,094 - INFO - Socket connected: <socket.socket fd=14, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('172.21.0.6', 57258), raddr=('172.21.0.3', 5672)>
+2025-12-09 11:49:37,097 - INFO - Streaming transport linked up: (<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7f29d00921c0>, _StreamingProtocolShim: <SelectConnection PROTOCOL transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7f29d00921c0> params=<ConnectionParameters host=message-queue port=5672 virtual_host=/ ssl=False>>).
+2025-12-09 11:49:37,097 - INFO - Streaming transport linked up: (<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7f29d00924c0>, _StreamingProtocolShim: <SelectConnection PROTOCOL transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7f29d00924c0> params=<ConnectionParameters host=message-queue port=5672 virtual_host=/ ssl=False>>).
+2025-12-09 11:49:37,100 - INFO - AMQPConnector - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7f29d00924c0> params=<ConnectionParameters host=message-queue port=5672 virtual_host=/ ssl=False>>
+2025-12-09 11:49:37,100 - INFO - AMQPConnector - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7f29d00921c0> params=<ConnectionParameters host=message-queue port=5672 virtual_host=/ ssl=False>>
+2025-12-09 11:49:37,100 - INFO - AMQPConnectionWorkflow - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7f29d00924c0> params=<ConnectionParameters host=message-queue port=5672 virtual_host=/ ssl=False>>
+2025-12-09 11:49:37,102 - INFO - AMQPConnectionWorkflow - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7f29d00921c0> params=<ConnectionParameters host=message-queue port=5672 virtual_host=/ ssl=False>>
+2025-12-09 11:49:37,102 - INFO - Connection workflow succeeded: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7f29d00924c0> params=<ConnectionParameters host=message-queue port=5672 virtual_host=/ ssl=False>>
+2025-12-09 11:49:37,103 - INFO - Connection workflow succeeded: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7f29d00921c0> params=<ConnectionParameters host=message-queue port=5672 virtual_host=/ ssl=False>>
+2025-12-09 11:49:37,103 - INFO - Created channel=1
+2025-12-09 11:49:37,103 - INFO - Created channel=1
+2025-12-09 11:49:37,113 - INFO - ✅ Monitoring middleware registered
+2025-12-09 11:49:37,113 - INFO - Monitoring enabled - metrics at /metrics
+2025-12-09 11:49:37,119 - INFO - API ready
+[Pipeline] echo

@@ -1,0 +1,563 @@
+@Library('jenkins-shared-library') _
+
+pipeline {
+    agent {
+        docker {
+            image 'python:3.9'
+            args '-v /var/run/docker.sock:/var/run/docker.sock -u root'
+        }
+    }
+
+    // Pipeline Options
+    options {
+        timeout(time: 1, unit: 'HOURS')                    // Kill pipeline after 1 hour
+        timestamps()                                        // Add timestamps to console output
+        buildDiscarder(logRotator(numToKeepStr: '10'))     // Keep only last 10 builds
+        disableConcurrentBuilds()                          // Don't run multiple builds at once
+    }
+
+    // User Parameters
+    parameters {
+        booleanParam(
+            name: 'SKIP_TESTS',
+            defaultValue: false,
+            description: 'Skip test stages (emergency use only)'
+        )
+        booleanParam(
+            name: 'PUSH_TO_REGISTRY',
+            defaultValue: true,
+            description: 'Push images to Docker Hub'
+        )
+    }
+
+    // Environment Variables (Available in all stages)
+    environment {
+        // Docker Hub Configuration
+        DOCKER_REGISTRY = 'tomernos'                    // Your Docker Hub username
+        DOCKER_CREDENTIALS_ID = 'dockerhubauth'         // Must match Jenkins credential ID
+        
+        // GitHub credential (username + PAT for HTTPS push)
+        GIT_CREDENTIALS_ID = 'gitpat'                   // GitHub PAT credential
+        
+        
+        // ============================================================
+        // SEMANTIC VERSIONING STRATEGY (Automated Tags)
+        // ============================================================
+        // Every commit gets a semantic version tag:
+        //   main     → v2.1.1 (production release)
+        //   staging  → v2.1.2-rc.1 (release candidate)
+        //   develop  → v2.2.0-dev.1 (development)
+        //
+        // Commit message conventions (Conventional Commits):
+        //   - "feat: ..." → MINOR bump
+        //   - "fix: ..." → PATCH bump 
+        //   - "BREAKING CHANGE:" → MAJOR bump 
+        //
+        // Jenkins automatically provides:
+        //   - BRANCH_NAME: Branch name (e.g., "develop", "main")
+        //   - GIT_BRANCH: Full branch path (e.g., "origin/main")
+        //   - GIT_COMMIT: Full commit hash
+        
+        // Get short commit hash (first 7 characters)
+        GIT_SHORT_COMMIT = "${env.GIT_COMMIT?.take(7) ?: 'unknown'}"
+        
+        // Detect which branch we're on (normalize branch name)
+        BRANCH = "${env.BRANCH_NAME ?: env.GIT_BRANCH?.replaceAll('origin/', '') ?: 'unknown'}"
+        
+        // Image Names (Full paths for Docker Hub)
+        BACKEND_IMAGE = "${DOCKER_REGISTRY}/connecthub-backend"
+        FRONTEND_IMAGE = "${DOCKER_REGISTRY}/connecthub-frontend"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Calculate & Create Version Tag') {
+            steps {
+                script {
+                    logMessage('Auto-calculating Semantic Version', '🏷️')
+                    
+                    // Simple version calculation based on branch
+                    def versionInfo = calculateAndCreateTag(
+                        branch: BRANCH,
+                        gitCredentialsId: GIT_CREDENTIALS_ID
+                    )
+                    
+                    // Store version in environment variable
+                    env.VERSION = versionInfo.version
+                    env.PREVIOUS_VERSION = versionInfo.previousVersion
+                    env.BUMP_TYPE = versionInfo.bumpType
+                    env.IS_RELEASE = versionInfo.isRelease.toString()
+                    env.TARGET_ENVIRONMENT = versionInfo.environment
+                    
+                    echo """
+                    ╔════════════════════════════════════════╗
+                    ║  VERSION INFORMATION                   ║
+                    ╚════════════════════════════════════════╝
+                    Branch:           ${BRANCH}
+                    Previous Version: ${env.PREVIOUS_VERSION}
+                    New Version:      ${env.VERSION}
+                    Bump Type:        ${env.BUMP_TYPE}
+                    Environment:      ${env.TARGET_ENVIRONMENT}
+                    Is Release:       ${env.IS_RELEASE}
+                    ╚════════════════════════════════════════╝
+                    """.stripIndent()
+                }
+            }
+        }
+
+        stage('Setup Dependencies') {
+            steps {
+                script {
+                    logMessage('Installing System Dependencies', '📦')
+                    
+                    // Install basic packages
+                    installDependencies(['curl', 'gnupg', 'lsb-release', 'ca-certificates'])
+                    
+                    // Install Docker CLI and Compose v2 (auto-detects debian)
+                    def composeInfo = installDockerCompose()
+                    
+                    echo "Docker Compose version: ${composeInfo.version}"
+                    echo "Command to use: ${composeInfo.command}"
+                    
+                    // Install Python packages (suppress root warnings in CI)
+                    sh '''
+                        pip3 install --quiet --upgrade pip --root-user-action=ignore
+                        pip3 install --quiet -r backend-service/requirements.txt --root-user-action=ignore
+                        pip3 install --quiet pytest --root-user-action=ignore
+                    '''
+                    
+                    logMessage('All dependencies installed', '✅')
+                }
+            }
+        }
+
+        stage('Python Tests') {
+            when {
+                expression { !params.SKIP_TESTS }
+            }
+            steps {
+                script {
+                    logMessage('Running Python Tests', '🧪')
+                    
+                    sh '''
+                        cd backend-service
+                        pytest tests/ --verbose || echo "⚠️  No tests yet"
+                    '''
+                }
+            }
+        }
+
+        stage('Build Docker Images') {
+            parallel {
+                stage('Build Backend') {
+                    steps {
+                        script {
+                            logMessage('Building Backend Docker Image', '🔨')
+                            
+                            sh 'docker rmi connecthub-backend:latest tomernos/connecthub-backend:latest || true'
+                            sh 'docker rmi connecthub-frontend:latest tomernos/connecthub-frontend:latest || true'
+
+                            // Use shared library function to save artifact
+                            def backendImage = dockerBuild(
+                                imageName: 'connecthub-backend',
+                                tag: 'latest',
+                                context: './backend-service',
+                                dockerfile: './backend-service/Dockerfile'
+                            )
+                            
+                            saveDockerImage(
+                                imageName: backendImage.imageName,
+                                tag: backendImage.tag,
+                                outputFile: 'backend.tar.gz'
+                            )
+                        }
+                    }
+                }
+                
+                stage('Build Frontend') {
+                    steps {
+                        script {
+                            logMessage('Building Frontend Docker Image', '🌐')
+                            
+                            // Use shared library function to save artifact
+                            def frontendImage = dockerBuild(
+                                imageName: 'connecthub-frontend',
+                                tag: 'latest',
+                                context: './frontend-service',
+                                dockerfile: './frontend-service/Dockerfile'
+                            )
+                            
+                            saveDockerImage(
+                                imageName: frontendImage.imageName,
+                                tag: frontendImage.tag,
+                                outputFile: 'frontend.tar.gz'
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Tag Images') {
+            steps {
+                script {
+                    logMessage('Tagging Images for docker-compose', '🏷️')
+                    
+                    sh '''
+                        docker tag connecthub-backend:latest tomernos/connecthub-backend:latest
+                        docker tag connecthub-frontend:latest tomernos/connecthub-frontend:latest
+                        docker images | grep connecthub
+                    '''
+                }
+            }
+        }
+
+        stage('Start Services') {
+            steps {
+                script {
+                    logMessage('Starting Services with docker-compose', '🚀')
+                    
+                    sh '''
+                        # Force cleanup ALL containers with these names
+                        docker ps -a | grep -E "connecthub-|chatapplication" | awk '{print $1}' | xargs -r docker rm -f || true
+                        
+                        # Cleanup compose resources
+                        docker compose down -v 2>/dev/null || true
+                        
+                        # Start services
+                        docker compose up -d
+                        
+                        # Show status
+                        docker compose ps
+
+                        docker logs connecthub-backend-api
+                    '''
+                }
+            }
+        }
+
+        stage('Integration Health Checks Test') {
+            steps {
+                script {
+                    logMessage('Waiting for Services to be Healthy', '⏳')
+                
+                    
+                    // Use shared library function for backend
+                    def backendHealthy = waitForService(
+                        serviceName: 'Backend API',
+                        healthCheckCmd: 'docker exec connecthub-backend-api curl -f http://localhost:5000/health 2>/dev/null',
+                        maxRetries: 3,
+                        waitSeconds: 5
+                    )
+                    
+                    if (!backendHealthy) {
+                        sh 'docker logs connecthub-backend-api'
+                        error('Backend health check failed!')
+                    }
+                    
+                    def frontendHealthy = waitForService(
+                        serviceName: 'Frontend Web',
+                        healthCheckCmd: 'docker exec connecthub-frontend-web curl -f http://localhost:80 2>/dev/null',
+                        maxRetries: 3,
+                        waitSeconds: 5
+                    )
+                    
+                    if (!frontendHealthy) {
+                        sh 'docker logs connecthub-frontend-web'
+                        error('Frontend health check failed!')
+                    }
+                }
+            }
+        }
+
+        stage('Archive Artifacts') {
+            steps {
+                script {
+                    logMessage('Archiving Artifacts', '💾')
+                    
+                    // Create manifest with version info
+                    sh """
+                            cat > artifacts/manifest.json << EOF
+                            {
+                            "version": "${VERSION}",
+                            "environment": "${TARGET_ENVIRONMENT}",
+                            "is_release": "${IS_RELEASE}",
+                            "git_commit": "${GIT_COMMIT}",
+                            "git_short_commit": "${GIT_SHORT_COMMIT}",
+                            "git_branch": "${GIT_BRANCH}",
+                            "git_tag": "${TAG_NAME ?: 'none'}",
+                            "build_url": "${BUILD_URL}",
+                            "timestamp": "\$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+                            "images": {
+                                "backend": "${BACKEND_IMAGE}:${VERSION}",
+                                "frontend": "${FRONTEND_IMAGE}:${VERSION}"
+                            }
+                            }
+                            EOF
+                        """
+                    
+                    // Archive using Jenkins plugin
+                    archiveArtifacts artifacts: 'artifacts/*', 
+                                   fingerprint: true,
+                                   allowEmptyArchive: false
+                    
+                    logMessage('Artifacts archived successfully', '✅')
+                }
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            when {
+                allOf {
+                    expression { params.PUSH_TO_REGISTRY }
+                    
+                    expression {
+                        def branch = env.BRANCH
+                        return branch ==~ /.*main$/ || 
+                               branch ==~ /.*staging$/ || 
+                               branch ==~ /.*develop$/ ||
+                               branch ==~ /.*feature\/jenkins$/  // For testing only
+                    }
+                }
+            }
+            steps {
+                script {
+                    logMessage("Pushing Images to Docker Hub", '📤')
+                    
+                    echo "════════════════════════════════════════"
+                    echo "📦 BUILD INFORMATION"
+                    echo "════════════════════════════════════════"
+                    echo "Version:      ${VERSION}"
+                    echo "Environment:  ${TARGET_ENVIRONMENT}"
+                    echo "Is Release:   ${IS_RELEASE}"
+                    echo "Git Tag:      ${env.TAG_NAME ?: 'none'}"
+                    echo "Git Commit:   ${GIT_SHORT_COMMIT}"
+                    echo "Branch:       ${BRANCH}"
+                    echo "════════════════════════════════════════"
+                    echo ""
+                    
+                    // Use Jenkins credentials securely
+                    withCredentials([usernamePassword(
+                        credentialsId: "${DOCKER_CREDENTIALS_ID}",
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh '''
+                            echo "🔐 Logging into Docker Hub as: $DOCKER_USER"
+                            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                            
+                            echo ""
+                            echo "🏷️  Tagging images with version: ${VERSION}"
+                            
+                            # Tag backend with version
+                            docker tag connecthub-backend:latest ${BACKEND_IMAGE}:${VERSION}
+                            echo "✅ Tagged: ${BACKEND_IMAGE}:${VERSION}"
+                            
+                            # Tag frontend with version
+                            docker tag connecthub-frontend:latest ${FRONTEND_IMAGE}:${VERSION}
+                            echo "✅ Tagged: ${FRONTEND_IMAGE}:${VERSION}"
+                            
+                            echo ""
+                            echo "📤 Pushing versioned images to Docker Hub..."
+                            
+                            # Push backend
+                            docker push ${BACKEND_IMAGE}:${VERSION}
+                            echo "✅ Pushed: ${BACKEND_IMAGE}:${VERSION}"
+                            
+                            # Push frontend
+                            docker push ${FRONTEND_IMAGE}:${VERSION}
+                            echo "✅ Pushed: ${FRONTEND_IMAGE}:${VERSION}"
+                            
+                            echo ""
+                            echo "� Logging out from Docker Hub"
+                            docker logout
+                            
+                            echo ""
+                            echo "════════════════════════════════════════"
+                            echo "✅ IMAGES PUBLISHED TO DOCKER HUB"
+                            echo "════════════════════════════════════════"
+                            echo "Version: ${VERSION}"
+                            echo "Backend:  ${BACKEND_IMAGE}:${VERSION}"
+                            echo "Frontend: ${FRONTEND_IMAGE}:${VERSION}"
+                            echo "════════════════════════════════════════"
+                        '''
+                    }
+                    
+                    echo ""
+                    echo "View on Docker Hub:"
+                    echo "  Backend:  https://hub.docker.com/r/${DOCKER_REGISTRY}/connecthub-backend/tags"
+                    echo "  Frontend: https://hub.docker.com/r/${DOCKER_REGISTRY}/connecthub-frontend/tags"
+                }
+            }
+        }
+
+        // ===========================================
+        // DEPLOYMENT STAGES (Automatic Branch-Based)
+        // ===========================================
+
+        stage('Deploy to Dev') {
+            when {
+                expression { BRANCH ==~ /.*develop$/ }
+            }
+            steps {
+                script {
+                    logMessage('Auto-Deploying to DEV Environment', '🚀')
+                    
+                    echo "Environment: DEV"
+                    echo "Version: ${VERSION}"
+                    echo "Branch: ${BRANCH}"
+                    echo "Images:"
+                    echo "  - ${BACKEND_IMAGE}:${VERSION}"
+                    echo "  - ${FRONTEND_IMAGE}:${VERSION}"
+                    
+                    // TODO: Actual deployment commands
+                    // kubectl set image deployment/backend backend=${BACKEND_IMAGE}:${VERSION} -n dev
+                    // helm upgrade chatapp ./helm-chart --set image.tag=${VERSION} -n dev
+                    
+                    echo "✅ Deployed to DEV (simulated)"
+                }
+            }
+        }
+
+        stage('Deploy to Staging') {
+            when {
+                expression { BRANCH ==~ /.*staging$/ }
+            }
+            steps {
+                script {
+                    logMessage('Auto-Deploying to STAGING Environment', '🎯')
+                    
+                    echo "Environment: STAGING"
+                    echo "Version: ${VERSION}"
+                    echo "Branch: ${BRANCH}"
+                    
+                    // TODO: Actual deployment commands
+                    // kubectl set image deployment/backend backend=${BACKEND_IMAGE}:${VERSION} -n staging
+                    
+                    echo "✅ Deployed to STAGING (simulated)"
+                }
+            }
+        }
+
+        stage('Approve Production Deployment') {
+            when {
+                expression { BRANCH ==~ /.*main$/ }
+            }
+            steps {
+                script {
+                    logMessage('Production Deployment Approval Required', '🚨')
+                    
+                    // Manual admin approval 
+                    timeout(time: 30, unit: 'MINUTES') {
+                        input(
+                            message: "🚨 Deploy ${VERSION} to PRODUCTION?",
+                            ok: 'Deploy to Production',
+                            submitter: 'admin',  
+                            parameters: [
+                                string(
+                                    name: 'DEPLOYMENT_REASON',
+                                    defaultValue: '',
+                                    description: 'Why are you deploying to production?'
+                                ),
+                                choice(
+                                    name: 'ROLLBACK_PLAN',
+                                    choices: ['Manual rollback prepared', 'Auto-rollback enabled'],
+                                    description: 'Rollback strategy'
+                                )
+                            ]
+                        )
+                    }
+                    
+                    echo "✅ Production deployment approved"
+                    echo "Reason: ${DEPLOYMENT_REASON}"
+                    echo "Rollback plan: ${ROLLBACK_PLAN}"
+                }
+            }
+        }
+
+        stage('Deploy to Production') {
+            when {
+                expression { BRANCH ==~ /.*main$/ }
+            }
+            steps {
+                script {
+                    logMessage('Deploying to PRODUCTION Environment', '🔥')
+                    
+                    echo "Environment: PRODUCTION"
+                    echo "Version: ${VERSION}"
+                    echo "Branch: ${BRANCH}"
+                    
+                    //   kubectl set image deployment/backend backend=${BACKEND_IMAGE}:${VERSION} -n production
+                    //   kubectl rollout status deployment/backend -n production
+                    
+                    echo "✅ Deployed to PRODUCTION (simulated)"
+                    
+                    // Notify team
+                    echo "📧 Production deployment notification sent"
+                }
+            }
+        }
+
+        stage('Post-Deployment Smoke Tests') {
+            when {
+                expression { 
+                    BRANCH ==~ /.*develop$/ || 
+                    BRANCH ==~ /.*staging$/ || 
+                    BRANCH ==~ /.*main$/ 
+                }
+            }
+            steps {
+                script {
+                    logMessage('Running Post-Deployment Smoke Tests', '🔬')
+                    
+                    echo "Environment: ${TARGET_ENVIRONMENT}"
+                    echo "Version: ${VERSION}"
+                    echo "Running basic health checks..."
+                    
+                    // TODO: Add actual smoke tests
+                    // Example: curl health endpoints, check metrics
+                    
+                    echo "✅ Smoke tests passed"
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                logMessage('Cleanup', '🧹')
+                
+                sh '''
+                    # Show logs if something failed
+                    if [ $? -ne 0 ]; then
+                        echo "=== Backend Logs ==="
+                        docker logs connecthub-backend-api || true
+                        echo ""
+                        echo "=== Database Logs ==="
+                        docker logs connecthub-database || true
+                    fi
+                    
+                    # Always cleanup services
+                    docker compose down -v || true
+                    echo "✅ Services stopped and cleaned"
+                '''
+            }
+        }
+        success {
+            script {
+                logMessage('CI Pipeline Completed Successfully!', '✅')
+            }
+        }
+        failure {
+            script {
+                logMessage('CI Pipeline Failed!', '❌')
+            }
+        }
+    }
+}

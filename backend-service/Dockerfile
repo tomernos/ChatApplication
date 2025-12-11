@@ -23,10 +23,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Production stage
 FROM python:3.9-slim
 
-# Install runtime dependencies including netcat for health checks
+# Install runtime dependencies including netcat and curl for health checks
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     netcat-openbsd \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user for security

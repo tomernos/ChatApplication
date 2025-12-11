@@ -64,7 +64,7 @@ services:
 
   # Flask Backend API
   backend-api:
-    #build: .
+    build: ./backend-service
     image: tomernos/connecthub-backend:latest
     container_name: connecthub-backend-api
     ports:
@@ -101,8 +101,8 @@ services:
       - RABBITMQ_PORT=5672
       - RABBITMQ_USER=${RABBITMQ_USER:-admin}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-admin123}
-    volumes:
-      - .:/app
+    # volumes:
+    #   - ./backend-service:/app
     depends_on:
       database:
         condition: service_healthy
@@ -131,10 +131,10 @@ services:
 
   # React Frontend Web Application
   frontend-web:
-  #  build:
-  #    context: ./frontend-service
-  #    dockerfile: Dockerfile
-    image: tomernos/connecthub-frontend:latest
+    build:
+      context: ./frontend-service
+      dockerfile: Dockerfile
+    #image: tomernos/connecthub-frontend:latest
     container_name: connecthub-frontend-web
     ports:
       - "3000:80"
