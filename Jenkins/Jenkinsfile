@@ -321,7 +321,6 @@ pipeline {
                         return branch ==~ /.*main$/ || 
                                branch ==~ /.*staging$/ || 
                                branch ==~ /.*develop$/ ||
-                               branch ==~ /.*feature\/jenkins$/  // For testing only
                     }
                 }
             }
