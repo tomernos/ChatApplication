@@ -1,0 +1,128 @@
+@Library('jenkins-shared-library') _
+
+pipeline {
+    agent {
+        docker {
+            image 'python:3.9'
+            args '-v /var/run/docker.sock:/var/run/docker.sock -u root'
+        }
+    }
+
+
+    environment {
+        DOCKER_REGISTRY = 'tomernos'
+        GIT_CREDENTIALS_ID = 'gitpat'
+        BACKEND_IMAGE = "${DOCKER_REGISTRY}/connecthub-backend"
+        FRONTEND_IMAGE = "${DOCKER_REGISTRY}/connecthub-frontend"
+        BRANCH = "${env.CHANGE_TARGET ?: env.BRANCH_NAME}"  // Target branch of PR
+    }
+
+    stages {
+        stage('Validate PR Target') {
+            steps {
+                script {
+                    def targetBranch = env.CHANGE_TARGET
+                    
+                    if (!(targetBranch ==~ /.*(develop|staging|main)$/)) {
+                        echo "⏭️ Skipping: PR targets '${targetBranch}' (not develop/staging/main)"
+                        currentBuild.result = 'NOT_BUILT'
+                        error("PR must target develop, staging, or main branch")
+                    }
+                    
+                    echo "✅ PR targets ${targetBranch} - proceeding with validation"
+                }
+            }
+        }
+        stage('Check Merge Conflicts') {
+            steps {
+                script {
+                    try {
+                        sh """
+                            git fetch origin ${env.CHANGE_TARGET}
+                            git merge-tree \$(git merge-base HEAD origin/${env.CHANGE_TARGET}) HEAD origin/${env.CHANGE_TARGET} | grep -q '<<<<<' && exit 1 || exit 0
+                        """
+                        echo "✅ No merge conflicts"
+                    } catch (Exception e) {
+                        error("❌ Merge conflicts detected with ${env.CHANGE_TARGET}")
+                    }
+                }
+            }
+        }
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Setup Dependencies') {
+            steps {
+                script {
+                    logMessage('Installing Dependencies', '📦')
+                    installDependencies()
+                }
+            }
+        }
+
+        stage('Python Tests') {
+            steps {
+                script {
+                    sh 'cd app && python -m pytest tests/ -v'
+                }
+            }
+        }
+
+        stage('Build Docker Images') {
+            parallel {
+                stage('Build Backend') {
+                    steps {
+                        script {
+                            logMessage('Building Backend Image', '🐳')
+                            dockerBuild(
+                                imageName: BACKEND_IMAGE,
+                                tag: "pr-${env.CHANGE_ID}",
+                                context: '.',
+                                dockerfile: 'Dockerfile'
+                            )
+                        }
+                    }
+                }
+                stage('Build Frontend') {
+                    steps {
+                        script {
+                            logMessage('Building Frontend Image', '🎨')
+                            dockerBuild(
+                                imageName: FRONTEND_IMAGE,
+                                tag: "pr-${env.CHANGE_ID}",
+                                context: './frontend-service',
+                                dockerfile: './frontend-service/Dockerfile'
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ All checks passed - ready to merge"
+        }
+        failure {
+            script {
+                def reason = currentBuild.rawBuild.getLog(100).find { 
+                    it.contains('Merge conflicts') || 
+                    it.contains('pytest') || 
+                    it.contains('docker build')
+                }
+                if (reason?.contains('Merge conflicts')) {
+                    echo "❌ Failed: Merge conflicts with ${env.CHANGE_TARGET}"
+                } else if (reason?.contains('pytest')) {
+                    echo "❌ Failed: Tests failed"
+                } else {
+                    echo "❌ Failed: Build error"
+                }
+            }
+        }
+    }
+}
