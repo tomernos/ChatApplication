@@ -59,7 +59,15 @@ pipeline {
             steps {
                 script {
                     logMessage('Installing Dependencies', '📦')
-                    installDependencies()
+                    
+                    sh '''
+                        pip install --upgrade pip
+                        cd app
+                        pip install pytest
+                        pip install -r requirements.txt || echo "⚠️ No requirements.txt found"
+                    '''
+                    
+                    echo "✅ Dependencies installed"
                 }
             }
         }
@@ -107,23 +115,13 @@ pipeline {
 
     post {
         success {
-            echo "✅ All checks passed - ready to merge"
+            echo "✅ All checks passed - ready to merge into ${env.CHANGE_TARGET}"
         }
         failure {
-            script {
-                def reason = currentBuild.rawBuild.getLog(100).find { 
-                    it.contains('Merge conflicts') || 
-                    it.contains('pytest') || 
-                    it.contains('docker build')
-                }
-                if (reason?.contains('Merge conflicts')) {
-                    echo "❌ Failed: Merge conflicts with ${env.CHANGE_TARGET}"
-                } else if (reason?.contains('pytest')) {
-                    echo "❌ Failed: Tests failed"
-                } else {
-                    echo "❌ Failed: Build error"
-                }
-            }
+            echo "❌ Validation failed - check logs above"
+        }
+        always {
+            echo "PR validation completed for #${env.CHANGE_ID}"
         }
     }
 }
