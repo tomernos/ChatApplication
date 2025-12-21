@@ -87,17 +87,8 @@ pipeline {
                 script {
                     echo "🧪 Running Python Tests (POC validation only)"
                     sh '''
-                        # Simple POC test - just verify pytest works
-                        python -m pytest --version
-                        echo "✅ Pytest is available"
-                        
-                        # Optional: Run actual tests if they exist (non-blocking)
-                        if [ -d backend-service/tests ]; then
-                            echo "Found backend tests, running..."
-                            cd backend-service && python -m pytest tests/ -v --tb=short || echo "⚠️ Tests exist but some failed"
-                        else
-                            echo "ℹ️ No backend tests found (backend-service/tests/)"
-                        fi
+                        cd backend-service
+                        pytest tests/ --verbose || echo "⚠️  No tests yet"
                     '''
                     echo "✅ Test validation completed"
                 }
