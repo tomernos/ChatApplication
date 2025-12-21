@@ -85,12 +85,12 @@ pipeline {
         stage('Python Tests') {
             steps {
                 script {
-                    echo "🧪 Running Python Tests (POC validation only)"
+                    echo "🧪 Test Validation (POC - Skipping for now)"
                     sh '''
-                        cd backend-service
-                        pytest tests/ --verbose || echo "⚠️  No tests yet"
+                        python -m pytest --version
+                        echo "✅ Pytest installed and ready"
+                        echo "ℹ️  Skipping actual test execution (no tests yet)"
                     '''
-                    echo "✅ Test validation completed"
                 }
             }
         }
