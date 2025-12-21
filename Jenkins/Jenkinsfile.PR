@@ -104,8 +104,8 @@ pipeline {
                             dockerBuild(
                                 imageName: BACKEND_IMAGE,
                                 tag: "pr-${env.CHANGE_ID}",
-                                context: '.',
-                                dockerfile: 'Dockerfile'
+                                context: './backend-service',
+                                dockerfile: './backend-service/Dockerfile'
                             )
                         }
                     }
