@@ -659,7 +659,8 @@ pipeline {
                                 echo "Frontend Image: ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}"
                                 
                                 # Verify ECR_REGISTRY is not empty
-                                if [ -z "${env.ECR_REGISTRY}" ]; then
+                                ECR_REG="${env.ECR_REGISTRY}"
+                                if [ -z "\$ECR_REG" ]; then
                                     echo "❌ ECR_REGISTRY is empty! Cannot deploy."
                                     exit 1
                                 fi
@@ -667,9 +668,9 @@ pipeline {
                                 helm upgrade --install chatapp ./helm-chart \\
                                     --namespace chatapp-prod \\
                                     --create-namespace \\
-                                    --set backend.image.repository=${env.ECR_REGISTRY}/${ECR_BACKEND_REPO} \\
+                                    --set backend.image.repository=\${ECR_REG}/${ECR_BACKEND_REPO} \\
                                     --set backend.image.tag=${env.VERSION} \\
-                                    --set frontend.image.repository=${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO} \\
+                                    --set frontend.image.repository=\${ECR_REG}/${ECR_FRONTEND_REPO} \\
                                     --set frontend.image.tag=${env.VERSION} \\
                                     --wait \\
                                     --timeout 10m
