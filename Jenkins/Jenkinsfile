@@ -428,6 +428,20 @@ pipeline {
                         accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                         secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
                     ]]) {
+                        // Install AWS CLI if not available
+                        sh '''
+                            if ! command -v aws &> /dev/null; then
+                                echo "📦 Installing AWS CLI..."
+                                apt-get update -qq
+                                apt-get install -y -qq curl unzip
+                                curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                                unzip -q awscliv2.zip
+                                ./aws/install
+                                rm -rf awscliv2.zip aws
+                                echo "✅ AWS CLI installed"
+                            fi
+                        '''
+                        
                         // Get AWS account ID and set ECR registry
                         def accountId = sh(
                             script: 'aws sts get-caller-identity --query Account --output text',
@@ -481,14 +495,14 @@ pipeline {
                             echo "════════════════════════════════════════"
                             echo "Version:      ${env.VERSION}"
                             echo "Environment:  ${env.TARGET_ENVIRONMENT}"
-                            echo "ECR Registry: ${ECR_REGISTRY}"
+                            echo "ECR Registry: ${env.ECR_REGISTRY}"
                             echo "Branch:       ${BRANCH}"
                             echo "════════════════════════════════════════"
                             echo ""
                             
                             # Login to ECR
                             echo "🔐 Logging into ECR..."
-                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${env.ECR_REGISTRY}
                             
                             if [ \$? -ne 0 ]; then
                                 echo "❌ ECR login failed"
@@ -507,35 +521,35 @@ pipeline {
                             echo "🏷️  Tagging images with ECR paths..."
                             
                             # Tag backend with ECR path
-                            docker tag connecthub-backend:latest ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}
-                            docker tag connecthub-backend:latest ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:latest
-                            echo "✅ Tagged: ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}"
+                            docker tag connecthub-backend:latest ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}
+                            docker tag connecthub-backend:latest ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:latest
+                            echo "✅ Tagged: ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}"
                             
                             # Tag frontend with ECR path
-                            docker tag connecthub-frontend:latest ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}
-                            docker tag connecthub-frontend:latest ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:latest
-                            echo "✅ Tagged: ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}"
+                            docker tag connecthub-frontend:latest ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}
+                            docker tag connecthub-frontend:latest ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:latest
+                            echo "✅ Tagged: ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}"
                             
                             echo ""
                             echo "📤 Pushing images to ECR..."
                             
                             # Push backend
-                            docker push ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}
-                            docker push ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:latest
-                            echo "✅ Pushed: ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}"
+                            docker push ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}
+                            docker push ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:latest
+                            echo "✅ Pushed: ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}"
                             
                             # Push frontend
-                            docker push ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}
-                            docker push ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:latest
-                            echo "✅ Pushed: ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}"
+                            docker push ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}
+                            docker push ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:latest
+                            echo "✅ Pushed: ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}"
                             
                             echo ""
                             echo "════════════════════════════════════════"
                             echo "✅ IMAGES PUBLISHED TO ECR"
                             echo "════════════════════════════════════════"
                             echo "Version: ${env.VERSION}"
-                            echo "Backend:  ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}"
-                            echo "Frontend: ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}"
+                            echo "Backend:  ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}"
+                            echo "Frontend: ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}"
                             echo "════════════════════════════════════════"
                         """
                     }
@@ -641,11 +655,11 @@ pipeline {
                             sh """
                                 echo "📦 Deploying with Helm..."
                                 echo "Chart: helm-chart/"
-                                echo "Backend Image: ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}"
-                                echo "Frontend Image: ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}"
+                                echo "Backend Image: ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}"
+                                echo "Frontend Image: ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}"
                                 
                                 # Verify ECR_REGISTRY is not empty
-                                if [ -z "${ECR_REGISTRY}" ]; then
+                                if [ -z "${env.ECR_REGISTRY}" ]; then
                                     echo "❌ ECR_REGISTRY is empty! Cannot deploy."
                                     exit 1
                                 fi
@@ -653,9 +667,9 @@ pipeline {
                                 helm upgrade --install chatapp ./helm-chart \\
                                     --namespace chatapp-prod \\
                                     --create-namespace \\
-                                    --set backend.image.repository=${ECR_REGISTRY}/${ECR_BACKEND_REPO} \\
+                                    --set backend.image.repository=${env.ECR_REGISTRY}/${ECR_BACKEND_REPO} \\
                                     --set backend.image.tag=${env.VERSION} \\
-                                    --set frontend.image.repository=${ECR_REGISTRY}/${ECR_FRONTEND_REPO} \\
+                                    --set frontend.image.repository=${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO} \\
                                     --set frontend.image.tag=${env.VERSION} \\
                                     --wait \\
                                     --timeout 10m
