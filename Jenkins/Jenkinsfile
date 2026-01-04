@@ -295,13 +295,13 @@ pipeline {
                             cat > artifacts/manifest.json << EOF
                             {
                             "version": "${env.VERSION}",
-                            "environment": "${TARGET_ENVIRONMENT}",
-                            "is_release": "${IS_RELEASE}",
-                            "git_commit": "${GIT_COMMIT}",
+                            "environment": "${env.TARGET_ENVIRONMENT}",
+                            "is_release": "${env.IS_RELEASE}",
+                            "git_commit": "${env.GIT_COMMIT}",
                             "git_short_commit": "${GIT_SHORT_COMMIT}",
-                            "git_branch": "${GIT_BRANCH}",
-                            "git_tag": "${TAG_NAME ?: 'none'}",
-                            "build_url": "${BUILD_URL}",
+                            "git_branch": "${env.GIT_BRANCH}",
+                            "git_tag": "${env.TAG_NAME ?: 'none'}",
+                            "build_url": "${env.BUILD_URL}",
                             "timestamp": "\$(date -u +%Y-%m-%dT%H:%M:%SZ)",
                             "images": {
                                 "backend": "${BACKEND_IMAGE}:${env.VERSION}",
@@ -480,7 +480,7 @@ pipeline {
                             echo "📦 BUILD INFORMATION"
                             echo "════════════════════════════════════════"
                             echo "Version:      ${env.VERSION}"
-                            echo "Environment:  ${TARGET_ENVIRONMENT}"
+                            echo "Environment:  ${env.TARGET_ENVIRONMENT}"
                             echo "ECR Registry: ${ECR_REGISTRY}"
                             echo "Branch:       ${BRANCH}"
                             echo "════════════════════════════════════════"
