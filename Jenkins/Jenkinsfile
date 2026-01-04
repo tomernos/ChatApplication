@@ -32,7 +32,12 @@ pipeline {
 
     // Environment Variables (Available in all stages)
     environment {
-        // Docker Hub Configuration
+        // AWS Configuration
+        AWS_REGION = 'eu-central-1'
+        AWS_CREDENTIALS_ID = 'aws-creds'                // Jenkins AWS credentials ID
+        CLUSTER_NAME = 'tnt-eu-observability-dev-eks'    // EKS cluster name (from Terraform)
+        
+        // Docker Hub Configuration (legacy, will be replaced by ECR)
         DOCKER_REGISTRY = 'tomernos'                    // Your Docker Hub username
         DOCKER_CREDENTIALS_ID = 'dockerhubauth'         // Must match Jenkins credential ID
         
@@ -64,9 +69,14 @@ pipeline {
         // Detect which branch we're on (normalize branch name)
         BRANCH = "${env.BRANCH_NAME ?: env.GIT_BRANCH?.replaceAll('origin/', '') ?: 'unknown'}"
         
-        // Image Names (Full paths for Docker Hub)
+        // Image Names (Full paths for Docker Hub - legacy)
         BACKEND_IMAGE = "${DOCKER_REGISTRY}/connecthub-backend"
         FRONTEND_IMAGE = "${DOCKER_REGISTRY}/connecthub-frontend"
+        
+        // ECR Registry (will be set after AWS auth)
+        ECR_REGISTRY = ''
+        ECR_BACKEND_REPO = 'connecthub-backend'
+        ECR_FRONTEND_REPO = 'connecthub-frontend'
     }
 
     stages {
@@ -396,6 +406,269 @@ pipeline {
         }
 
         // ===========================================
+        // AWS INFRASTRUCTURE & DEPLOYMENT STAGES
+        // ===========================================
+
+        stage('Authenticate to AWS & Set ECR Registry') {
+            when {
+                expression {
+                    def branch = env.BRANCH
+                    return branch ==~ /.*main$/ || 
+                           branch ==~ /.*staging$/ || 
+                           branch ==~ /.*develop$/
+                }
+            }
+            steps {
+                script {
+                    logMessage('Authenticating to AWS and setting ECR registry', '🔐')
+                    
+                    withCredentials([[
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                    ]]) {
+                        // Get AWS account ID and set ECR registry
+                        def accountId = sh(
+                            script: 'aws sts get-caller-identity --query Account --output text',
+                            returnStdout: true
+                        ).trim()
+                        
+                        env.AWS_ACCOUNT_ID = accountId
+                        env.ECR_REGISTRY = "${accountId}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+                        
+                        echo "✅ AWS authenticated"
+                        echo "Account ID: ${accountId}"
+                        echo "Region: ${AWS_REGION}"
+                        echo "ECR Registry: ${env.ECR_REGISTRY}"
+                        
+                        // Verify ECR registry is set
+                        if (!env.ECR_REGISTRY || env.ECR_REGISTRY.isEmpty()) {
+                            error("ECR_REGISTRY is not set! Cannot proceed with ECR operations.")
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Push to ECR') {
+            when {
+                expression {
+                    def branch = env.BRANCH
+                    return branch ==~ /.*main$/ || 
+                           branch ==~ /.*staging$/ || 
+                           branch ==~ /.*develop$/
+                }
+            }
+            steps {
+                script {
+                    logMessage("Pushing Images to ECR", '📤')
+                    
+                    // Verify ECR_REGISTRY is set (from previous stage)
+                    if (!env.ECR_REGISTRY || env.ECR_REGISTRY.isEmpty()) {
+                        error("ECR_REGISTRY is not set! Run 'Authenticate to AWS' stage first.")
+                    }
+                    
+                    withCredentials([[
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                    ]]) {
+                        sh """
+                            echo "════════════════════════════════════════"
+                            echo "📦 BUILD INFORMATION"
+                            echo "════════════════════════════════════════"
+                            echo "Version:      ${VERSION}"
+                            echo "Environment:  ${TARGET_ENVIRONMENT}"
+                            echo "ECR Registry: ${ECR_REGISTRY}"
+                            echo "Branch:       ${BRANCH}"
+                            echo "════════════════════════════════════════"
+                            echo ""
+                            
+                            # Login to ECR
+                            echo "🔐 Logging into ECR..."
+                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+                            
+                            if [ \$? -ne 0 ]; then
+                                echo "❌ ECR login failed"
+                                exit 1
+                            fi
+                            
+                            # Ensure ECR repositories exist (create if missing)
+                            echo "📦 Ensuring ECR repositories exist..."
+                            aws ecr describe-repositories --repository-names ${ECR_BACKEND_REPO} --region ${AWS_REGION} 2>/dev/null || \\
+                                aws ecr create-repository --repository-name ${ECR_BACKEND_REPO} --region ${AWS_REGION} || true
+                            
+                            aws ecr describe-repositories --repository-names ${ECR_FRONTEND_REPO} --region ${AWS_REGION} 2>/dev/null || \\
+                                aws ecr create-repository --repository-name ${ECR_FRONTEND_REPO} --region ${AWS_REGION} || true
+                            
+                            echo ""
+                            echo "🏷️  Tagging images with ECR paths..."
+                            
+                            # Tag backend with ECR path
+                            docker tag connecthub-backend:latest ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${VERSION}
+                            docker tag connecthub-backend:latest ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:latest
+                            echo "✅ Tagged: ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${VERSION}"
+                            
+                            # Tag frontend with ECR path
+                            docker tag connecthub-frontend:latest ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${VERSION}
+                            docker tag connecthub-frontend:latest ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:latest
+                            echo "✅ Tagged: ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${VERSION}"
+                            
+                            echo ""
+                            echo "📤 Pushing images to ECR..."
+                            
+                            # Push backend
+                            docker push ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${VERSION}
+                            docker push ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:latest
+                            echo "✅ Pushed: ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${VERSION}"
+                            
+                            # Push frontend
+                            docker push ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${VERSION}
+                            docker push ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:latest
+                            echo "✅ Pushed: ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${VERSION}"
+                            
+                            echo ""
+                            echo "════════════════════════════════════════"
+                            echo "✅ IMAGES PUBLISHED TO ECR"
+                            echo "════════════════════════════════════════"
+                            echo "Version: ${VERSION}"
+                            echo "Backend:  ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${VERSION}"
+                            echo "Frontend: ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${VERSION}"
+                            echo "════════════════════════════════════════"
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Apply (Ensure Cluster)') {
+            when {
+                expression {
+                    def branch = env.BRANCH
+                    return branch ==~ /.*main$/ || 
+                           branch ==~ /.*staging$/ || 
+                           branch ==~ /.*develop$/
+                }
+            }
+            steps {
+                script {
+                    logMessage('Ensuring EKS cluster exists via Terraform', '🏗️')
+                    
+                    withCredentials([[
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                    ]]) {
+                        dir('Observability/infra-tf') {
+                            sh """
+                                echo "🔧 Initializing Terraform..."
+                                terraform init
+                                
+                                echo "📋 Running Terraform plan..."
+                                terraform plan -out=tfplan
+                                
+                                echo "🚀 Applying Terraform changes..."
+                                terraform apply -auto-approve tfplan
+                                
+                                echo "✅ Terraform apply completed"
+                            """
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Configure Kubeconfig') {
+            when {
+                expression {
+                    def branch = env.BRANCH
+                    return branch ==~ /.*main$/ || 
+                           branch ==~ /.*staging$/ || 
+                           branch ==~ /.*develop$/
+                }
+            }
+            steps {
+                script {
+                    logMessage('Configuring kubectl for EKS cluster', '⚙️')
+                    
+                    withCredentials([[
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                    ]]) {
+                        sh """
+                            echo "🔧 Updating kubeconfig for cluster: ${CLUSTER_NAME}"
+                            aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER_NAME}
+                            
+                            echo "✅ Verifying cluster access..."
+                            kubectl cluster-info
+                            kubectl get nodes
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Helm Deploy Application') {
+            when {
+                expression {
+                    def branch = env.BRANCH
+                    return branch ==~ /.*main$/ || 
+                           branch ==~ /.*staging$/ || 
+                           branch ==~ /.*develop$/
+                }
+            }
+            steps {
+                script {
+                    logMessage('Deploying application via Helm', '🚀')
+                    
+                    // Verify ECR_REGISTRY is set (from Authenticate to AWS stage)
+                    if (!env.ECR_REGISTRY || env.ECR_REGISTRY.isEmpty()) {
+                        error("ECR_REGISTRY is not set! Run 'Authenticate to AWS' stage first.")
+                    }
+                    
+                    withCredentials([[
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                    ]]) {
+                        dir('ChatApplication') {
+                            sh """
+                                echo "📦 Deploying with Helm..."
+                                echo "Chart: helm-chart/"
+                                echo "Backend Image: ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${VERSION}"
+                                echo "Frontend Image: ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${VERSION}"
+                                
+                                # Verify ECR_REGISTRY is not empty
+                                if [ -z "${ECR_REGISTRY}" ]; then
+                                    echo "❌ ECR_REGISTRY is empty! Cannot deploy."
+                                    exit 1
+                                fi
+                                
+                                helm upgrade --install chatapp ./helm-chart \\
+                                    --namespace chatapp-prod \\
+                                    --create-namespace \\
+                                    --set backend.image.repository=${ECR_REGISTRY}/${ECR_BACKEND_REPO} \\
+                                    --set backend.image.tag=${VERSION} \\
+                                    --set frontend.image.repository=${ECR_REGISTRY}/${ECR_FRONTEND_REPO} \\
+                                    --set frontend.image.tag=${VERSION} \\
+                                    --wait \\
+                                    --timeout 10m
+                                
+                                echo "✅ Helm deployment completed"
+                            """
+                        }
+                    }
+                }
+            }
+        }
+
+        // ===========================================
         // DEPLOYMENT STAGES (Automatic Branch-Based)
         // ===========================================
 
@@ -405,20 +678,10 @@ pipeline {
             }
             steps {
                 script {
-                    logMessage('Auto-Deploying to DEV Environment', '🚀')
-                    
+                    logMessage('Deployment completed via Helm Deploy stage', '✅')
                     echo "Environment: DEV"
                     echo "Version: ${VERSION}"
-                    echo "Branch: ${BRANCH}"
-                    echo "Images:"
-                    echo "  - ${BACKEND_IMAGE}:${VERSION}"
-                    echo "  - ${FRONTEND_IMAGE}:${VERSION}"
-                    
-                    // TODO: Actual deployment commands
-                    // kubectl set image deployment/backend backend=${BACKEND_IMAGE}:${VERSION} -n dev
-                    // helm upgrade chatapp ./helm-chart --set image.tag=${VERSION} -n dev
-                    
-                    echo "✅ Deployed to DEV (simulated)"
+                    echo "Deployed via Helm to namespace: chatapp-prod"
                 }
             }
         }
@@ -429,16 +692,10 @@ pipeline {
             }
             steps {
                 script {
-                    logMessage('Auto-Deploying to STAGING Environment', '🎯')
-                    
+                    logMessage('Deployment completed via Helm Deploy stage', '✅')
                     echo "Environment: STAGING"
                     echo "Version: ${VERSION}"
-                    echo "Branch: ${BRANCH}"
-                    
-                    // TODO: Actual deployment commands
-                    // kubectl set image deployment/backend backend=${BACKEND_IMAGE}:${VERSION} -n staging
-                    
-                    echo "✅ Deployed to STAGING (simulated)"
+                    echo "Deployed via Helm to namespace: chatapp-prod"
                 }
             }
         }
@@ -485,18 +742,10 @@ pipeline {
             }
             steps {
                 script {
-                    logMessage('Deploying to PRODUCTION Environment', '🔥')
-                    
+                    logMessage('Deployment completed via Helm Deploy stage', '✅')
                     echo "Environment: PRODUCTION"
                     echo "Version: ${VERSION}"
-                    echo "Branch: ${BRANCH}"
-                    
-                    //   kubectl set image deployment/backend backend=${BACKEND_IMAGE}:${VERSION} -n production
-                    //   kubectl rollout status deployment/backend -n production
-                    
-                    echo "✅ Deployed to PRODUCTION (simulated)"
-                    
-                    // Notify team
+                    echo "Deployed via Helm to namespace: chatapp-prod"
                     echo "📧 Production deployment notification sent"
                 }
             }
@@ -514,14 +763,50 @@ pipeline {
                 script {
                     logMessage('Running Post-Deployment Smoke Tests', '🔬')
                     
-                    echo "Environment: ${TARGET_ENVIRONMENT}"
-                    echo "Version: ${VERSION}"
-                    echo "Running basic health checks..."
-                    
-                    // TODO: Add actual smoke tests
-                    // Example: curl health endpoints, check metrics
-                    
-                    echo "✅ Smoke tests passed"
+                    withCredentials([[
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                    ]]) {
+                        sh """
+                            echo "Environment: ${TARGET_ENVIRONMENT}"
+                            echo "Version: ${VERSION}"
+                            echo "Cluster: ${CLUSTER_NAME}"
+                            echo ""
+                            
+                            echo "🔍 Checking deployment status..."
+                            kubectl rollout status deployment/chatapp-backend -n chatapp-prod --timeout=5m || true
+                            kubectl rollout status deployment/chatapp-frontend -n chatapp-prod --timeout=5m || true
+                            
+                            echo ""
+                            echo "📊 Checking pod status..."
+                            kubectl get pods -n chatapp-prod
+                            
+                            echo ""
+                            echo "🌐 Checking services..."
+                            kubectl get svc -n chatapp-prod
+                            
+                            echo ""
+                            echo "🔬 Running health check..."
+                            # Port-forward to backend and test health endpoint
+                            kubectl port-forward -n chatapp-prod svc/chatapp-backend 5000:5000 &
+                            PF_PID=\\$!
+                            sleep 5
+                            
+                            if curl -f http://localhost:5000/health; then
+                                echo "✅ Backend health check passed"
+                                kill \\$PF_PID || true
+                            else
+                                echo "❌ Backend health check failed"
+                                kill \\$PF_PID || true
+                                exit 1
+                            fi
+                            
+                            echo ""
+                            echo "✅ All smoke tests passed"
+                        """
+                    }
                 }
             }
         }

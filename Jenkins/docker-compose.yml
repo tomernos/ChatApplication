@@ -18,8 +18,8 @@ services:
       # Mount Docker socket (Docker-in-Docker)
       - /var/run/docker.sock:/var/run/docker.sock
       
-      # Mount project code
-    #  - ../:/workspace
+      # Mount project code (optional - uncomment if needed)
+    #  - ../:/workspace:ro
     #environment:
     #  - DOCKER_HOST=unix:///var/run/docker.sock
     networks:
