@@ -18,6 +18,7 @@ pipeline {
         AWS_REGION = 'eu-central-1'
         AWS_CREDENTIALS_ID = 'aws-creds'
         CLUSTER_NAME = 'tnt-eu-observability-dev-eks'
+        GIT_CREDENTIALS_ID = 'gitpat'  // Optional: for checking out Observability repo if needed
         
         // Terraform state backend
         TF_STATE_BUCKET = 'tnt-eu-observability-dev-tf'
@@ -29,7 +30,25 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                script {
+                    // Checkout ChatApplication repo (for pipeline code)
+                    checkout scm
+                    
+                    // Checkout Observability repo (for Terraform code)
+                    dir('Observability') {
+                        checkout([
+                            $class: 'GitSCM',
+                            branches: [[name: '*/develop']],
+                            doGenerateSubmoduleConfigurations: false,
+                            extensions: [],
+                            submoduleCfg: [],
+                            userRemoteConfigs: [[
+                                url: 'https://github.com/tomernos/Observability.git',
+                                credentialsId: env.GIT_CREDENTIALS_ID ?: ''
+                            ]]
+                        ])
+                    }
+                }
             }
         }
 
