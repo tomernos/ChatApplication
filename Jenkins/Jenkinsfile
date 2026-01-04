@@ -327,19 +327,19 @@ pipeline {
         // stage('Push to Docker Hub') {
         //     when {
         //         allOf {
-                    expression { params.PUSH_TO_REGISTRY }
+        //             expression { params.PUSH_TO_REGISTRY }
                     
-                    expression {
-                        def branch = env.BRANCH
-                        return branch ==~ /.*main$/ || 
-                               branch ==~ /.*staging$/ || 
-                               branch ==~ /.*develop$/
-                    }
-                }
-            }
-            steps {
-                script {
-                    logMessage("Pushing Images to Docker Hub", '📤')
+        //             expression {
+        //                 def branch = env.BRANCH
+        //                 return branch ==~ /.*main$/ || 
+        //                        branch ==~ /.*staging$/ || 
+        //                        branch ==~ /.*develop$/
+        //             }
+        //         }
+        //     }
+        //     steps {
+        //         script {
+        //             logMessage("Pushing Images to Docker Hub", '📤')
                     
                     echo "════════════════════════════════════════"
                     echo "📦 BUILD INFORMATION"
@@ -400,12 +400,12 @@ pipeline {
                         """
                     }
                     
-                    echo ""
-                    echo "View on Docker Hub:"
-                    echo "  Backend:  https://hub.docker.com/r/${DOCKER_REGISTRY}/connecthub-backend/tags"
-                    echo "  Frontend: https://hub.docker.com/r/${DOCKER_REGISTRY}/connecthub-frontend/tags"
-                }
-            }
+        //             echo ""
+        //             echo "View on Docker Hub:"
+        //             echo "  Backend:  https://hub.docker.com/r/${DOCKER_REGISTRY}/connecthub-backend/tags"
+        //             echo "  Frontend: https://hub.docker.com/r/${DOCKER_REGISTRY}/connecthub-frontend/tags"
+        //         }
+        //     }
         // }
 
         // ===========================================
