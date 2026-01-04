@@ -294,7 +294,7 @@ pipeline {
                     sh """
                             cat > artifacts/manifest.json << EOF
                             {
-                            "version": "${VERSION}",
+                            "version": "${env.VERSION}",
                             "environment": "${TARGET_ENVIRONMENT}",
                             "is_release": "${IS_RELEASE}",
                             "git_commit": "${GIT_COMMIT}",
@@ -304,8 +304,8 @@ pipeline {
                             "build_url": "${BUILD_URL}",
                             "timestamp": "\$(date -u +%Y-%m-%dT%H:%M:%SZ)",
                             "images": {
-                                "backend": "${BACKEND_IMAGE}:${VERSION}",
-                                "frontend": "${FRONTEND_IMAGE}:${VERSION}"
+                                "backend": "${BACKEND_IMAGE}:${env.VERSION}",
+                                "frontend": "${FRONTEND_IMAGE}:${env.VERSION}"
                             }
                             }
                             EOF
@@ -341,7 +341,7 @@ pipeline {
                     echo "════════════════════════════════════════"
                     echo "📦 BUILD INFORMATION"
                     echo "════════════════════════════════════════"
-                    echo "Version:      ${VERSION}"
+                    echo "Version:      ${env.VERSION}"
                     echo "Environment:  ${TARGET_ENVIRONMENT}"
                     echo "Is Release:   ${IS_RELEASE}"
                     echo "Git Tag:      ${env.TAG_NAME ?: 'none'}"
@@ -356,31 +356,31 @@ pipeline {
                         usernameVariable: 'DOCKER_USER',
                         passwordVariable: 'DOCKER_PASS'
                     )]) {
-                        sh '''
-                            echo "🔐 Logging into Docker Hub as: $DOCKER_USER"
-                            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        sh """
+                            echo "🔐 Logging into Docker Hub as: \$DOCKER_USER"
+                            echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
                             
                             echo ""
-                            echo "🏷️  Tagging images with version: ${VERSION}"
+                            echo "🏷️  Tagging images with version: ${env.VERSION}"
                             
                             # Tag backend with version
-                            docker tag connecthub-backend:latest ${BACKEND_IMAGE}:${VERSION}
-                            echo "✅ Tagged: ${BACKEND_IMAGE}:${VERSION}"
+                            docker tag connecthub-backend:latest ${BACKEND_IMAGE}:${env.VERSION}
+                            echo "✅ Tagged: ${BACKEND_IMAGE}:${env.VERSION}"
                             
                             # Tag frontend with version
-                            docker tag connecthub-frontend:latest ${FRONTEND_IMAGE}:${VERSION}
-                            echo "✅ Tagged: ${FRONTEND_IMAGE}:${VERSION}"
+                            docker tag connecthub-frontend:latest ${FRONTEND_IMAGE}:${env.VERSION}
+                            echo "✅ Tagged: ${FRONTEND_IMAGE}:${env.VERSION}"
                             
                             echo ""
                             echo "📤 Pushing versioned images to Docker Hub..."
                             
                             # Push backend
-                            docker push ${BACKEND_IMAGE}:${VERSION}
-                            echo "✅ Pushed: ${BACKEND_IMAGE}:${VERSION}"
+                            docker push ${BACKEND_IMAGE}:${env.VERSION}
+                            echo "✅ Pushed: ${BACKEND_IMAGE}:${env.VERSION}"
                             
                             # Push frontend
-                            docker push ${FRONTEND_IMAGE}:${VERSION}
-                            echo "✅ Pushed: ${FRONTEND_IMAGE}:${VERSION}"
+                            docker push ${FRONTEND_IMAGE}:${env.VERSION}
+                            echo "✅ Pushed: ${FRONTEND_IMAGE}:${env.VERSION}"
                             
                             echo ""
                             echo "� Logging out from Docker Hub"
@@ -390,11 +390,11 @@ pipeline {
                             echo "════════════════════════════════════════"
                             echo "✅ IMAGES PUBLISHED TO DOCKER HUB"
                             echo "════════════════════════════════════════"
-                            echo "Version: ${VERSION}"
-                            echo "Backend:  ${BACKEND_IMAGE}:${VERSION}"
-                            echo "Frontend: ${FRONTEND_IMAGE}:${VERSION}"
+                            echo "Version: ${env.VERSION}"
+                            echo "Backend:  ${BACKEND_IMAGE}:${env.VERSION}"
+                            echo "Frontend: ${FRONTEND_IMAGE}:${env.VERSION}"
                             echo "════════════════════════════════════════"
-                        '''
+                        """
                     }
                     
                     echo ""
@@ -479,7 +479,7 @@ pipeline {
                             echo "════════════════════════════════════════"
                             echo "📦 BUILD INFORMATION"
                             echo "════════════════════════════════════════"
-                            echo "Version:      ${VERSION}"
+                            echo "Version:      ${env.VERSION}"
                             echo "Environment:  ${TARGET_ENVIRONMENT}"
                             echo "ECR Registry: ${ECR_REGISTRY}"
                             echo "Branch:       ${BRANCH}"
@@ -507,35 +507,35 @@ pipeline {
                             echo "🏷️  Tagging images with ECR paths..."
                             
                             # Tag backend with ECR path
-                            docker tag connecthub-backend:latest ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${VERSION}
+                            docker tag connecthub-backend:latest ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}
                             docker tag connecthub-backend:latest ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:latest
-                            echo "✅ Tagged: ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${VERSION}"
+                            echo "✅ Tagged: ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}"
                             
                             # Tag frontend with ECR path
-                            docker tag connecthub-frontend:latest ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${VERSION}
+                            docker tag connecthub-frontend:latest ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}
                             docker tag connecthub-frontend:latest ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:latest
-                            echo "✅ Tagged: ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${VERSION}"
+                            echo "✅ Tagged: ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}"
                             
                             echo ""
                             echo "📤 Pushing images to ECR..."
                             
                             # Push backend
-                            docker push ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${VERSION}
+                            docker push ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}
                             docker push ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:latest
-                            echo "✅ Pushed: ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${VERSION}"
+                            echo "✅ Pushed: ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}"
                             
                             # Push frontend
-                            docker push ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${VERSION}
+                            docker push ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}
                             docker push ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:latest
-                            echo "✅ Pushed: ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${VERSION}"
+                            echo "✅ Pushed: ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}"
                             
                             echo ""
                             echo "════════════════════════════════════════"
                             echo "✅ IMAGES PUBLISHED TO ECR"
                             echo "════════════════════════════════════════"
-                            echo "Version: ${VERSION}"
-                            echo "Backend:  ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${VERSION}"
-                            echo "Frontend: ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${VERSION}"
+                            echo "Version: ${env.VERSION}"
+                            echo "Backend:  ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}"
+                            echo "Frontend: ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}"
                             echo "════════════════════════════════════════"
                         """
                     }
@@ -641,8 +641,8 @@ pipeline {
                             sh """
                                 echo "📦 Deploying with Helm..."
                                 echo "Chart: helm-chart/"
-                                echo "Backend Image: ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${VERSION}"
-                                echo "Frontend Image: ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${VERSION}"
+                                echo "Backend Image: ${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}"
+                                echo "Frontend Image: ${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}"
                                 
                                 # Verify ECR_REGISTRY is not empty
                                 if [ -z "${ECR_REGISTRY}" ]; then
@@ -654,9 +654,9 @@ pipeline {
                                     --namespace chatapp-prod \\
                                     --create-namespace \\
                                     --set backend.image.repository=${ECR_REGISTRY}/${ECR_BACKEND_REPO} \\
-                                    --set backend.image.tag=${VERSION} \\
+                                    --set backend.image.tag=${env.VERSION} \\
                                     --set frontend.image.repository=${ECR_REGISTRY}/${ECR_FRONTEND_REPO} \\
-                                    --set frontend.image.tag=${VERSION} \\
+                                    --set frontend.image.tag=${env.VERSION} \\
                                     --wait \\
                                     --timeout 10m
                                 
@@ -680,7 +680,7 @@ pipeline {
                 script {
                     logMessage('Deployment completed via Helm Deploy stage', '✅')
                     echo "Environment: DEV"
-                    echo "Version: ${VERSION}"
+                    echo "Version: ${env.VERSION}"
                     echo "Deployed via Helm to namespace: chatapp-prod"
                 }
             }
@@ -694,7 +694,7 @@ pipeline {
                 script {
                     logMessage('Deployment completed via Helm Deploy stage', '✅')
                     echo "Environment: STAGING"
-                    echo "Version: ${VERSION}"
+                    echo "Version: ${env.VERSION}"
                     echo "Deployed via Helm to namespace: chatapp-prod"
                 }
             }
@@ -711,7 +711,7 @@ pipeline {
                     // Manual admin approval 
                     timeout(time: 30, unit: 'MINUTES') {
                         input(
-                            message: "🚨 Deploy ${VERSION} to PRODUCTION?",
+                            message: "🚨 Deploy ${env.VERSION} to PRODUCTION?",
                             ok: 'Deploy to Production',
                             submitter: 'admin',  
                             parameters: [
@@ -744,7 +744,7 @@ pipeline {
                 script {
                     logMessage('Deployment completed via Helm Deploy stage', '✅')
                     echo "Environment: PRODUCTION"
-                    echo "Version: ${VERSION}"
+                    echo "Version: ${env.VERSION}"
                     echo "Deployed via Helm to namespace: chatapp-prod"
                     echo "📧 Production deployment notification sent"
                 }
