@@ -34,20 +34,47 @@ pipeline {
                     // Checkout ChatApplication repo (for pipeline code)
                     checkout scm
                     
-                    // Checkout Observability repo (for Terraform code)
-                    dir('Observability') {
-                        checkout([
-                            $class: 'GitSCM',
-                            branches: [[name: '*/develop']],
-                            doGenerateSubmoduleConfigurations: false,
-                            extensions: [],
-                            submoduleCfg: [],
-                            userRemoteConfigs: [[
-                                url: 'https://github.com/tomernos/Observability.git',
-                                credentialsId: env.GIT_CREDENTIALS_ID ?: ''
-                            ]]
-                        ])
-                    }
+                    // Check if Observability directory already exists (e.g., in workspace)
+                    sh '''
+                        if [ ! -d "Observability/infra-tf" ]; then
+                            echo "⚠️  Observability/infra-tf not found, attempting to checkout..."
+                            if [ -d "../Observability/infra-tf" ]; then
+                                echo "✅ Found Observability in parent directory, creating symlink..."
+                                ln -s ../Observability Observability || echo "Symlink failed, will try git clone"
+                            fi
+                            
+                            # If still not found, try to checkout
+                            if [ ! -d "Observability/infra-tf" ]; then
+                                echo "📦 Attempting to checkout Observability repo..."
+                                mkdir -p Observability
+                                cd Observability
+                                if [ -n "${GIT_CREDENTIALS_ID}" ] && [ "${GIT_CREDENTIALS_ID}" != "" ]; then
+                                    echo "Using credentials: ${GIT_CREDENTIALS_ID}"
+                                    git clone -b develop https://github.com/tomernos/Observability.git . || {
+                                        echo "⚠️  Git clone with credentials failed, trying without..."
+                                        git clone -b develop https://github.com/tomernos/Observability.git . || true
+                                    }
+                                else
+                                    echo "No credentials configured, trying public clone..."
+                                    git clone -b develop https://github.com/tomernos/Observability.git . || true
+                                fi
+                                cd ..
+                            fi
+                        else
+                            echo "✅ Observability/infra-tf already exists"
+                        fi
+                        
+                        # Final verification
+                        if [ ! -d "Observability/infra-tf" ]; then
+                            echo "❌ ERROR: Observability/infra-tf still not found after checkout attempts"
+                            echo "Please ensure Observability repository is accessible"
+                            echo "Current directory: $(pwd)"
+                            echo "Directory contents:"
+                            ls -la
+                            exit 1
+                        fi
+                        echo "✅ Observability/infra-tf verified"
+                    '''
                 }
             }
         }
