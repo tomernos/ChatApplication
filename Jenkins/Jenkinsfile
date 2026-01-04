@@ -326,7 +326,7 @@ pipeline {
         // ===========================================
         // stage('Push to Docker Hub') {
         //     when {
-                allOf {
+        //         allOf {
                     expression { params.PUSH_TO_REGISTRY }
                     
                     expression {
