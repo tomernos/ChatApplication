@@ -3,7 +3,7 @@
 pipeline {
     agent {
         docker {
-            image 'hashicorp/terraform:1.12.2'
+            image 'alpine:latest'
             args '-v /var/run/docker.sock:/var/run/docker.sock -u root'
         }
     }
@@ -39,10 +39,17 @@ pipeline {
                     logMessage('Installing required tools', '📦')
                     
                     sh '''
+                        # Install Terraform
+                        apk add --no-cache curl unzip
+                        TERRAFORM_VERSION=1.12.2
+                        wget -q https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+                        unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/local/bin
+                        rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+                        chmod +x /usr/local/bin/terraform
+                        
                         # Install AWS CLI
                         if ! command -v aws &> /dev/null; then
                             echo "📦 Installing AWS CLI..."
-                            apk add --no-cache curl unzip
                             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
                             unzip awscliv2.zip
                             ./aws/install
