@@ -399,7 +399,7 @@ pipeline {
         //                             echo "════════════════════════════════════════"
         //                         """
         //                     }
-                    
+        //             
         //             echo ""
         //             echo "View on Docker Hub:"
         //             echo "  Backend:  https://hub.docker.com/r/${DOCKER_REGISTRY}/connecthub-backend/tags"
