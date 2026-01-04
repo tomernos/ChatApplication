@@ -321,8 +321,11 @@ pipeline {
             }
         }
 
-        stage('Push to Docker Hub') {
-            when {
+        // ===========================================
+        // DOCKER HUB PUSH - COMMENTED OUT
+        // ===========================================
+        // stage('Push to Docker Hub') {
+        //     when {
                 allOf {
                     expression { params.PUSH_TO_REGISTRY }
                     
@@ -403,7 +406,7 @@ pipeline {
                     echo "  Frontend: https://hub.docker.com/r/${DOCKER_REGISTRY}/connecthub-frontend/tags"
                 }
             }
-        }
+        // }
 
         // ===========================================
         // AWS INFRASTRUCTURE & DEPLOYMENT STAGES
@@ -430,28 +433,46 @@ pipeline {
                     ]]) {
                         // Install AWS CLI if not available
                         sh '''
+                            set -e
                             if ! command -v aws &> /dev/null; then
                                 echo "📦 Installing AWS CLI..."
                                 apt-get update -qq
                                 apt-get install -y -qq curl unzip
-                                curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                                curl -sSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
                                 unzip -q awscliv2.zip
                                 ./aws/install
                                 rm -rf awscliv2.zip aws
                                 echo "✅ AWS CLI installed"
+                            else
+                                echo "✅ AWS CLI already installed"
+                                aws --version
                             fi
                         '''
                         
+                        // Verify AWS credentials are set
+                        sh '''
+                            if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+                                echo "❌ AWS credentials not set!"
+                                exit 1
+                            fi
+                            echo "✅ AWS credentials are set"
+                        '''
+                        
                         // Get AWS account ID and set ECR registry
+                        echo "🔍 Getting AWS account ID..."
                         def accountId = sh(
-                            script: 'aws sts get-caller-identity --query Account --output text',
+                            script: 'aws sts get-caller-identity --query Account --output text 2>&1',
                             returnStdout: true
                         ).trim()
+                        
+                        if (accountId.isEmpty() || accountId.contains("error") || accountId.contains("Unable")) {
+                            error("Failed to get AWS account ID. Response: ${accountId}. Check AWS credentials.")
+                        }
                         
                         env.AWS_ACCOUNT_ID = accountId
                         env.ECR_REGISTRY = "${accountId}.dkr.ecr.${AWS_REGION}.amazonaws.com"
                         
-                        echo "✅ AWS authenticated"
+                        echo "✅ AWS authenticated successfully"
                         echo "Account ID: ${accountId}"
                         echo "Region: ${AWS_REGION}"
                         echo "ECR Registry: ${env.ECR_REGISTRY}"
@@ -679,9 +700,9 @@ pipeline {
                             """
                         }
                     }
-                }
-            }
-        }
+        //         }
+        //     }
+        // }
 
         // ===========================================
         // DEPLOYMENT STAGES (Automatic Branch-Based)
