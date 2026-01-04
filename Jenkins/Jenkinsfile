@@ -341,64 +341,64 @@ pipeline {
         //         script {
         //             logMessage("Pushing Images to Docker Hub", '📤')
                     
-                    echo "════════════════════════════════════════"
-                    echo "📦 BUILD INFORMATION"
-                    echo "════════════════════════════════════════"
-                    echo "Version:      ${env.VERSION}"
-                    echo "Environment:  ${env.TARGET_ENVIRONMENT}"
-                    echo "Is Release:   ${env.IS_RELEASE}"
-                    echo "Git Tag:      ${env.TAG_NAME ?: 'none'}"
-                    echo "Git Commit:   ${GIT_SHORT_COMMIT}"
-                    echo "Branch:       ${BRANCH}"
-                    echo "════════════════════════════════════════"
-                    echo ""
-                    
-                    // Use Jenkins credentials securely
-                    withCredentials([usernamePassword(
-                        credentialsId: "${DOCKER_CREDENTIALS_ID}",
-                        usernameVariable: 'DOCKER_USER',
-                        passwordVariable: 'DOCKER_PASS'
-                    )]) {
-                        sh """
-                            echo "🔐 Logging into Docker Hub as: \$DOCKER_USER"
-                            echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
-                            
-                            echo ""
-                            echo "🏷️  Tagging images with version: ${env.VERSION}"
-                            
-                            # Tag backend with version
-                            docker tag connecthub-backend:latest ${BACKEND_IMAGE}:${env.VERSION}
-                            echo "✅ Tagged: ${BACKEND_IMAGE}:${env.VERSION}"
-                            
-                            # Tag frontend with version
-                            docker tag connecthub-frontend:latest ${FRONTEND_IMAGE}:${env.VERSION}
-                            echo "✅ Tagged: ${FRONTEND_IMAGE}:${env.VERSION}"
-                            
-                            echo ""
-                            echo "📤 Pushing versioned images to Docker Hub..."
-                            
-                            # Push backend
-                            docker push ${BACKEND_IMAGE}:${env.VERSION}
-                            echo "✅ Pushed: ${BACKEND_IMAGE}:${env.VERSION}"
-                            
-                            # Push frontend
-                            docker push ${FRONTEND_IMAGE}:${env.VERSION}
-                            echo "✅ Pushed: ${FRONTEND_IMAGE}:${env.VERSION}"
-                            
-                            echo ""
-                            echo "� Logging out from Docker Hub"
-                            docker logout
-                            
-                            echo ""
-                            echo "════════════════════════════════════════"
-                            echo "✅ IMAGES PUBLISHED TO DOCKER HUB"
-                            echo "════════════════════════════════════════"
-                            echo "Version: ${env.VERSION}"
-                            echo "Backend:  ${BACKEND_IMAGE}:${env.VERSION}"
-                            echo "Frontend: ${FRONTEND_IMAGE}:${env.VERSION}"
-                            echo "════════════════════════════════════════"
-                        """
-                    }
+        //                     echo "════════════════════════════════════════"
+        //                     echo "📦 BUILD INFORMATION"
+        //                     echo "════════════════════════════════════════"
+        //                     echo "Version:      ${env.VERSION}"
+        //                     echo "Environment:  ${env.TARGET_ENVIRONMENT}"
+        //                     echo "Is Release:   ${env.IS_RELEASE}"
+        //                     echo "Git Tag:      ${env.TAG_NAME ?: 'none'}"
+        //                     echo "Git Commit:   ${GIT_SHORT_COMMIT}"
+        //                     echo "Branch:       ${BRANCH}"
+        //                     echo "════════════════════════════════════════"
+        //                     echo ""
+        //                     
+        //                     // Use Jenkins credentials securely
+        //                     withCredentials([usernamePassword(
+        //                         credentialsId: "${DOCKER_CREDENTIALS_ID}",
+        //                         usernameVariable: 'DOCKER_USER',
+        //                         passwordVariable: 'DOCKER_PASS'
+        //                     )]) {
+        //                         sh """
+        //                             echo "🔐 Logging into Docker Hub as: \$DOCKER_USER"
+        //                             echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
+        //                             
+        //                             echo ""
+        //                             echo "🏷️  Tagging images with version: ${env.VERSION}"
+        //                             
+        //                             # Tag backend with version
+        //                             docker tag connecthub-backend:latest ${BACKEND_IMAGE}:${env.VERSION}
+        //                             echo "✅ Tagged: ${BACKEND_IMAGE}:${env.VERSION}"
+        //                             
+        //                             # Tag frontend with version
+        //                             docker tag connecthub-frontend:latest ${FRONTEND_IMAGE}:${env.VERSION}
+        //                             echo "✅ Tagged: ${FRONTEND_IMAGE}:${env.VERSION}"
+        //                             
+        //                             echo ""
+        //                             echo "📤 Pushing versioned images to Docker Hub..."
+        //                             
+        //                             # Push backend
+        //                             docker push ${BACKEND_IMAGE}:${env.VERSION}
+        //                             echo "✅ Pushed: ${BACKEND_IMAGE}:${env.VERSION}"
+        //                             
+        //                             # Push frontend
+        //                             docker push ${FRONTEND_IMAGE}:${env.VERSION}
+        //                             echo "✅ Pushed: ${FRONTEND_IMAGE}:${env.VERSION}"
+        //                             
+        //                             echo ""
+        //                             echo "� Logging out from Docker Hub"
+        //                             docker logout
+        //                             
+        //                             echo ""
+        //                             echo "════════════════════════════════════════"
+        //                             echo "✅ IMAGES PUBLISHED TO DOCKER HUB"
+        //                             echo "════════════════════════════════════════"
+        //                             echo "Version: ${env.VERSION}"
+        //                             echo "Backend:  ${BACKEND_IMAGE}:${env.VERSION}"
+        //                             echo "Frontend: ${FRONTEND_IMAGE}:${env.VERSION}"
+        //                             echo "════════════════════════════════════════"
+        //                         """
+        //                     }
                     
         //             echo ""
         //             echo "View on Docker Hub:"
