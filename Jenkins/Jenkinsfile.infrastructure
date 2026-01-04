@@ -107,6 +107,17 @@ pipeline {
                     )]) {
                         dir('Observability/infra-tf') {
                             sh """
+                                # Verify Terraform files exist
+                                echo "🔍 Verifying Terraform configuration files..."
+                                if [ ! -f "main.tf" ]; then
+                                    echo "❌ Error: main.tf not found in Observability/infra-tf"
+                                    echo "Current directory: \$(pwd)"
+                                    echo "Files in directory:"
+                                    ls -la
+                                    exit 1
+                                fi
+                                echo "✅ Found main.tf"
+                                
                                 echo "🔧 Initializing Terraform with S3 backend..."
                                 terraform init \\
                                     -backend-config="bucket=${TF_STATE_BUCKET}" \\
