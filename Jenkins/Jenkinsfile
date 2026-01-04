@@ -792,15 +792,15 @@ pipeline {
                             echo "🔬 Running health check..."
                             # Port-forward to backend and test health endpoint
                             kubectl port-forward -n chatapp-prod svc/chatapp-backend 5000:5000 &
-                            PF_PID=\\$!
+                            PF_PID=\$!
                             sleep 5
                             
                             if curl -f http://localhost:5000/health; then
                                 echo "✅ Backend health check passed"
-                                kill \\$PF_PID || true
+                                kill \$PF_PID || true
                             else
                                 echo "❌ Backend health check failed"
-                                kill \\$PF_PID || true
+                                kill \$PF_PID || true
                                 exit 1
                             fi
                             
