@@ -469,12 +469,22 @@ pipeline {
                         }
                         
                         env.AWS_ACCOUNT_ID = accountId
-                        env.ECR_REGISTRY = "${accountId}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+                        
+                        // Debug: Check AWS_REGION
+                        echo "Debug - AWS_REGION value: '${AWS_REGION}'"
+                        echo "Debug - accountId value: '${accountId}'"
+                        
+                        // Set ECR_REGISTRY with explicit region
+                        def region = AWS_REGION ?: 'eu-central-1'
+                        env.ECR_REGISTRY = "${accountId}.dkr.ecr.${region}.amazonaws.com"
                         
                         echo "✅ AWS authenticated successfully"
                         echo "Account ID: ${accountId}"
-                        echo "Region: ${AWS_REGION}"
+                        echo "Region: ${region}"
                         echo "ECR Registry: ${env.ECR_REGISTRY}"
+                        
+                        // Verify it's actually set
+                        sh "echo 'Verification - ECR_REGISTRY from shell: '${env.ECR_REGISTRY}'"
                         
                         // Verify ECR registry is set
                         if (!env.ECR_REGISTRY || env.ECR_REGISTRY.isEmpty()) {
