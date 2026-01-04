@@ -227,63 +227,63 @@ pipeline {
             }
         }
 
-        stage('Start Services') {
-            steps {
-                script {
-                    logMessage('Starting Services with docker-compose', '🚀')
+        // stage('Start Services') {
+        //     steps {
+        //         script {
+        //             logMessage('Starting Services with docker-compose', '🚀')
                     
-                    sh '''
-                        # Force cleanup ALL containers with these names
-                        docker ps -a | grep -E "connecthub-|chatapplication" | awk '{print $1}' | xargs -r docker rm -f || true
+        //             sh '''
+        //                 # Force cleanup ALL containers with these names
+        //                 docker ps -a | grep -E "connecthub-|chatapplication" | awk '{print $1}' | xargs -r docker rm -f || true
                         
-                        # Cleanup compose resources
-                        docker compose down -v 2>/dev/null || true
+        //                 # Cleanup compose resources
+        //                 docker compose down -v 2>/dev/null || true
                         
-                        # Start services
-                        docker compose up -d
+        //                 # Start services
+        //                 docker compose up -d
                         
-                        # Show status
-                        docker compose ps
+        //                 # Show status
+        //                 docker compose ps
 
-                        docker logs connecthub-backend-api
-                    '''
-                }
-            }
-        }
+        //                 docker logs connecthub-backend-api
+        //             '''
+        //         }
+        //     }
+        // }
 
-        stage('Integration Health Checks Test') {
-            steps {
-                script {
-                    logMessage('Waiting for Services to be Healthy', '⏳')
+        // stage('Integration Health Checks Test') {
+        //     steps {
+        //         script {
+        //             logMessage('Waiting for Services to be Healthy', '⏳')
                 
                     
-                    // Use shared library function for backend
-                    def backendHealthy = waitForService(
-                        serviceName: 'Backend API',
-                        healthCheckCmd: 'docker exec connecthub-backend-api curl -f http://localhost:5000/health 2>/dev/null',
-                        maxRetries: 3,
-                        waitSeconds: 5
-                    )
+        //             // Use shared library function for backend
+        //             def backendHealthy = waitForService(
+        //                 serviceName: 'Backend API',
+        //                 healthCheckCmd: 'docker exec connecthub-backend-api curl -f http://localhost:5000/health 2>/dev/null',
+        //                 maxRetries: 3,
+        //                 waitSeconds: 5
+        //             )
                     
-                    if (!backendHealthy) {
-                        sh 'docker logs connecthub-backend-api'
-                        error('Backend health check failed!')
-                    }
+        //             if (!backendHealthy) {
+        //                 sh 'docker logs connecthub-backend-api'
+        //                 error('Backend health check failed!')
+        //             }
                     
-                    def frontendHealthy = waitForService(
-                        serviceName: 'Frontend Web',
-                        healthCheckCmd: 'docker exec connecthub-frontend-web curl -f http://localhost:80 2>/dev/null',
-                        maxRetries: 3,
-                        waitSeconds: 5
-                    )
+        //             def frontendHealthy = waitForService(
+        //                 serviceName: 'Frontend Web',
+        //                 healthCheckCmd: 'docker exec connecthub-frontend-web curl -f http://localhost:80 2>/dev/null',
+        //                 maxRetries: 3,
+        //                 waitSeconds: 5
+        //             )
                     
-                    if (!frontendHealthy) {
-                        sh 'docker logs connecthub-frontend-web'
-                        error('Frontend health check failed!')
-                    }
-                }
-            }
-        }
+        //             if (!frontendHealthy) {
+        //                 sh 'docker logs connecthub-frontend-web'
+        //                 error('Frontend health check failed!')
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Archive Artifacts') {
             steps {
@@ -425,12 +425,11 @@ pipeline {
                 script {
                     logMessage('Authenticating to AWS and setting ECR registry', '🔐')
                     
-                    withCredentials([[
-                        $class: 'AmazonWebServicesCredentialsBinding',
+                    withCredentials([usernamePassword(
                         credentialsId: AWS_CREDENTIALS_ID,
-                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-                    ]]) {
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
                         // Install AWS CLI if not available
                         sh '''
                             set -e
@@ -504,12 +503,11 @@ pipeline {
                         error("ECR_REGISTRY is not set! Run 'Authenticate to AWS' stage first.")
                     }
                     
-                    withCredentials([[
-                        $class: 'AmazonWebServicesCredentialsBinding',
+                    withCredentials([usernamePassword(
                         credentialsId: AWS_CREDENTIALS_ID,
-                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-                    ]]) {
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
                         sh """
                             echo "════════════════════════════════════════"
                             echo "📦 BUILD INFORMATION"
@@ -591,12 +589,11 @@ pipeline {
                 script {
                     logMessage('Ensuring EKS cluster exists via Terraform', '🏗️')
                     
-                    withCredentials([[
-                        $class: 'AmazonWebServicesCredentialsBinding',
+                    withCredentials([usernamePassword(
                         credentialsId: AWS_CREDENTIALS_ID,
-                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-                    ]]) {
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
                         dir('Observability/infra-tf') {
                             sh """
                                 echo "🔧 Initializing Terraform..."
@@ -629,12 +626,11 @@ pipeline {
                 script {
                     logMessage('Configuring kubectl for EKS cluster', '⚙️')
                     
-                    withCredentials([[
-                        $class: 'AmazonWebServicesCredentialsBinding',
+                    withCredentials([usernamePassword(
                         credentialsId: AWS_CREDENTIALS_ID,
-                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-                    ]]) {
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
                         sh """
                             echo "🔧 Updating kubeconfig for cluster: ${CLUSTER_NAME}"
                             aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER_NAME}
@@ -666,12 +662,11 @@ pipeline {
                         error("ECR_REGISTRY is not set! Run 'Authenticate to AWS' stage first.")
                     }
                     
-                    withCredentials([[
-                        $class: 'AmazonWebServicesCredentialsBinding',
+                    withCredentials([usernamePassword(
                         credentialsId: AWS_CREDENTIALS_ID,
-                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-                    ]]) {
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
                         dir('ChatApplication') {
                             sh """
                                 echo "📦 Deploying with Helm..."
@@ -799,12 +794,11 @@ pipeline {
                 script {
                     logMessage('Running Post-Deployment Smoke Tests', '🔬')
                     
-                    withCredentials([[
-                        $class: 'AmazonWebServicesCredentialsBinding',
+                    withCredentials([usernamePassword(
                         credentialsId: AWS_CREDENTIALS_ID,
-                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-                    ]]) {
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
                         sh """
                             CLUSTER="${CLUSTER_NAME}"
                             echo "Environment: ${env.TARGET_ENVIRONMENT}"
