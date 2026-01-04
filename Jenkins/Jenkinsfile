@@ -770,9 +770,10 @@ pipeline {
                         secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
                     ]]) {
                         sh """
+                            CLUSTER="${CLUSTER_NAME}"
                             echo "Environment: ${env.TARGET_ENVIRONMENT}"
                             echo "Version: ${env.VERSION}"
-                            echo "Cluster: ${env.CLUSTER_NAME}"
+                            echo "Cluster: $CLUSTER"
                             echo ""
                             
                             echo "🔍 Checking deployment status..."
