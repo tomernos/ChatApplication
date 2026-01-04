@@ -36,44 +36,62 @@ pipeline {
                     
                     // Check if Observability directory already exists (e.g., in workspace)
                     sh '''
+                        echo "🔍 Checking for Observability/infra-tf..."
+                        echo "Current directory: $(pwd)"
+                        
+                        # Check if Observability directory exists and what's in it
+                        if [ -d "Observability" ]; then
+                            echo "✅ Observability directory exists"
+                            echo "Contents of Observability directory:"
+                            ls -la Observability/ || true
+                            
+                            # Check if it's a git repo or just an empty directory
+                            if [ -d "Observability/.git" ]; then
+                                echo "✅ Observability is a git repository"
+                                cd Observability
+                                echo "Current branch: $(git branch --show-current 2>/dev/null || echo 'unknown')"
+                                echo "Remote URL: $(git config --get remote.origin.url 2>/dev/null || echo 'none')"
+                                git pull origin develop || echo "⚠️  Git pull failed, continuing..."
+                                cd ..
+                            else
+                                echo "⚠️  Observability exists but is not a git repo, attempting checkout..."
+                                rm -rf Observability
+                            fi
+                        fi
+                        
+                        # If infra-tf doesn't exist, try to checkout
                         if [ ! -d "Observability/infra-tf" ]; then
                             echo "⚠️  Observability/infra-tf not found, attempting to checkout..."
-                            if [ -d "../Observability/infra-tf" ]; then
-                                echo "✅ Found Observability in parent directory, creating symlink..."
-                                ln -s ../Observability Observability || echo "Symlink failed, will try git clone"
+                            
+                            # Remove existing Observability if it's not a proper repo
+                            if [ -d "Observability" ] && [ ! -d "Observability/.git" ]; then
+                                echo "Removing incomplete Observability directory..."
+                                rm -rf Observability
                             fi
                             
-                            # If still not found, try to checkout
-                            if [ ! -d "Observability/infra-tf" ]; then
-                                echo "📦 Attempting to checkout Observability repo..."
-                                mkdir -p Observability
-                                cd Observability
-                                if [ -n "${GIT_CREDENTIALS_ID}" ] && [ "${GIT_CREDENTIALS_ID}" != "" ]; then
-                                    echo "Using credentials: ${GIT_CREDENTIALS_ID}"
-                                    git clone -b develop https://github.com/tomernos/Observability.git . || {
-                                        echo "⚠️  Git clone with credentials failed, trying without..."
-                                        git clone -b develop https://github.com/tomernos/Observability.git . || true
-                                    }
-                                else
-                                    echo "No credentials configured, trying public clone..."
-                                    git clone -b develop https://github.com/tomernos/Observability.git . || true
+                            # Try to checkout
+                            echo "📦 Cloning Observability repository..."
+                            git clone -b develop https://github.com/tomernos/Observability.git Observability || {
+                                echo "⚠️  Git clone failed, checking if directory was partially created..."
+                                if [ -d "Observability" ]; then
+                                    echo "Directory exists, checking contents..."
+                                    ls -la Observability/ || true
                                 fi
-                                cd ..
-                            fi
-                        else
-                            echo "✅ Observability/infra-tf already exists"
+                                exit 1
+                            }
                         fi
                         
                         # Final verification
                         if [ ! -d "Observability/infra-tf" ]; then
-                            echo "❌ ERROR: Observability/infra-tf still not found after checkout attempts"
-                            echo "Please ensure Observability repository is accessible"
-                            echo "Current directory: $(pwd)"
-                            echo "Directory contents:"
-                            ls -la
+                            echo "❌ ERROR: Observability/infra-tf still not found after checkout"
+                            echo "Observability directory contents:"
+                            ls -la Observability/ || true
                             exit 1
                         fi
+        
                         echo "✅ Observability/infra-tf verified"
+                        echo "Terraform files in infra-tf:"
+                        ls -la Observability/infra-tf/*.tf 2>/dev/null | head -10 || echo "No .tf files found!"
                     '''
                 }
             }
