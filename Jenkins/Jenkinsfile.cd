@@ -1,0 +1,258 @@
+@Library('jenkins-shared-library') _
+
+pipeline {
+    agent {
+        docker {
+            image 'alpine/k8s:1.28.0'
+            args '-v /var/run/docker.sock:/var/run/docker.sock -u root'
+        }
+    }
+
+    options {
+        timeout(time: 1, unit: 'HOURS')
+        timestamps()
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
+    environment {
+        AWS_REGION = 'eu-central-1'
+        AWS_CREDENTIALS_ID = 'aws-creds'
+        CLUSTER_NAME = 'tnt-eu-observability-dev-eks'
+        
+        // ECR Registry (should be set from CI pipeline artifacts or parameter)
+        ECR_REGISTRY = ''
+        ECR_BACKEND_REPO = 'connecthub-backend'
+        ECR_FRONTEND_REPO = 'connecthub-frontend'
+        
+        // Version (should be passed as parameter or from CI pipeline)
+        VERSION = ''
+        
+        // Detect branch
+        BRANCH = "${env.BRANCH_NAME ?: env.GIT_BRANCH?.replaceAll('origin/', '') ?: 'unknown'}"
+    }
+
+    parameters {
+        string(
+            name: 'IMAGE_VERSION',
+            defaultValue: '',
+            description: 'Docker image version to deploy (e.g., v2.2.0-dev.1). Leave empty to use latest from ECR.'
+        )
+        string(
+            name: 'ECR_REGISTRY_PARAM',
+            defaultValue: '',
+            description: 'ECR Registry URL (e.g., 654654526828.dkr.ecr.eu-central-1.amazonaws.com). Leave empty to auto-detect.'
+        )
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Install Tools') {
+            steps {
+                script {
+                    logMessage('Installing required tools', '📦')
+                    
+                    sh '''
+                        # Install AWS CLI
+                        apk add --no-cache curl unzip python3 py3-pip
+                        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                        unzip awscliv2.zip
+                        ./aws/install
+                        rm -rf awscliv2.zip aws
+                        
+                        # Install Helm
+                        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+                        
+                        # Verify tools
+                        kubectl version --client
+                        helm version
+                        aws --version
+                    '''
+                }
+            }
+        }
+
+        stage('Authenticate to AWS') {
+            steps {
+                script {
+                    logMessage('Authenticating to AWS', '🔐')
+                    
+                    withCredentials([usernamePassword(
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
+                        // Get AWS account ID and set ECR registry if not provided
+                        if (!params.ECR_REGISTRY_PARAM || params.ECR_REGISTRY_PARAM.isEmpty()) {
+                            def accountId = sh(
+                                script: 'aws sts get-caller-identity --query Account --output text 2>&1',
+                                returnStdout: true
+                            ).trim()
+                            
+                            env.ECR_REGISTRY = "${accountId}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+                        } else {
+                            env.ECR_REGISTRY = params.ECR_REGISTRY_PARAM
+                        }
+                        
+                        // Set version from parameter or use latest
+                        if (params.IMAGE_VERSION && !params.IMAGE_VERSION.isEmpty()) {
+                            env.VERSION = params.IMAGE_VERSION
+                        } else {
+                            env.VERSION = 'latest'
+                        }
+                        
+                        echo "✅ AWS authenticated"
+                        echo "ECR Registry: ${env.ECR_REGISTRY}"
+                        echo "Image Version: ${env.VERSION}"
+                    }
+                }
+            }
+        }
+
+        stage('Configure Kubeconfig') {
+            steps {
+                script {
+                    logMessage('Configuring kubectl for EKS cluster', '⚙️')
+                    
+                    withCredentials([usernamePassword(
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
+                        sh """
+                            echo "🔧 Updating kubeconfig for cluster: ${CLUSTER_NAME}"
+                            aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER_NAME}
+                            
+                            echo "✅ Verifying cluster access..."
+                            kubectl cluster-info
+                            kubectl get nodes
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Helm Deploy Application') {
+            steps {
+                script {
+                    logMessage('Deploying application via Helm', '🚀')
+                    
+                    // Verify ECR_REGISTRY is set
+                    if (!env.ECR_REGISTRY || env.ECR_REGISTRY.isEmpty()) {
+                        error("ECR_REGISTRY is not set! Provide ECR_REGISTRY_PARAM or ensure AWS auth works.")
+                    }
+                    
+                    withCredentials([usernamePassword(
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
+                        dir('ChatApplication') {
+                            sh """
+                                echo "📦 Deploying with Helm..."
+                                echo "Chart: helm-chart/"
+                                echo "Backend Image: ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}"
+                                echo "Frontend Image: ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}"
+                                
+                                # Verify ECR_REGISTRY is not empty
+                                ECR_REG="${env.ECR_REGISTRY}"
+                                if [ -z "\$ECR_REG" ]; then
+                                    echo "❌ ECR_REGISTRY is empty! Cannot deploy."
+                                    exit 1
+                                fi
+                                
+                                helm upgrade --install chatapp ./helm-chart \\
+                                    --namespace chatapp-prod \\
+                                    --create-namespace \\
+                                    --set backend.image.repository=\${ECR_REG}/${ECR_BACKEND_REPO} \\
+                                    --set backend.image.tag=${env.VERSION} \\
+                                    --set frontend.image.repository=\${ECR_REG}/${ECR_FRONTEND_REPO} \\
+                                    --set frontend.image.tag=${env.VERSION} \\
+                                    --wait \\
+                                    --timeout 10m
+                                
+                                echo "✅ Helm deployment completed"
+                            """
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Post-Deployment Smoke Tests') {
+            steps {
+                script {
+                    logMessage('Running Post-Deployment Smoke Tests', '🔬')
+                    
+                    withCredentials([usernamePassword(
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
+                        sh """
+                            CLUSTER="${CLUSTER_NAME}"
+                            echo "Environment: ${env.TARGET_ENVIRONMENT ?: 'production'}"
+                            echo "Version: ${env.VERSION}"
+                            echo "Cluster: \$CLUSTER"
+                            echo ""
+                            
+                            echo "🔍 Checking deployment status..."
+                            kubectl rollout status deployment/chatapp-backend -n chatapp-prod --timeout=5m || true
+                            kubectl rollout status deployment/chatapp-frontend -n chatapp-prod --timeout=5m || true
+                            
+                            echo ""
+                            echo "📊 Checking pod status..."
+                            kubectl get pods -n chatapp-prod
+                            
+                            echo ""
+                            echo "🌐 Checking services..."
+                            kubectl get svc -n chatapp-prod
+                            
+                            echo ""
+                            echo "🔬 Running health check..."
+                            # Port-forward to backend and test health endpoint
+                            kubectl port-forward -n chatapp-prod svc/chatapp-backend 5000:5000 &
+                            PF_PID=\$!
+                            sleep 5
+                            
+                            if curl -f http://localhost:5000/health; then
+                                echo "✅ Backend health check passed"
+                                kill \$PF_PID || true
+                            else
+                                echo "❌ Backend health check failed"
+                                kill \$PF_PID || true
+                                exit 1
+                            fi
+                            
+                            echo ""
+                            echo "✅ All smoke tests passed"
+                        """
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                logMessage('CD Pipeline Completed', '📊')
+            }
+        }
+        success {
+            script {
+                logMessage('CD Pipeline Completed Successfully!', '✅')
+            }
+        }
+        failure {
+            script {
+                logMessage('CD Pipeline Failed!', '❌')
+            }
+        }
+    }
+}
+

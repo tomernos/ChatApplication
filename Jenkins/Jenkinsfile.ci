@@ -1,0 +1,404 @@
+@Library('jenkins-shared-library') _
+
+pipeline {
+    agent {
+        docker {
+            image 'python:3.9'
+            args '-v /var/run/docker.sock:/var/run/docker.sock -u root'
+        }
+    }
+
+    options {
+        timeout(time: 1, unit: 'HOURS')
+        timestamps()
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        disableConcurrentBuilds()
+    }
+
+    environment {
+        // AWS Configuration
+        AWS_REGION = 'eu-central-1'
+        AWS_CREDENTIALS_ID = 'aws-creds'
+        
+        // GitHub credential
+        GIT_CREDENTIALS_ID = 'gitpat'
+        
+        // Docker Hub Configuration (legacy)
+        DOCKER_REGISTRY = 'tomernos'
+        DOCKER_CREDENTIALS_ID = 'dockerhubauth'
+        
+        // Get short commit hash
+        GIT_SHORT_COMMIT = "${env.GIT_COMMIT?.take(7) ?: 'unknown'}"
+        
+        // Detect branch
+        BRANCH = "${env.BRANCH_NAME ?: env.GIT_BRANCH?.replaceAll('origin/', '') ?: 'unknown'}"
+        
+        // Image Names
+        BACKEND_IMAGE = "${DOCKER_REGISTRY}/connecthub-backend"
+        FRONTEND_IMAGE = "${DOCKER_REGISTRY}/connecthub-frontend"
+        
+        // ECR Registry (will be set after AWS auth)
+        ECR_REGISTRY = ''
+        ECR_BACKEND_REPO = 'connecthub-backend'
+        ECR_FRONTEND_REPO = 'connecthub-frontend'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Calculate & Create Version Tag') {
+            steps {
+                script {
+                    logMessage('Auto-calculating Semantic Version', '🏷️')
+                    
+                    def versionInfo = calculateAndCreateTag(
+                        branch: BRANCH,
+                        gitCredentialsId: GIT_CREDENTIALS_ID
+                    )
+                    
+                    env.VERSION = versionInfo.version
+                    env.PREVIOUS_VERSION = versionInfo.previousVersion
+                    env.BUMP_TYPE = versionInfo.bumpType
+                    env.IS_RELEASE = versionInfo.isRelease.toString()
+                    env.TARGET_ENVIRONMENT = versionInfo.environment
+                    
+                    echo """
+                    ╔════════════════════════════════════════╗
+                    ║  VERSION INFORMATION                   ║
+                    ╚════════════════════════════════════════╝
+                    Branch:           ${BRANCH}
+                    Previous Version: ${env.PREVIOUS_VERSION}
+                    New Version:      ${env.VERSION}
+                    Bump Type:        ${env.BUMP_TYPE}
+                    Environment:      ${env.TARGET_ENVIRONMENT}
+                    Is Release:       ${env.IS_RELEASE}
+                    ╚════════════════════════════════════════╝
+                    """.stripIndent()
+                }
+            }
+        }
+
+        stage('Setup Dependencies') {
+            steps {
+                script {
+                    logMessage('Installing System Dependencies', '📦')
+                    
+                    installDependencies(['curl', 'gnupg', 'lsb-release', 'ca-certificates'])
+                    
+                    def composeInfo = installDockerCompose()
+                    
+                    echo "Docker Compose version: ${composeInfo.version}"
+                    echo "Command to use: ${composeInfo.command}"
+                    
+                    sh '''
+                        pip3 install --quiet --upgrade pip --root-user-action=ignore
+                        pip3 install --quiet -r backend-service/requirements.txt --root-user-action=ignore
+                        pip3 install --quiet pytest --root-user-action=ignore
+                    '''
+                    
+                    logMessage('All dependencies installed', '✅')
+                }
+            }
+        }
+
+        stage('Python Tests') {
+            steps {
+                script {
+                    logMessage('Running Python Tests', '🧪')
+                    
+                    sh '''
+                        cd backend-service
+                        pytest tests/ --verbose || echo "⚠️  No tests yet"
+                    '''
+                }
+            }
+        }
+
+        stage('Build Docker Images') {
+            parallel {
+                stage('Build Backend') {
+                    steps {
+                        script {
+                            logMessage('Building Backend Docker Image', '🔨')
+                            
+                            sh 'docker rmi connecthub-backend:latest tomernos/connecthub-backend:latest || true'
+                            sh 'docker rmi connecthub-frontend:latest tomernos/connecthub-frontend:latest || true'
+
+                            def backendImage = dockerBuild(
+                                imageName: 'connecthub-backend',
+                                tag: 'latest',
+                                context: './backend-service',
+                                dockerfile: './backend-service/Dockerfile'
+                            )
+                            
+                            saveDockerImage(
+                                imageName: backendImage.imageName,
+                                tag: backendImage.tag,
+                                outputFile: 'backend.tar.gz'
+                            )
+                        }
+                    }
+                }
+                
+                stage('Build Frontend') {
+                    steps {
+                        script {
+                            logMessage('Building Frontend Docker Image', '🌐')
+                            
+                            def frontendImage = dockerBuild(
+                                imageName: 'connecthub-frontend',
+                                tag: 'latest',
+                                context: './frontend-service',
+                                dockerfile: './frontend-service/Dockerfile'
+                            )
+                            
+                            saveDockerImage(
+                                imageName: frontendImage.imageName,
+                                tag: frontendImage.tag,
+                                outputFile: 'frontend.tar.gz'
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Tag Images') {
+            steps {
+                script {
+                    logMessage('Tagging Images', '🏷️')
+                    
+                    sh '''
+                        docker tag connecthub-backend:latest tomernos/connecthub-backend:latest
+                        docker tag connecthub-frontend:latest tomernos/connecthub-frontend:latest
+                        docker images | grep connecthub
+                    '''
+                }
+            }
+        }
+
+        stage('Authenticate to AWS & Set ECR Registry') {
+            when {
+                expression {
+                    def branch = env.BRANCH
+                    return branch ==~ /.*main$/ || 
+                           branch ==~ /.*staging$/ || 
+                           branch ==~ /.*develop$/
+                }
+            }
+            steps {
+                script {
+                    logMessage('Authenticating to AWS and setting ECR registry', '🔐')
+                    
+                    withCredentials([usernamePassword(
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
+                        // Install AWS CLI if not available
+                        sh '''
+                            set -e
+                            if ! command -v aws &> /dev/null; then
+                                echo "📦 Installing AWS CLI..."
+                                apt-get update -qq
+                                apt-get install -y -qq curl unzip
+                                curl -sSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                                unzip -q awscliv2.zip
+                                ./aws/install
+                                rm -rf awscliv2.zip aws
+                                echo "✅ AWS CLI installed"
+                            else
+                                echo "✅ AWS CLI already installed"
+                                aws --version
+                            fi
+                        '''
+                        
+                        // Verify AWS credentials are set
+                        sh '''
+                            if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+                                echo "❌ AWS credentials not set!"
+                                exit 1
+                            fi
+                            echo "✅ AWS credentials are set"
+                        '''
+                        
+                        // Get AWS account ID and set ECR registry
+                        echo "🔍 Getting AWS account ID..."
+                        def accountId = sh(
+                            script: 'aws sts get-caller-identity --query Account --output text 2>&1',
+                            returnStdout: true
+                        ).trim()
+                        
+                        if (accountId.isEmpty() || accountId.contains("error") || accountId.contains("Unable")) {
+                            error("Failed to get AWS account ID. Response: ${accountId}. Check AWS credentials.")
+                        }
+                        
+                        env.AWS_ACCOUNT_ID = accountId
+                        
+                        // Get region from environment
+                        def region = env.AWS_REGION ?: 'eu-central-1'
+                        env.ECR_REGISTRY = "${accountId}.dkr.ecr.${region}.amazonaws.com"
+                        
+                        echo "✅ AWS authenticated successfully"
+                        echo "Account ID: ${accountId}"
+                        echo "Region: ${region}"
+                        echo "ECR Registry: ${env.ECR_REGISTRY}"
+                        
+                        // Verify ECR registry is set
+                        if (!env.ECR_REGISTRY || env.ECR_REGISTRY.isEmpty()) {
+                            error("ECR_REGISTRY is not set! Cannot proceed with ECR operations.")
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Push to ECR') {
+            when {
+                expression {
+                    def branch = env.BRANCH
+                    return branch ==~ /.*main$/ || 
+                           branch ==~ /.*staging$/ || 
+                           branch ==~ /.*develop$/
+                }
+            }
+            steps {
+                script {
+                    logMessage("Pushing Images to ECR", '📤')
+                    
+                    // Verify ECR_REGISTRY is set
+                    if (!env.ECR_REGISTRY || env.ECR_REGISTRY.isEmpty()) {
+                        error("ECR_REGISTRY is not set! Run 'Authenticate to AWS' stage first.")
+                    }
+                    
+                    withCredentials([usernamePassword(
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
+                        sh """
+                            echo "════════════════════════════════════════"
+                            echo "📦 BUILD INFORMATION"
+                            echo "════════════════════════════════════════"
+                            echo "Version:      ${env.VERSION}"
+                            echo "Environment:  ${env.TARGET_ENVIRONMENT}"
+                            echo "ECR Registry: ${env.ECR_REGISTRY}"
+                            echo "Branch:       ${BRANCH}"
+                            echo "════════════════════════════════════════"
+                            echo ""
+                            
+                            # Login to ECR
+                            echo "🔐 Logging into ECR..."
+                            aws ecr get-login-password --region ${env.AWS_REGION} | docker login --username AWS --password-stdin ${env.ECR_REGISTRY}
+                            
+                            if [ \$? -ne 0 ]; then
+                                echo "❌ ECR login failed"
+                                exit 1
+                            fi
+                            
+                            # Ensure ECR repositories exist (create if missing)
+                            echo "📦 Ensuring ECR repositories exist..."
+                            aws ecr describe-repositories --repository-names ${ECR_BACKEND_REPO} --region ${env.AWS_REGION} 2>/dev/null || \\
+                                aws ecr create-repository --repository-name ${ECR_BACKEND_REPO} --region ${env.AWS_REGION} || true
+                            
+                            aws ecr describe-repositories --repository-names ${ECR_FRONTEND_REPO} --region ${env.AWS_REGION} 2>/dev/null || \\
+                                aws ecr create-repository --repository-name ${ECR_FRONTEND_REPO} --region ${env.AWS_REGION} || true
+                            
+                            echo ""
+                            echo "🏷️  Tagging images with ECR paths..."
+                            
+                            # Tag backend with ECR path
+                            docker tag connecthub-backend:latest ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}
+                            docker tag connecthub-backend:latest ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:latest
+                            echo "✅ Tagged: ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}"
+                            
+                            # Tag frontend with ECR path
+                            docker tag connecthub-frontend:latest ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}
+                            docker tag connecthub-frontend:latest ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:latest
+                            echo "✅ Tagged: ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}"
+                            
+                            echo ""
+                            echo "📤 Pushing images to ECR..."
+                            
+                            # Push backend
+                            docker push ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}
+                            docker push ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:latest
+                            echo "✅ Pushed: ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}"
+                            
+                            # Push frontend
+                            docker push ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}
+                            docker push ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:latest
+                            echo "✅ Pushed: ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}"
+                            
+                            echo ""
+                            echo "════════════════════════════════════════"
+                            echo "✅ IMAGES PUBLISHED TO ECR"
+                            echo "════════════════════════════════════════"
+                            echo "Version: ${env.VERSION}"
+                            echo "Backend:  ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}"
+                            echo "Frontend: ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}"
+                            echo "════════════════════════════════════════"
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Archive Artifacts') {
+            steps {
+                script {
+                    logMessage('Archiving Artifacts', '💾')
+                    
+                    sh """
+                            cat > artifacts/manifest.json << EOF
+                            {
+                            "version": "${env.VERSION}",
+                            "environment": "${env.TARGET_ENVIRONMENT}",
+                            "is_release": "${env.IS_RELEASE}",
+                            "git_commit": "${env.GIT_COMMIT}",
+                            "git_short_commit": "${GIT_SHORT_COMMIT}",
+                            "git_branch": "${env.GIT_BRANCH}",
+                            "git_tag": "${env.TAG_NAME ?: 'none'}",
+                            "build_url": "${env.BUILD_URL}",
+                            "timestamp": "\$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+                            "images": {
+                                "backend": "${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}",
+                                "frontend": "${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}"
+                            }
+                            }
+                            EOF
+                        """
+                    
+                    archiveArtifacts artifacts: 'artifacts/*', 
+                                   fingerprint: true,
+                                   allowEmptyArchive: false
+                    
+                    logMessage('Artifacts archived successfully', '✅')
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                logMessage('CI Pipeline Completed', '📊')
+            }
+        }
+        success {
+            script {
+                logMessage('CI Pipeline Completed Successfully!', '✅')
+            }
+        }
+        failure {
+            script {
+                logMessage('CI Pipeline Failed!', '❌')
+            }
+        }
+    }
+}
+

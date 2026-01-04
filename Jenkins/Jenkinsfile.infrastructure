@@ -1,0 +1,210 @@
+@Library('jenkins-shared-library') _
+
+pipeline {
+    agent {
+        docker {
+            image 'hashicorp/terraform:1.12.2'
+            args '-v /var/run/docker.sock:/var/run/docker.sock -u root'
+        }
+    }
+
+    options {
+        timeout(time: 2, unit: 'HOURS')
+        timestamps()
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+    }
+
+    environment {
+        AWS_REGION = 'eu-central-1'
+        AWS_CREDENTIALS_ID = 'aws-creds'
+        CLUSTER_NAME = 'tnt-eu-observability-dev-eks'
+        
+        // Terraform state backend
+        TF_STATE_BUCKET = 'tnt-eu-observability-dev-tf'
+        TF_STATE_KEY = 'tnt-eu-observability-dev-tf.tfstate'
+        TF_STATE_REGION = 'eu-central-1'
+        TF_LOCK_TABLE = 'tnt-eu-observability-dev-tf-locks'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Install Tools') {
+            steps {
+                script {
+                    logMessage('Installing required tools', '📦')
+                    
+                    sh '''
+                        # Install AWS CLI
+                        if ! command -v aws &> /dev/null; then
+                            echo "📦 Installing AWS CLI..."
+                            apk add --no-cache curl unzip
+                            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                            unzip awscliv2.zip
+                            ./aws/install
+                            rm -rf awscliv2.zip aws
+                        fi
+                        
+                        # Verify tools
+                        terraform version
+                        aws --version
+                    '''
+                }
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                script {
+                    logMessage('Initializing Terraform', '🔧')
+                    
+                    withCredentials([usernamePassword(
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
+                        dir('Observability/infra-tf') {
+                            sh """
+                                echo "🔧 Initializing Terraform with S3 backend..."
+                                terraform init \\
+                                    -backend-config="bucket=${TF_STATE_BUCKET}" \\
+                                    -backend-config="key=${TF_STATE_KEY}" \\
+                                    -backend-config="region=${TF_STATE_REGION}" \\
+                                    -backend-config="dynamodb_table=${TF_LOCK_TABLE}"
+                                
+                                echo "✅ Terraform initialized"
+                            """
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Validate') {
+            steps {
+                script {
+                    logMessage('Validating Terraform configuration', '✅')
+                    
+                    withCredentials([usernamePassword(
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
+                        dir('Observability/infra-tf') {
+                            sh '''
+                                terraform fmt -check -diff
+                                terraform validate
+                                echo "✅ Terraform configuration is valid"
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                script {
+                    logMessage('Running Terraform plan', '📋')
+                    
+                    withCredentials([usernamePassword(
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
+                        dir('Observability/infra-tf') {
+                            sh '''
+                                terraform plan -out=tfplan
+                                echo "✅ Terraform plan completed"
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'develop'
+                    branch 'staging'
+                }
+            }
+            steps {
+                script {
+                    logMessage('Applying Terraform changes', '🚀')
+                    
+                    withCredentials([usernamePassword(
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
+                        dir('Observability/infra-tf') {
+                            sh '''
+                                echo "🚀 Applying Terraform changes..."
+                                terraform apply -auto-approve tfplan
+                                
+                                echo "✅ Terraform apply completed"
+                                echo ""
+                                echo "📊 Infrastructure Summary:"
+                                terraform output
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Verify Infrastructure') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'develop'
+                    branch 'staging'
+                }
+            }
+            steps {
+                script {
+                    logMessage('Verifying infrastructure', '🔍')
+                    
+                    withCredentials([usernamePassword(
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
+                        sh """
+                            echo "🔍 Verifying EKS cluster..."
+                            aws eks describe-cluster --name ${CLUSTER_NAME} --region ${AWS_REGION} --query 'cluster.status' --output text
+                            
+                            echo "✅ Infrastructure verification completed"
+                        """
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                logMessage('Infrastructure Pipeline Completed', '📊')
+            }
+        }
+        success {
+            script {
+                logMessage('Infrastructure Pipeline Completed Successfully!', '✅')
+            }
+        }
+        failure {
+            script {
+                logMessage('Infrastructure Pipeline Failed!', '❌')
+            }
+        }
+    }
+}
+
