@@ -18,7 +18,7 @@ pipeline {
         AWS_REGION = 'eu-central-1'
         AWS_CREDENTIALS_ID = 'aws-creds'
         CLUSTER_NAME = 'tnt-eu-observability-dev-eks'
-        GIT_CREDENTIALS_ID = 'gitoken'  // Optional: for checking out Observability repo if needed
+        GIT_CREDENTIALS_ID = 'gitpat'  // Optional: for checking out Observability repo if needed
         
         // Terraform state backend
         TF_STATE_BUCKET = 'tnt-eu-observability-dev-tf'
