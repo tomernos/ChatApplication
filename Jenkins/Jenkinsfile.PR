@@ -58,34 +58,35 @@ pipeline {
         stage('Setup Dependencies') {
             steps {
                 script {
-                    logMessage('Installing Dependencies', '📦')
+                    // Use shared library function for system packages
+                    installDependencies(['docker.io', 'docker-compose'])
                     
+                    // Install Python dependencies
                     sh '''
-                        apt-get update
-                        apt-get install -y docker.io docker-compose
                         pip install --upgrade pip
-                        pip install pytest pytest-cov
+                        pip install pytest pytest-cov flake8
                         
-                        # Install backend dependencies if they exist
+                        # Install backend dependencies
                         if [ -f backend-service/requirements.txt ]; then
-                            pip install -r backend-service/requirements.txt || echo "⚠️ Failed to install backend requirements"
+                            pip install -r backend-service/requirements.txt
                         fi
                         
-                        # Install microservices dependencies if they exist
+                        # Install auth-service dependencies
                         if [ -f microservices/auth-service/requirements.txt ]; then
-                            pip install -r microservices/auth-service/requirements.txt || echo "⚠️ Failed to install auth-service requirements"
+                            pip install -r microservices/auth-service/requirements.txt
                         fi
                     '''
                     
-                    echo "✅ Dependencies installed"
+                    echo "✅ All dependencies installed"
                 }
             }
         }
 
-        stage('Python Tests') {
+        stage('Run Tests') {
             steps {
                 script {
-                    echo "🧪 Test Validation (POC - Skipping for now)"
+                    logMessage('Running Tests', '🧪')
+                    
                     sh '''
                         python -m pytest --version
                         echo "✅ Pytest installed and ready"
