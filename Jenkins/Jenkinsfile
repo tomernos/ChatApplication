@@ -16,19 +16,19 @@ pipeline {
         disableConcurrentBuilds()                          // Don't run multiple builds at once
     }
 
-    // User Parameters
-    parameters {
-        booleanParam(
-            name: 'SKIP_TESTS',
-            defaultValue: false,
-            description: 'Skip test stages (emergency use only)'
-        )
-        booleanParam(
-            name: 'PUSH_TO_REGISTRY',
-            defaultValue: true,
-            description: 'Push images to Docker Hub'
-        )
-    }
+    // User Parameters - COMMENTED OUT (not needed for now)
+    // parameters {
+    //     booleanParam(
+    //         name: 'SKIP_TESTS',
+    //         defaultValue: false,
+    //         description: 'Skip test stages (emergency use only)'
+    //     )
+    //     booleanParam(
+    //         name: 'PUSH_TO_REGISTRY',
+    //         defaultValue: true,
+    //         description: 'Push images to Docker Hub'
+    //     )
+    // }
 
     // Environment Variables (Available in all stages)
     environment {
@@ -147,9 +147,9 @@ pipeline {
         }
 
         stage('Python Tests') {
-            when {
-                expression { !params.SKIP_TESTS }
-            }
+            // when {
+            //     expression { !params.SKIP_TESTS }
+            // }
             steps {
                 script {
                     logMessage('Running Python Tests', '🧪')
