@@ -17,7 +17,7 @@ pipeline {
     environment {
         AWS_REGION = 'eu-central-1'
         AWS_CREDENTIALS_ID = 'aws-creds'
-        CLUSTER_NAME = 'tnt-eu-observability-dev-eks'
+        CLUSTER_NAME = 'tnt-eu-chatapp-dev-eks'  // Format: {tenant}-{region}-{project}-{env}-eks
         
         // ECR Registry (should be set from CI pipeline artifacts or parameter)
         ECR_REGISTRY = ''
@@ -133,7 +133,10 @@ pipeline {
                             if (parts.length == 2) {
                                 def key = parts[0].trim()
                                 def value = parts[1].trim().replaceAll(/^["']|["']$/, '')
-                                manifest[key] = value
+                                // Skip "null" values
+                                if (value != 'null' && !value.isEmpty()) {
+                                    manifest[key] = value
+                                }
                             }
                         }
                     }
