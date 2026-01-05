@@ -241,8 +241,14 @@ pipeline {
                         passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                     )]) {
                         sh """
+                            # Ensure AWS CLI is in PATH
+                            export PATH="/usr/local/bin:$PATH"
+                            
+                            # Verify AWS CLI is available
+                            which aws || /usr/local/bin/aws --version || (echo "❌ AWS CLI not found" && exit 1)
+                            
                             echo "🔧 Updating kubeconfig for cluster: ${CLUSTER_NAME}"
-                            aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER_NAME}
+                            /usr/local/bin/aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER_NAME}
                             
                             echo "✅ Verifying cluster access..."
                             kubectl cluster-info
