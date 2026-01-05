@@ -37,9 +37,11 @@ pipeline {
         BACKEND_IMAGE = "${DOCKER_REGISTRY}/connecthub-backend"
         FRONTEND_IMAGE = "${DOCKER_REGISTRY}/connecthub-frontend"
         
-        // ECR Registry (will be set after AWS auth)
-        ECR_REGISTRY = ''
+        // ECR Configuration (best practice: separate registry base from repository)
+        AWS_ACCOUNT_ID = ''  // Set after AWS authentication
+        ECR_REGISTRY_BASE = ''  // Format: {account_id}.dkr.ecr.{region}.amazonaws.com
         ECR_REPO = 'chatapp'  // Single ECR repository for both backend and frontend
+        ECR_REGISTRY = ''  // Full registry URL: {ECR_REGISTRY_BASE}/{ECR_REPO}
     }
 
     stages {
@@ -265,35 +267,37 @@ pipeline {
                         echo "Region: ${region}"
                     } // End withCredentials
                     
-                    // Calculate ECR registry with repository name and set environment variables OUTSIDE withCredentials
-                    def ecrRegistry = "${accountId}.dkr.ecr.${region}.amazonaws.com/chatapp"
-                    
-                    // Set environment variables - assign directly
+                    // Set AWS account ID first (best practice: set base variables first)
                     env.AWS_ACCOUNT_ID = accountId
                     env.AWS_DEFAULT_REGION = region
+                    
+                    // Calculate ECR registry base (best practice: separate registry base from repository)
+                    def ecrRegistryBase = "${accountId}.dkr.ecr.${region}.amazonaws.com"
+                    env.ECR_REGISTRY_BASE = ecrRegistryBase
+                    
+                    // Calculate full ECR registry with repository (best practice: compose from base + repo)
+                    def ecrRegistry = "${ecrRegistryBase}/${ECR_REPO}"
                     env.ECR_REGISTRY = ecrRegistry
                     
-                    echo "ECR Registry (calculated): ${ecrRegistry}"
+                    echo "✅ AWS Configuration Set:"
+                    echo "   AWS Account ID: ${env.AWS_ACCOUNT_ID}"
+                    echo "   AWS Region: ${env.AWS_DEFAULT_REGION}"
+                    echo "   ECR Registry Base: ${env.ECR_REGISTRY_BASE}"
+                    echo "   ECR Repository: ${ECR_REPO}"
+                    echo "   ECR Registry (Full): ${env.ECR_REGISTRY}"
                     
-                    // Use sh to verify and set if needed (Jenkins sometimes needs this)
-                    sh """
-                        export ECR_REGISTRY="${ecrRegistry}"
-                        echo "ECR_REGISTRY from shell: \${ECR_REGISTRY}"
-                    """
-                    
-                    // Re-assign to ensure it's set
-                    env.ECR_REGISTRY = ecrRegistry
-                    
-                    // Verify assignment by reading it back
-                    def verifyRegistry = env.ECR_REGISTRY
-                    echo "ECR Registry (env.ECR_REGISTRY after assignment): ${verifyRegistry}"
-                    
-                    // Final verification
-                    if (!verifyRegistry || verifyRegistry.toString() == 'null' || verifyRegistry.isEmpty()) {
-                        error("ECR_REGISTRY failed to set! Account: ${accountId}, Region: ${region}, Calculated: ${ecrRegistry}")
+                    // Verify all variables are set
+                    if (!env.AWS_ACCOUNT_ID || env.AWS_ACCOUNT_ID.isEmpty()) {
+                        error("AWS_ACCOUNT_ID is not set!")
+                    }
+                    if (!env.ECR_REGISTRY_BASE || env.ECR_REGISTRY_BASE.isEmpty()) {
+                        error("ECR_REGISTRY_BASE is not set!")
+                    }
+                    if (!env.ECR_REGISTRY || env.ECR_REGISTRY.isEmpty()) {
+                        error("ECR_REGISTRY is not set! Base: ${env.ECR_REGISTRY_BASE}, Repo: ${ECR_REPO}")
                     }
                     
-                    echo "✅ ECR_REGISTRY verified: ${env.ECR_REGISTRY}"
+                    echo "✅ All ECR variables verified and set"
                 }
             }
         }
@@ -354,9 +358,14 @@ pipeline {
                             
                             if (accountId && !accountId.isEmpty() && !accountId.contains("error") && !accountId.contains("Unable") && !accountId.contains("None")) {
                                 def region = env.AWS_REGION ?: 'eu-central-1'
-                                env.ECR_REGISTRY = "${accountId}.dkr.ecr.${region}.amazonaws.com/chatapp"
+                                // Set variables following best practice pattern
+                                env.AWS_ACCOUNT_ID = accountId
                                 env.AWS_DEFAULT_REGION = region
-                                echo "✅ ECR_REGISTRY set: ${env.ECR_REGISTRY}"
+                                env.ECR_REGISTRY_BASE = "${accountId}.dkr.ecr.${region}.amazonaws.com"
+                                env.ECR_REGISTRY = "${env.ECR_REGISTRY_BASE}/${ECR_REPO}"
+                                echo "✅ ECR variables set (fallback):"
+                                echo "   ECR_REGISTRY_BASE: ${env.ECR_REGISTRY_BASE}"
+                                echo "   ECR_REGISTRY: ${env.ECR_REGISTRY}"
                             } else {
                                 error("ECR_REGISTRY is not set and cannot be auto-detected! Response: '${accountId}'. Check AWS credentials.")
                             }
@@ -379,12 +388,9 @@ pipeline {
                             echo "════════════════════════════════════════"
                             echo ""
                             
-                            # Extract registry base URL for ECR login (without /chatapp)
-                            ECR_BASE=\$(echo "${env.ECR_REGISTRY}" | sed 's|/chatapp\$||')
-                            
-                            # Login to ECR (use base URL without repository)
+                            # Login to ECR (best practice: use ECR_REGISTRY_BASE for login)
                             echo "🔐 Logging into ECR..."
-                            aws ecr get-login-password --region ${env.AWS_REGION} | docker login --username AWS --password-stdin \${ECR_BASE}
+                            aws ecr get-login-password --region ${env.AWS_REGION} | docker login --username AWS --password-stdin ${env.ECR_REGISTRY_BASE}
                             
                             if [ \$? -ne 0 ]; then
                                 echo "❌ ECR login failed"
@@ -403,12 +409,12 @@ pipeline {
                             echo ""
                             echo "🏷️  Tagging images with ECR paths (same repository, different tags)..."
                             
-                            # Tag backend: chatapp:backend-{version} (ECR_REGISTRY already includes /chatapp)
+                            # Tag backend: {ECR_REGISTRY}:backend-{version} (ECR_REGISTRY = ECR_REGISTRY_BASE/ECR_REPO)
                             docker tag connecthub-backend:latest ${env.ECR_REGISTRY}:backend-${env.VERSION}
                             docker tag connecthub-backend:latest ${env.ECR_REGISTRY}:backend-latest
                             echo "✅ Tagged: ${env.ECR_REGISTRY}:backend-${env.VERSION}"
                             
-                            # Tag frontend: chatapp:frontend-{version} (ECR_REGISTRY already includes /chatapp)
+                            # Tag frontend: {ECR_REGISTRY}:frontend-{version} (ECR_REGISTRY = ECR_REGISTRY_BASE/ECR_REPO)
                             docker tag connecthub-frontend:latest ${env.ECR_REGISTRY}:frontend-${env.VERSION}
                             docker tag connecthub-frontend:latest ${env.ECR_REGISTRY}:frontend-latest
                             echo "✅ Tagged: ${env.ECR_REGISTRY}:frontend-${env.VERSION}"
@@ -477,7 +483,7 @@ pipeline {
                     def timestamp = new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC'))
                     
                     // Create deployment manifest content
-                    // Note: ECR_REGISTRY already includes /chatapp, so use it directly
+                    // Note: ECR_REGISTRY = ECR_REGISTRY_BASE/ECR_REPO, so use it directly
                     def manifestContent = """# Deployment Manifest - Auto-generated by CI
 # DO NOT manually edit - CI will overwrite changes
 # Last updated: ${timestamp}
@@ -548,8 +554,8 @@ git_branch: "${normalizedBranch}"
                             "build_url": "${env.BUILD_URL}",
                             "timestamp": "\$(date -u +%Y-%m-%dT%H:%M:%SZ)",
                             "images": {
-                                "backend": "${env.ECR_REGISTRY}/${ECR_REPO}:backend-${env.VERSION}",
-                                "frontend": "${env.ECR_REGISTRY}/${ECR_REPO}:frontend-${env.VERSION}"
+                                "backend": "${env.ECR_REGISTRY}:backend-${env.VERSION}",
+                                "frontend": "${env.ECR_REGISTRY}:frontend-${env.VERSION}"
                             }
                             }
                             EOF
