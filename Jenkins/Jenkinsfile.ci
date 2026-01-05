@@ -252,8 +252,9 @@ pipeline {
                                 # Set region
                                 export AWS_DEFAULT_REGION=${region}
                                 
-                                # Get account ID (output only the account ID to stdout, redirect errors to stderr)
-                                aws sts get-caller-identity --query Account --output text 2>&1 | tail -n 1
+                                # Get account ID (only account ID to stdout, errors to stderr)
+                                # Extract only 12-digit account ID, ignore any other output
+                                aws sts get-caller-identity --query Account --output text 2>/dev/null | grep -oE '[0-9]{12}' | head -n 1
                             """,
                             returnStdout: true
                         ).trim()
