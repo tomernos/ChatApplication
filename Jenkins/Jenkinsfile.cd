@@ -241,51 +241,11 @@ pipeline {
                         passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                     )]) {
                         sh """
-                            # Install AWS CLI if not available (Alpine container)
-                            if ! command -v aws &> /dev/null && [ ! -f /usr/local/bin/aws ]; then
-                                echo "📦 Installing AWS CLI..."
-                                apk add --no-cache curl unzip python3
-                                curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-                                unzip -q -o awscliv2.zip
-                                ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
-                                rm -rf awscliv2.zip aws
-                            fi
-                            
-                            # Ensure AWS CLI is in PATH
-                            export PATH="/usr/local/bin:$PATH"
-                            
-                            # Verify AWS CLI is available and at expected location
-                            if [ ! -f /usr/local/bin/aws ]; then
-                                echo "❌ AWS CLI not found at /usr/local/bin/aws"
-                                echo "Checking alternative locations..."
-                                which aws || find /usr -name aws 2>/dev/null | head -1 || (echo "AWS CLI not found anywhere" && exit 1)
-                            fi
-                            
-                            # Verify AWS CLI works
-                            aws --version || (echo "❌ AWS CLI not working" && exit 1)
-                            
-                            # Find where aws is actually installed
-                            AWS_CLI_PATH=$(which aws || find /usr -name aws 2>/dev/null | head -1 || echo "/usr/local/bin/aws")
-                            echo "📍 AWS CLI found at: ${AWS_CLI_PATH}"
-                            
-                            # Ensure /usr/local/bin/aws exists (create symlink if needed)
-                            if [ ! -f /usr/local/bin/aws ] && [ -f "${AWS_CLI_PATH}" ]; then
-                                mkdir -p /usr/local/bin
-                                ln -sf "${AWS_CLI_PATH}" /usr/local/bin/aws
-                                echo "✅ Created symlink: /usr/local/bin/aws -> ${AWS_CLI_PATH}"
-                            fi
-                            
-                            # Verify the symlink works
-                            if [ ! -f /usr/local/bin/aws ]; then
-                                echo "❌ Cannot create /usr/local/bin/aws symlink"
-                                exit 1
-                            fi
-                            
                             echo "🔧 Updating kubeconfig for cluster: ${CLUSTER_NAME}"
                             aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER_NAME}
                             
                             echo "✅ Verifying cluster access..."
-                            kubectl cluster-info
+                            #kubectl cluster-info
                             kubectl get nodes
                         """
                     }
