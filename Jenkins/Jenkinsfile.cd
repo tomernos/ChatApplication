@@ -32,15 +32,20 @@ pipeline {
     }
 
     parameters {
+        choice(
+            name: 'ENVIRONMENT',
+            choices: ['dev', 'staging', 'prod'],
+            description: 'Target environment to deploy to'
+        )
         string(
             name: 'IMAGE_VERSION',
             defaultValue: '',
-            description: 'Docker image version to deploy (e.g., v2.2.0-dev.1). Leave empty to use latest from ECR.'
+            description: 'Override: Docker image version to deploy. Leave empty to read from deployment.yaml'
         )
         string(
             name: 'ECR_REGISTRY_PARAM',
             defaultValue: '',
-            description: 'ECR Registry URL (e.g., 654654526828.dkr.ecr.eu-central-1.amazonaws.com). Leave empty to auto-detect.'
+            description: 'Override: ECR Registry URL. Leave empty to read from deployment.yaml'
         )
     }
 
@@ -76,6 +81,112 @@ pipeline {
             }
         }
 
+        stage('Read Deployment Manifest') {
+            steps {
+                script {
+                    logMessage('Reading Deployment Manifest', '📖')
+                    
+                    // Determine environment using Groovy logic (no shell script)
+                    def environment = params.ENVIRONMENT
+                    
+                    if (!environment || environment.isEmpty()) {
+                        // Determine from branch name
+                        def normalizedBranch = BRANCH.replaceAll('origin/', '')
+                        
+                        if (normalizedBranch == 'develop') {
+                            environment = 'dev'
+                        } else if (normalizedBranch =~ /^release\//) {
+                            environment = 'staging'
+                        } else if (normalizedBranch == 'main' || normalizedBranch =~ /^hotfix\//) {
+                            environment = 'prod'
+                        } else if (normalizedBranch =~ /^feature\//) {
+                            environment = 'preview'
+                        } else {
+                            environment = 'unknown'
+                        }
+                    }
+                    
+                    if (environment == 'unknown' || environment.isEmpty()) {
+                        error("Cannot determine environment from branch ${BRANCH}. Please specify ENVIRONMENT parameter.")
+                    }
+                    
+                    env.DEPLOY_ENVIRONMENT = environment
+                    
+                    // Read deployment manifest
+                    def deploymentFile = "deployments/${environment}/deployment.yaml"
+                    
+                    if (!fileExists(deploymentFile)) {
+                        error("Deployment manifest not found: ${deploymentFile}. Ensure CI has run and updated the manifest.")
+                    }
+                    
+                    // Parse deployment.yaml
+                    def manifestContent = readFile deploymentFile
+                    def manifest = [:]
+                    
+                    // Simple YAML parsing (basic key: value format)
+                    manifestContent.split('\n').each { line ->
+                        def trimmed = line.trim()
+                        if (trimmed && !trimmed.startsWith('#') && trimmed.contains(':')) {
+                            def parts = trimmed.split(':', 2)
+                            if (parts.length == 2) {
+                                def key = parts[0].trim()
+                                def value = parts[1].trim().replaceAll(/^["']|["']$/, '')
+                                manifest[key] = value
+                            }
+                        }
+                    }
+                    
+                    // Set version and registry from manifest (or override from parameters)
+                    if (params.IMAGE_VERSION && !params.IMAGE_VERSION.isEmpty()) {
+                        env.DEPLOY_VERSION = params.IMAGE_VERSION
+                        echo "⚠️  Using override version: ${env.DEPLOY_VERSION}"
+                    } else if (manifest.version && !manifest.version.isEmpty()) {
+                        env.DEPLOY_VERSION = manifest.version
+                        echo "✅ Using version from manifest: ${env.DEPLOY_VERSION}"
+                    } else {
+                        error("No version found in deployment manifest and no override provided.")
+                    }
+                    
+                    if (params.ECR_REGISTRY_PARAM && !params.ECR_REGISTRY_PARAM.isEmpty()) {
+                        env.ECR_REGISTRY = params.ECR_REGISTRY_PARAM
+                        echo "⚠️  Using override ECR registry: ${env.ECR_REGISTRY}"
+                    } else if (manifest.ecr_registry && !manifest.ecr_registry.isEmpty()) {
+                        env.ECR_REGISTRY = manifest.ecr_registry
+                        echo "✅ Using ECR registry from manifest: ${env.ECR_REGISTRY}"
+                    } else {
+                        // Fallback: auto-detect
+                        withCredentials([usernamePassword(
+                            credentialsId: AWS_CREDENTIALS_ID,
+                            usernameVariable: 'AWS_ACCESS_KEY_ID',
+                            passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                        )]) {
+                            def accountId = sh(
+                                script: 'aws sts get-caller-identity --query Account --output text 2>&1',
+                                returnStdout: true
+                            ).trim()
+                            env.ECR_REGISTRY = "${accountId}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+                            echo "✅ Auto-detected ECR registry: ${env.ECR_REGISTRY}"
+                        }
+                    }
+                    
+                    env.BACKEND_REPO = manifest.backend_repo ?: ECR_BACKEND_REPO
+                    env.FRONTEND_REPO = manifest.frontend_repo ?: ECR_FRONTEND_REPO
+                    
+                    echo """
+                    ╔════════════════════════════════════════╗
+                    ║  DEPLOYMENT INFORMATION                 ║
+                    ╚════════════════════════════════════════╝
+                    Environment:  ${env.DEPLOY_ENVIRONMENT}
+                    Version:      ${env.DEPLOY_VERSION}
+                    ECR Registry: ${env.ECR_REGISTRY}
+                    Backend:      ${env.ECR_REGISTRY}/${env.BACKEND_REPO}:${env.DEPLOY_VERSION}
+                    Frontend:     ${env.ECR_REGISTRY}/${env.FRONTEND_REPO}:${env.DEPLOY_VERSION}
+                    ╚════════════════════════════════════════╝
+                    """.stripIndent()
+                }
+            }
+        }
+
         stage('Authenticate to AWS') {
             steps {
                 script {
@@ -86,28 +197,10 @@ pipeline {
                         usernameVariable: 'AWS_ACCESS_KEY_ID',
                         passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                     )]) {
-                        // Get AWS account ID and set ECR registry if not provided
-                        if (!params.ECR_REGISTRY_PARAM || params.ECR_REGISTRY_PARAM.isEmpty()) {
-                            def accountId = sh(
-                                script: 'aws sts get-caller-identity --query Account --output text 2>&1',
-                                returnStdout: true
-                            ).trim()
-                            
-                            env.ECR_REGISTRY = "${accountId}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-                        } else {
-                            env.ECR_REGISTRY = params.ECR_REGISTRY_PARAM
-                        }
-                        
-                        // Set version from parameter or use latest
-                        if (params.IMAGE_VERSION && !params.IMAGE_VERSION.isEmpty()) {
-                            env.VERSION = params.IMAGE_VERSION
-                        } else {
-                            env.VERSION = 'latest'
-                        }
-                        
-                        echo "✅ AWS authenticated"
-                        echo "ECR Registry: ${env.ECR_REGISTRY}"
-                        echo "Image Version: ${env.VERSION}"
+                        sh """
+                            aws sts get-caller-identity
+                            echo "✅ AWS authenticated"
+                        """
                     }
                 }
             }
@@ -136,15 +229,47 @@ pipeline {
             }
         }
 
+        stage('Approve Production Deployment') {
+            when {
+                expression { env.DEPLOY_ENVIRONMENT == 'prod' }
+            }
+            steps {
+                script {
+                    logMessage('Production Deployment Approval Required', '🚨')
+                    
+                    def approval = input(
+                        message: "🚨 Deploy ${env.DEPLOY_VERSION} to PRODUCTION?",
+                        ok: 'Deploy to Production',
+                        parameters: [
+                            string(
+                                name: 'DEPLOYMENT_REASON',
+                                description: 'Why are you deploying to production?'
+                            )
+                        ]
+                    )
+                    
+                    env.DEPLOYMENT_REASON = approval.DEPLOYMENT_REASON ?: 'No reason provided'
+                    echo "✅ Production deployment approved"
+                    echo "Reason: ${env.DEPLOYMENT_REASON}"
+                }
+            }
+        }
+
         stage('Helm Deploy Application') {
             steps {
                 script {
                     logMessage('Deploying application via Helm', '🚀')
                     
-                    // Verify ECR_REGISTRY is set
+                    // Verify required variables are set
                     if (!env.ECR_REGISTRY || env.ECR_REGISTRY.isEmpty()) {
-                        error("ECR_REGISTRY is not set! Provide ECR_REGISTRY_PARAM or ensure AWS auth works.")
+                        error("ECR_REGISTRY is not set! Check deployment manifest or provide ECR_REGISTRY_PARAM.")
                     }
+                    
+                    if (!env.DEPLOY_VERSION || env.DEPLOY_VERSION.isEmpty()) {
+                        error("DEPLOY_VERSION is not set! Check deployment manifest or provide IMAGE_VERSION.")
+                    }
+                    
+                    def namespace = "chatapp-${env.DEPLOY_ENVIRONMENT}"
                     
                     withCredentials([usernamePassword(
                         credentialsId: AWS_CREDENTIALS_ID,
@@ -154,24 +279,30 @@ pipeline {
                         dir('ChatApplication') {
                             sh """
                                 echo "📦 Deploying with Helm..."
+                                echo "Environment: ${env.DEPLOY_ENVIRONMENT}"
+                                echo "Namespace: ${namespace}"
                                 echo "Chart: helm-chart/"
-                                echo "Backend Image: ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}"
-                                echo "Frontend Image: ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}"
+                                echo "Backend Image: ${env.ECR_REGISTRY}/${env.BACKEND_REPO}:${env.DEPLOY_VERSION}"
+                                echo "Frontend Image: ${env.ECR_REGISTRY}/${env.FRONTEND_REPO}:${env.DEPLOY_VERSION}"
                                 
-                                # Verify ECR_REGISTRY is not empty
+                                # Verify variables are not empty
                                 ECR_REG="${env.ECR_REGISTRY}"
-                                if [ -z "\$ECR_REG" ]; then
-                                    echo "❌ ECR_REGISTRY is empty! Cannot deploy."
+                                VERSION="${env.DEPLOY_VERSION}"
+                                BACKEND_REPO="${env.BACKEND_REPO}"
+                                FRONTEND_REPO="${env.FRONTEND_REPO}"
+                                
+                                if [ -z "\$ECR_REG" ] || [ -z "\$VERSION" ]; then
+                                    echo "❌ ECR_REGISTRY or VERSION is empty! Cannot deploy."
                                     exit 1
                                 fi
                                 
                                 helm upgrade --install chatapp ./helm-chart \\
-                                    --namespace chatapp-prod \\
+                                    --namespace ${namespace} \\
                                     --create-namespace \\
-                                    --set backend.image.repository=\${ECR_REG}/${ECR_BACKEND_REPO} \\
-                                    --set backend.image.tag=${env.VERSION} \\
-                                    --set frontend.image.repository=\${ECR_REG}/${ECR_FRONTEND_REPO} \\
-                                    --set frontend.image.tag=${env.VERSION} \\
+                                    --set backend.image.repository=\${ECR_REG}/\${BACKEND_REPO} \\
+                                    --set backend.image.tag=\${VERSION} \\
+                                    --set frontend.image.repository=\${ECR_REG}/\${FRONTEND_REPO} \\
+                                    --set frontend.image.tag=\${VERSION} \\
                                     --wait \\
                                     --timeout 10m
                                 
@@ -188,6 +319,8 @@ pipeline {
                 script {
                     logMessage('Running Post-Deployment Smoke Tests', '🔬')
                     
+                    def namespace = "chatapp-${env.DEPLOY_ENVIRONMENT}"
+                    
                     withCredentials([usernamePassword(
                         credentialsId: AWS_CREDENTIALS_ID,
                         usernameVariable: 'AWS_ACCESS_KEY_ID',
@@ -195,27 +328,28 @@ pipeline {
                     )]) {
                         sh """
                             CLUSTER="${CLUSTER_NAME}"
-                            echo "Environment: ${env.TARGET_ENVIRONMENT ?: 'production'}"
-                            echo "Version: ${env.VERSION}"
+                            echo "Environment: ${env.DEPLOY_ENVIRONMENT}"
+                            echo "Version: ${env.DEPLOY_VERSION}"
+                            echo "Namespace: ${namespace}"
                             echo "Cluster: \$CLUSTER"
                             echo ""
                             
                             echo "🔍 Checking deployment status..."
-                            kubectl rollout status deployment/chatapp-backend -n chatapp-prod --timeout=5m || true
-                            kubectl rollout status deployment/chatapp-frontend -n chatapp-prod --timeout=5m || true
+                            kubectl rollout status deployment/chatapp-backend -n ${namespace} --timeout=5m || true
+                            kubectl rollout status deployment/chatapp-frontend -n ${namespace} --timeout=5m || true
                             
                             echo ""
                             echo "📊 Checking pod status..."
-                            kubectl get pods -n chatapp-prod
+                            kubectl get pods -n ${namespace}
                             
                             echo ""
                             echo "🌐 Checking services..."
-                            kubectl get svc -n chatapp-prod
+                            kubectl get svc -n ${namespace}
                             
                             echo ""
                             echo "🔬 Running health check..."
                             # Port-forward to backend and test health endpoint
-                            kubectl port-forward -n chatapp-prod svc/chatapp-backend 5000:5000 &
+                            kubectl port-forward -n ${namespace} svc/chatapp-backend 5000:5000 &
                             PF_PID=\$!
                             sleep 5
                             

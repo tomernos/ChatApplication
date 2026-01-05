@@ -1,0 +1,14 @@
+# Deployment Manifest - Production Environment
+# This file is automatically updated by CI pipeline on main or hotfix/* branches
+# DO NOT manually edit - CI will overwrite changes
+# Production deployments require approval gate
+
+version: ""  # Will be set by CI (e.g., v2.2.0 - clean semantic version)
+ecr_registry: ""  # Will be auto-detected by CI
+backend_repo: "connecthub-backend"
+frontend_repo: "connecthub-frontend"
+deployed_at: ""  # Auto-filled by CI
+deployed_by: "jenkins"  # Auto-filled
+git_commit: ""  # Auto-filled
+git_branch: ""  # Auto-filled (main or hotfix/v2.1.1)
+

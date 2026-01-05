@@ -1,0 +1,13 @@
+# Deployment Manifest - Development Environment
+# This file is automatically updated by CI pipeline on develop branch
+# DO NOT manually edit - CI will overwrite changes
+
+version: ""  # Will be set by CI (e.g., v2.2.0-dev.1)
+ecr_registry: ""  # Will be auto-detected by CI
+backend_repo: "connecthub-backend"
+frontend_repo: "connecthub-frontend"
+deployed_at: ""  # Auto-filled by CI
+deployed_by: "jenkins"  # Auto-filled
+git_commit: ""  # Auto-filled
+git_branch: "develop"  # Auto-filled
+

@@ -204,3 +204,10 @@ local_settings.py
 *.temp
 
 Jenkins/output.txt
+
+# Documentation and explanation files (not for Git)
+docs/
+**/docs/
+*.md
+!README.md
+!**/README.md
