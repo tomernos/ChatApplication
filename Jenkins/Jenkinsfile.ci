@@ -266,19 +266,32 @@ pipeline {
                         }
                         
                         echo "✅ AWS authenticated successfully"
-                        echo "Account ID: ${accountId}"
+                        echo "Account ID (local var): ${accountId}"
                         echo "Region: ${region}"
                         
+                        // Verify accountId is not null before assignment
+                        if (!accountId || accountId.isEmpty()) {
+                            error("accountId is null or empty before assignment!")
+                        }
+                        
                         // Set environment variables INSIDE withCredentials (best practice: set immediately after retrieval)
-                        env.AWS_ACCOUNT_ID = accountId
+                        // Use explicit string conversion to ensure proper assignment
+                        env.AWS_ACCOUNT_ID = accountId.toString().trim()
                         
                         // Calculate ECR registry base (best practice: separate registry base from repository)
                         def ecrRegistryBase = "${accountId}.dkr.ecr.${region}.amazonaws.com"
-                        env.ECR_REGISTRY_BASE = ecrRegistryBase
+                        env.ECR_REGISTRY_BASE = ecrRegistryBase.toString().trim()
                         
                         // Calculate full ECR registry with repository (best practice: compose from base + repo)
                         def ecrRegistry = "${ecrRegistryBase}/${ECR_REPO}"
-                        env.ECR_REGISTRY = ecrRegistry
+                        env.ECR_REGISTRY = ecrRegistry.toString().trim()
+                        
+                        // Debug: Check values immediately after assignment
+                        echo "🔍 Debug - After assignment:"
+                        echo "   accountId (local): '${accountId}'"
+                        echo "   env.AWS_ACCOUNT_ID: '${env.AWS_ACCOUNT_ID}'"
+                        echo "   env.ECR_REGISTRY_BASE: '${env.ECR_REGISTRY_BASE}'"
+                        echo "   env.ECR_REGISTRY: '${env.ECR_REGISTRY}'"
                         
                         echo "✅ AWS Configuration Set:"
                         echo "   AWS Account ID: ${env.AWS_ACCOUNT_ID}"
