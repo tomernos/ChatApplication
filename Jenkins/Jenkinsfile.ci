@@ -204,9 +204,9 @@ pipeline {
                 script {
                     logMessage('Authenticating to AWS and setting ECR registry', '🔐')
                     
-                    // Define variables outside withCredentials
-                    def accountId = null
+                    // Get region (best practice: use environment variable)
                     def region = env.AWS_REGION ?: 'eu-central-1'
+                    env.AWS_DEFAULT_REGION = region
                     
                     withCredentials([usernamePassword(
                         credentialsId: AWS_CREDENTIALS_ID,
@@ -237,7 +237,8 @@ pipeline {
                         echo "BRANCH: ${BRANCH}"
                         echo "BRANCH_NAME: ${env.BRANCH_NAME}"
                         
-                        accountId = sh(
+                        // Get account ID and set env variable directly (best practice: set env vars inside closure)
+                        def accountId = sh(
                             script: """
                                 set -e
                                 # Credentials are already available from withCredentials
@@ -265,28 +266,27 @@ pipeline {
                         echo "✅ AWS authenticated successfully"
                         echo "Account ID: ${accountId}"
                         echo "Region: ${region}"
+                        
+                        // Set environment variables INSIDE withCredentials (best practice: set immediately after retrieval)
+                        env.AWS_ACCOUNT_ID = accountId
+                        
+                        // Calculate ECR registry base (best practice: separate registry base from repository)
+                        def ecrRegistryBase = "${accountId}.dkr.ecr.${region}.amazonaws.com"
+                        env.ECR_REGISTRY_BASE = ecrRegistryBase
+                        
+                        // Calculate full ECR registry with repository (best practice: compose from base + repo)
+                        def ecrRegistry = "${ecrRegistryBase}/${ECR_REPO}"
+                        env.ECR_REGISTRY = ecrRegistry
+                        
+                        echo "✅ AWS Configuration Set:"
+                        echo "   AWS Account ID: ${env.AWS_ACCOUNT_ID}"
+                        echo "   AWS Region: ${env.AWS_DEFAULT_REGION}"
+                        echo "   ECR Registry Base: ${env.ECR_REGISTRY_BASE}"
+                        echo "   ECR Repository: ${ECR_REPO}"
+                        echo "   ECR Registry (Full): ${env.ECR_REGISTRY}"
                     } // End withCredentials
                     
-                    // Set AWS account ID first (best practice: set base variables first)
-                    env.AWS_ACCOUNT_ID = accountId
-                    env.AWS_DEFAULT_REGION = region
-                    
-                    // Calculate ECR registry base (best practice: separate registry base from repository)
-                    def ecrRegistryBase = "${accountId}.dkr.ecr.${region}.amazonaws.com"
-                    env.ECR_REGISTRY_BASE = ecrRegistryBase
-                    
-                    // Calculate full ECR registry with repository (best practice: compose from base + repo)
-                    def ecrRegistry = "${ecrRegistryBase}/${ECR_REPO}"
-                    env.ECR_REGISTRY = ecrRegistry
-                    
-                    echo "✅ AWS Configuration Set:"
-                    echo "   AWS Account ID: ${env.AWS_ACCOUNT_ID}"
-                    echo "   AWS Region: ${env.AWS_DEFAULT_REGION}"
-                    echo "   ECR Registry Base: ${env.ECR_REGISTRY_BASE}"
-                    echo "   ECR Repository: ${ECR_REPO}"
-                    echo "   ECR Registry (Full): ${env.ECR_REGISTRY}"
-                    
-                    // Verify all variables are set
+                    // Verify all variables are set (best practice: verify after withCredentials)
                     if (!env.AWS_ACCOUNT_ID || env.AWS_ACCOUNT_ID.isEmpty()) {
                         error("AWS_ACCOUNT_ID is not set!")
                     }
