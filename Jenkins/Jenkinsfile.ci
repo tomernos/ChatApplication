@@ -39,8 +39,7 @@ pipeline {
         
         // ECR Registry (will be set after AWS auth)
         ECR_REGISTRY = ''
-        ECR_BACKEND_REPO = 'connecthub-backend'
-        ECR_FRONTEND_REPO = 'connecthub-frontend'
+        ECR_REPO = 'chatapp'  // Single ECR repository for both backend and frontend
     }
 
     stages {
@@ -183,11 +182,17 @@ pipeline {
 
         stage('Authenticate to AWS & Set ECR Registry') {
             when {
-                expression {
-                    def branch = env.BRANCH
-                    return branch ==~ /.*main$/ || 
-                           branch ==~ /.*staging$/ || 
-                           branch ==~ /.*develop$/
+                anyOf {
+                    branch 'develop'
+                    branch 'main'
+                    expression { env.BRANCH_NAME =~ /^release\// }
+                    expression { env.BRANCH_NAME =~ /^hotfix\// }
+                    expression { 
+                        def branch = env.BRANCH ?: env.BRANCH_NAME
+                        return branch ==~ /.*develop.*/ || 
+                               branch ==~ /.*main.*/ || 
+                               branch ==~ /.*staging.*/
+                    }
                 }
             }
             steps {
@@ -259,20 +264,59 @@ pipeline {
 
         stage('Push to ECR') {
             when {
-                expression {
-                    def branch = env.BRANCH
-                    return branch ==~ /.*main$/ || 
-                           branch ==~ /.*staging$/ || 
-                           branch ==~ /.*develop$/
+                anyOf {
+                    branch 'develop'
+                    branch 'main'
+                    expression { env.BRANCH_NAME =~ /^release\// }
+                    expression { env.BRANCH_NAME =~ /^hotfix\// }
+                    expression { 
+                        def branch = env.BRANCH ?: env.BRANCH_NAME
+                        return branch ==~ /.*develop.*/ || 
+                               branch ==~ /.*main.*/ || 
+                               branch ==~ /.*staging.*/
+                    }
                 }
             }
             steps {
                 script {
                     logMessage("Pushing Images to ECR", '📤')
                     
-                    // Verify ECR_REGISTRY is set
+                    // Verify ECR_REGISTRY is set, if not try to set it
                     if (!env.ECR_REGISTRY || env.ECR_REGISTRY.isEmpty()) {
-                        error("ECR_REGISTRY is not set! Run 'Authenticate to AWS' stage first.")
+                        echo "⚠️  ECR_REGISTRY not set, attempting to set it now..."
+                        withCredentials([usernamePassword(
+                            credentialsId: AWS_CREDENTIALS_ID,
+                            usernameVariable: 'AWS_ACCESS_KEY_ID',
+                            passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                        )]) {
+                            // Install AWS CLI if not available
+                            sh '''
+                                set -e
+                                if ! command -v aws &> /dev/null; then
+                                    echo "📦 Installing AWS CLI..."
+                                    apt-get update -qq
+                                    apt-get install -y -qq curl unzip
+                                    curl -sSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                                    unzip -q awscliv2.zip
+                                    ./aws/install
+                                    rm -rf awscliv2.zip aws
+                                    echo "✅ AWS CLI installed"
+                                fi
+                            '''
+                            
+                            def accountId = sh(
+                                script: 'aws sts get-caller-identity --query Account --output text 2>&1',
+                                returnStdout: true
+                            ).trim()
+                            
+                            if (accountId && !accountId.contains("error") && !accountId.contains("Unable")) {
+                                def region = env.AWS_REGION ?: 'eu-central-1'
+                                env.ECR_REGISTRY = "${accountId}.dkr.ecr.${region}.amazonaws.com"
+                                echo "✅ ECR_REGISTRY set: ${env.ECR_REGISTRY}"
+                            } else {
+                                error("ECR_REGISTRY is not set and cannot be auto-detected! Run 'Authenticate to AWS' stage first.")
+                            }
+                        }
                     }
                     
                     withCredentials([usernamePassword(
@@ -300,47 +344,49 @@ pipeline {
                                 exit 1
                             fi
                             
-                            # Ensure ECR repositories exist (create if missing)
-                            echo "📦 Ensuring ECR repositories exist..."
-                            aws ecr describe-repositories --repository-names ${ECR_BACKEND_REPO} --region ${env.AWS_REGION} 2>/dev/null || \\
-                                aws ecr create-repository --repository-name ${ECR_BACKEND_REPO} --region ${env.AWS_REGION} || true
+                            # Verify ECR repository exists (created by Terraform)
+                            echo "📦 Verifying ECR repository exists (created by Terraform)..."
+                            if ! aws ecr describe-repositories --repository-names ${ECR_REPO} --region ${env.AWS_REGION} &>/dev/null; then
+                                echo "❌ ERROR: ECR repository '${ECR_REPO}' does not exist!"
+                                echo "   Run Terraform to create ECR repository first."
+                                exit 1
+                            fi
                             
-                            aws ecr describe-repositories --repository-names ${ECR_FRONTEND_REPO} --region ${env.AWS_REGION} 2>/dev/null || \\
-                                aws ecr create-repository --repository-name ${ECR_FRONTEND_REPO} --region ${env.AWS_REGION} || true
-                            
+                            echo "✅ ECR repository verified (created by Terraform)"
                             echo ""
-                            echo "🏷️  Tagging images with ECR paths..."
+                            echo "🏷️  Tagging images with ECR paths (same repository, different tags)..."
                             
-                            # Tag backend with ECR path
-                            docker tag connecthub-backend:latest ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}
-                            docker tag connecthub-backend:latest ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:latest
-                            echo "✅ Tagged: ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}"
+                            # Tag backend: chatapp:backend-{version}
+                            docker tag connecthub-backend:latest ${env.ECR_REGISTRY}/${ECR_REPO}:backend-${env.VERSION}
+                            docker tag connecthub-backend:latest ${env.ECR_REGISTRY}/${ECR_REPO}:backend-latest
+                            echo "✅ Tagged: ${env.ECR_REGISTRY}/${ECR_REPO}:backend-${env.VERSION}"
                             
-                            # Tag frontend with ECR path
-                            docker tag connecthub-frontend:latest ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}
-                            docker tag connecthub-frontend:latest ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:latest
-                            echo "✅ Tagged: ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}"
+                            # Tag frontend: chatapp:frontend-{version}
+                            docker tag connecthub-frontend:latest ${env.ECR_REGISTRY}/${ECR_REPO}:frontend-${env.VERSION}
+                            docker tag connecthub-frontend:latest ${env.ECR_REGISTRY}/${ECR_REPO}:frontend-latest
+                            echo "✅ Tagged: ${env.ECR_REGISTRY}/${ECR_REPO}:frontend-${env.VERSION}"
                             
                             echo ""
                             echo "📤 Pushing images to ECR..."
                             
                             # Push backend
-                            docker push ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}
-                            docker push ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:latest
-                            echo "✅ Pushed: ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}"
+                            docker push ${env.ECR_REGISTRY}/${ECR_REPO}:backend-${env.VERSION}
+                            docker push ${env.ECR_REGISTRY}/${ECR_REPO}:backend-latest
+                            echo "✅ Pushed: ${env.ECR_REGISTRY}/${ECR_REPO}:backend-${env.VERSION}"
                             
                             # Push frontend
-                            docker push ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}
-                            docker push ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:latest
-                            echo "✅ Pushed: ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}"
+                            docker push ${env.ECR_REGISTRY}/${ECR_REPO}:frontend-${env.VERSION}
+                            docker push ${env.ECR_REGISTRY}/${ECR_REPO}:frontend-latest
+                            echo "✅ Pushed: ${env.ECR_REGISTRY}/${ECR_REPO}:frontend-${env.VERSION}"
                             
                             echo ""
                             echo "════════════════════════════════════════"
                             echo "✅ IMAGES PUBLISHED TO ECR"
                             echo "════════════════════════════════════════"
+                            echo "Repository: ${env.ECR_REGISTRY}/${ECR_REPO}"
                             echo "Version: ${env.VERSION}"
-                            echo "Backend:  ${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}"
-                            echo "Frontend: ${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}"
+                            echo "Backend:  ${env.ECR_REGISTRY}/${ECR_REPO}:backend-${env.VERSION}"
+                            echo "Frontend: ${env.ECR_REGISTRY}/${ECR_REPO}:frontend-${env.VERSION}"
                             echo "════════════════════════════════════════"
                         """
                     }
@@ -390,8 +436,9 @@ pipeline {
 
 version: "${env.VERSION}"
 ecr_registry: "${env.ECR_REGISTRY}"
-backend_repo: "${ECR_BACKEND_REPO}"
-frontend_repo: "${ECR_FRONTEND_REPO}"
+ecr_repo: "${ECR_REPO}"
+backend_image: "${env.ECR_REGISTRY}/${ECR_REPO}:backend-${env.VERSION}"
+frontend_image: "${env.ECR_REGISTRY}/${ECR_REPO}:frontend-${env.VERSION}"
 deployed_at: "${timestamp}"
 deployed_by: "jenkins"
 git_commit: "${env.GIT_COMMIT}"
@@ -453,8 +500,8 @@ git_branch: "${normalizedBranch}"
                             "build_url": "${env.BUILD_URL}",
                             "timestamp": "\$(date -u +%Y-%m-%dT%H:%M:%SZ)",
                             "images": {
-                                "backend": "${env.ECR_REGISTRY}/${ECR_BACKEND_REPO}:${env.VERSION}",
-                                "frontend": "${env.ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${env.VERSION}"
+                                "backend": "${env.ECR_REGISTRY}/${ECR_REPO}:backend-${env.VERSION}",
+                                "frontend": "${env.ECR_REGISTRY}/${ECR_REPO}:frontend-${env.VERSION}"
                             }
                             }
                             EOF

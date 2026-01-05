@@ -5,8 +5,9 @@
 
 version: ""  # Will be set by CI (e.g., v2.2.0 - clean semantic version)
 ecr_registry: ""  # Will be auto-detected by CI
-backend_repo: "connecthub-backend"
-frontend_repo: "connecthub-frontend"
+ecr_repo: "chatapp"  # Single ECR repository for both backend and frontend
+backend_image: ""  # Will be set by CI (e.g., {registry}/chatapp:backend-v2.2.0)
+frontend_image: ""  # Will be set by CI (e.g., {registry}/chatapp:frontend-v2.2.0)
 deployed_at: ""  # Auto-filled by CI
 deployed_by: "jenkins"  # Auto-filled
 git_commit: ""  # Auto-filled

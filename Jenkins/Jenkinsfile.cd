@@ -21,8 +21,7 @@ pipeline {
         
         // ECR Registry (should be set from CI pipeline artifacts or parameter)
         ECR_REGISTRY = ''
-        ECR_BACKEND_REPO = 'connecthub-backend'
-        ECR_FRONTEND_REPO = 'connecthub-frontend'
+        ECR_REPO = 'chatapp'  // Single ECR repository for both backend and frontend
         
         // Version (should be passed as parameter or from CI pipeline)
         VERSION = ''
@@ -169,8 +168,21 @@ pipeline {
                         }
                     }
                     
-                    env.BACKEND_REPO = manifest.backend_repo ?: ECR_BACKEND_REPO
-                    env.FRONTEND_REPO = manifest.frontend_repo ?: ECR_FRONTEND_REPO
+                    // Get ECR repo and construct image paths
+                    def ecrRepo = manifest.ecr_repo ?: ECR_REPO
+                    
+                    // Use full image paths from manifest if available, otherwise construct
+                    if (manifest.backend_image && !manifest.backend_image.isEmpty()) {
+                        env.BACKEND_IMAGE = manifest.backend_image
+                    } else {
+                        env.BACKEND_IMAGE = "${env.ECR_REGISTRY}/${ecrRepo}:backend-${env.DEPLOY_VERSION}"
+                    }
+                    
+                    if (manifest.frontend_image && !manifest.frontend_image.isEmpty()) {
+                        env.FRONTEND_IMAGE = manifest.frontend_image
+                    } else {
+                        env.FRONTEND_IMAGE = "${env.ECR_REGISTRY}/${ecrRepo}:frontend-${env.DEPLOY_VERSION}"
+                    }
                     
                     echo """
                     ╔════════════════════════════════════════╗
@@ -179,8 +191,9 @@ pipeline {
                     Environment:  ${env.DEPLOY_ENVIRONMENT}
                     Version:      ${env.DEPLOY_VERSION}
                     ECR Registry: ${env.ECR_REGISTRY}
-                    Backend:      ${env.ECR_REGISTRY}/${env.BACKEND_REPO}:${env.DEPLOY_VERSION}
-                    Frontend:     ${env.ECR_REGISTRY}/${env.FRONTEND_REPO}:${env.DEPLOY_VERSION}
+                    ECR Repo:     ${ecrRepo}
+                    Backend:      ${env.BACKEND_IMAGE}
+                    Frontend:     ${env.FRONTEND_IMAGE}
                     ╚════════════════════════════════════════╝
                     """.stripIndent()
                 }
@@ -282,27 +295,35 @@ pipeline {
                                 echo "Environment: ${env.DEPLOY_ENVIRONMENT}"
                                 echo "Namespace: ${namespace}"
                                 echo "Chart: helm-chart/"
-                                echo "Backend Image: ${env.ECR_REGISTRY}/${env.BACKEND_REPO}:${env.DEPLOY_VERSION}"
-                                echo "Frontend Image: ${env.ECR_REGISTRY}/${env.FRONTEND_REPO}:${env.DEPLOY_VERSION}"
+                                echo "Backend Image: ${env.BACKEND_IMAGE}"
+                                echo "Frontend Image: ${env.FRONTEND_IMAGE}"
                                 
                                 # Verify variables are not empty
-                                ECR_REG="${env.ECR_REGISTRY}"
-                                VERSION="${env.DEPLOY_VERSION}"
-                                BACKEND_REPO="${env.BACKEND_REPO}"
-                                FRONTEND_REPO="${env.FRONTEND_REPO}"
+                                BACKEND_IMG="${env.BACKEND_IMAGE}"
+                                FRONTEND_IMG="${env.FRONTEND_IMAGE}"
                                 
-                                if [ -z "\$ECR_REG" ] || [ -z "\$VERSION" ]; then
-                                    echo "❌ ECR_REGISTRY or VERSION is empty! Cannot deploy."
+                                if [ -z "\$BACKEND_IMG" ] || [ -z "\$FRONTEND_IMG" ]; then
+                                    echo "❌ BACKEND_IMAGE or FRONTEND_IMAGE is empty! Cannot deploy."
                                     exit 1
                                 fi
+                                
+                                # Extract repository and tag from full image paths
+                                # Format: {registry}/{repo}:{component}-{version}
+                                BACKEND_REPO=\$(echo "\$BACKEND_IMG" | cut -d: -f1)
+                                BACKEND_TAG=\$(echo "\$BACKEND_IMG" | cut -d: -f2)
+                                FRONTEND_REPO=\$(echo "\$FRONTEND_IMG" | cut -d: -f1)
+                                FRONTEND_TAG=\$(echo "\$FRONTEND_IMG" | cut -d: -f2)
+                                
+                                echo "Backend:  \${BACKEND_REPO}:\${BACKEND_TAG}"
+                                echo "Frontend: \${FRONTEND_REPO}:\${FRONTEND_TAG}"
                                 
                                 helm upgrade --install chatapp ./helm-chart \\
                                     --namespace ${namespace} \\
                                     --create-namespace \\
-                                    --set backend.image.repository=\${ECR_REG}/\${BACKEND_REPO} \\
-                                    --set backend.image.tag=\${VERSION} \\
-                                    --set frontend.image.repository=\${ECR_REG}/\${FRONTEND_REPO} \\
-                                    --set frontend.image.tag=\${VERSION} \\
+                                    --set backend.image.repository=\${BACKEND_REPO} \\
+                                    --set backend.image.tag=\${BACKEND_TAG} \\
+                                    --set frontend.image.repository=\${FRONTEND_REPO} \\
+                                    --set frontend.image.tag=\${FRONTEND_TAG} \\
                                     --wait \\
                                     --timeout 10m
                                 
