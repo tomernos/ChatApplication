@@ -244,7 +244,7 @@ pipeline {
                             # Install AWS CLI if not available (Alpine container)
                             if ! command -v aws &> /dev/null && [ ! -f /usr/local/bin/aws ]; then
                                 echo "📦 Installing AWS CLI..."
-                                apk add --no-cache curl unzip
+                                apk add --no-cache curl unzip python3
                                 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
                                 unzip -q -o awscliv2.zip
                                 ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
@@ -254,14 +254,26 @@ pipeline {
                             # Ensure AWS CLI is in PATH
                             export PATH="/usr/local/bin:$PATH"
                             
-                            # Verify AWS CLI is available
-                            if ! command -v aws &> /dev/null && [ ! -f /usr/local/bin/aws ]; then
-                                echo "❌ AWS CLI not found after installation attempt"
-                                exit 1
+                            # Verify AWS CLI is available and at expected location
+                            if [ ! -f /usr/local/bin/aws ]; then
+                                echo "❌ AWS CLI not found at /usr/local/bin/aws"
+                                echo "Checking alternative locations..."
+                                which aws || find /usr -name aws 2>/dev/null | head -1 || (echo "AWS CLI not found anywhere" && exit 1)
                             fi
+                            
+                            # Verify AWS CLI works
+                            aws --version || (echo "❌ AWS CLI not working" && exit 1)
                             
                             echo "🔧 Updating kubeconfig for cluster: ${CLUSTER_NAME}"
                             aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER_NAME}
+                            
+                            # Fix kubeconfig to use 'aws' command instead of hardcoded path if needed
+                            if [ -f /root/.kube/config ]; then
+                                # Replace hardcoded /usr/local/bin/aws with just 'aws' in exec plugin
+                                sed -i 's|/usr/local/bin/aws|aws|g' /root/.kube/config || true
+                                # Ensure PATH is set in the exec plugin environment
+                                sed -i 's|"command": "aws"|"command": "aws", "env": [{"name": "PATH", "value": "/usr/local/bin:/usr/bin:/bin"}]|g' /root/.kube/config || true
+                            fi
                             
                             echo "✅ Verifying cluster access..."
                             kubectl cluster-info
