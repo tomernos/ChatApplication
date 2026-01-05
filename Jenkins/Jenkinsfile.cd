@@ -173,37 +173,16 @@ pipeline {
                         error("No version found in deployment manifest and no override provided.")
                     }
                     
-                    // Set ECR_REGISTRY directly to env variable (avoid intermediate variable scoping issues)
+                    // Set ECR_REGISTRY from manifest (simple and direct)
                     if (params.ECR_REGISTRY_PARAM && !params.ECR_REGISTRY_PARAM.isEmpty()) {
-                        env.ECR_REGISTRY = params.ECR_REGISTRY_PARAM.toString().trim()
-                        echo "⚠️  Using override ECR registry: ${env.ECR_REGISTRY}"
-                    } else if (manifest.ecr_registry && !manifest.ecr_registry.isEmpty()) {
-                        // Direct assignment to avoid closure scoping issues
-                        env.ECR_REGISTRY = manifest.ecr_registry.toString().trim()
-                        echo "✅ Using ECR registry from manifest: ${env.ECR_REGISTRY}"
+                        env.ECR_REGISTRY = params.ECR_REGISTRY_PARAM.trim()
+                    } else if (manifest.ecr_registry) {
+                        env.ECR_REGISTRY = manifest.ecr_registry.trim()
                     } else {
-                        // Fallback: auto-detect
-                        withCredentials([usernamePassword(
-                            credentialsId: AWS_CREDENTIALS_ID,
-                            usernameVariable: 'AWS_ACCESS_KEY_ID',
-                            passwordVariable: 'AWS_SECRET_ACCESS_KEY'
-                        )]) {
-                            def accountId = sh(
-                                script: 'aws sts get-caller-identity --query Account --output text 2>/dev/null | grep -oE "[0-9]{12}" | head -n 1',
-                                returnStdout: true
-                            ).trim()
-                            def ecrRepo = manifest.ecr_repo ?: ECR_REPO
-                            env.ECR_REGISTRY = "${accountId}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ecrRepo}".toString().trim()
-                            echo "✅ Auto-detected ECR registry: ${env.ECR_REGISTRY}"
-                        }
+                        error("ECR_REGISTRY not found in manifest and no override provided.")
                     }
                     
-                    // Verify ECR_REGISTRY is set
-                    if (!env.ECR_REGISTRY || env.ECR_REGISTRY.isEmpty()) {
-                        error("ECR_REGISTRY is not set! Check deployment manifest or provide ECR_REGISTRY_PARAM.")
-                    }
-                    
-                    echo "✅ ECR_REGISTRY verified: ${env.ECR_REGISTRY}"
+                    echo "✅ ECR_REGISTRY: ${env.ECR_REGISTRY}"
                     
                     // Get ECR repo
                     def ecrRepo = manifest.ecr_repo ?: ECR_REPO
