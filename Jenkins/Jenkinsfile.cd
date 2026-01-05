@@ -160,28 +160,29 @@ pipeline {
                             passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                         )]) {
                             def accountId = sh(
-                                script: 'aws sts get-caller-identity --query Account --output text 2>&1',
+                                script: 'aws sts get-caller-identity --query Account --output text 2>/dev/null | grep -oE "[0-9]{12}" | head -n 1',
                                 returnStdout: true
                             ).trim()
-                            env.ECR_REGISTRY = "${accountId}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+                            def ecrRepo = manifest.ecr_repo ?: ECR_REPO
+                            env.ECR_REGISTRY = "${accountId}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ecrRepo}"
                             echo "✅ Auto-detected ECR registry: ${env.ECR_REGISTRY}"
                         }
                     }
                     
-                    // Get ECR repo and construct image paths
+                    // Get ECR repo
                     def ecrRepo = manifest.ecr_repo ?: ECR_REPO
                     
-                    // Use full image paths from manifest if available, otherwise construct
-                    if (manifest.backend_image && !manifest.backend_image.isEmpty()) {
+                    // Use full image paths from manifest if available (preferred), otherwise construct
+                    if (manifest.backend_image && !manifest.backend_image.isEmpty() && !manifest.backend_image.contains('null')) {
                         env.BACKEND_IMAGE = manifest.backend_image
                     } else {
-                        env.BACKEND_IMAGE = "${env.ECR_REGISTRY}/${ecrRepo}:backend-${env.DEPLOY_VERSION}"
+                        env.BACKEND_IMAGE = "${env.ECR_REGISTRY}:backend-${env.DEPLOY_VERSION}"
                     }
                     
-                    if (manifest.frontend_image && !manifest.frontend_image.isEmpty()) {
+                    if (manifest.frontend_image && !manifest.frontend_image.isEmpty() && !manifest.frontend_image.contains('null')) {
                         env.FRONTEND_IMAGE = manifest.frontend_image
                     } else {
-                        env.FRONTEND_IMAGE = "${env.ECR_REGISTRY}/${ecrRepo}:frontend-${env.DEPLOY_VERSION}"
+                        env.FRONTEND_IMAGE = "${env.ECR_REGISTRY}:frontend-${env.DEPLOY_VERSION}"
                     }
                     
                     echo """
