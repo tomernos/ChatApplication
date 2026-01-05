@@ -3,7 +3,9 @@
 pipeline {
     agent {
         docker {
-            image 'alpine/k8s:1.28.0'
+            // Using Ubuntu instead of Alpine for better AWS CLI/kubectl compatibility
+            // Alpine's musl libc causes issues with AWS CLI exec plugins in kubeconfig
+            image 'ubuntu:22.04'
             args '-v /var/run/docker.sock:/var/run/docker.sock -u root'
         }
     }
@@ -61,27 +63,34 @@ pipeline {
                     logMessage('Installing required tools', '📦')
                     
                     sh '''
-                        # Install dependencies including openssl for Helm
-                        apk add --no-cache curl unzip python3 py3-pip openssl
+                        set -e
                         
-                        # Install AWS CLI
+                        # Update package list
+                        apt-get update -qq
+                        
+                        # Install base dependencies
+                        apt-get install -y -qq curl unzip ca-certificates gnupg lsb-release
+                        
+                        # Install kubectl
+                        curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+                        echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' | tee /etc/apt/sources.list.d/kubernetes.list
+                        apt-get update -qq
+                        apt-get install -y -qq kubectl
+                        
+                        # Install AWS CLI v2
                         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-                        unzip -q -o awscliv2.zip
-                        rm -rf /usr/local/aws-cli /usr/local/bin/aws
+                        unzip -q awscliv2.zip
                         ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
                         rm -rf awscliv2.zip aws
                         
-                        # Ensure AWS CLI is in PATH and verify
-                        export PATH="/usr/local/bin:$PATH"
-                        which aws || (echo "AWS CLI not found in PATH" && exit 1)
-                        
-                        # Install Helm (openssl is now installed for checksum verification)
+                        # Install Helm
                         curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
                         
-                        # Verify tools
-                        kubectl version --client
-                        helm version
-                        /usr/local/bin/aws --version || aws --version
+                        # Verify all tools
+                        echo "✅ Tool versions:"
+                        kubectl version --client --short
+                        helm version --short
+                        aws --version
                     '''
                 }
             }
