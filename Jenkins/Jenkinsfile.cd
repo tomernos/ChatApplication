@@ -173,15 +173,14 @@ pipeline {
                         error("No version found in deployment manifest and no override provided.")
                     }
                     
-                    // Set ECR_REGISTRY (with proper scoping to persist outside withCredentials)
-                    def ecrRegistryValue = null
-                    
+                    // Set ECR_REGISTRY directly to env variable (avoid intermediate variable scoping issues)
                     if (params.ECR_REGISTRY_PARAM && !params.ECR_REGISTRY_PARAM.isEmpty()) {
-                        ecrRegistryValue = params.ECR_REGISTRY_PARAM
-                        echo "⚠️  Using override ECR registry: ${ecrRegistryValue}"
+                        env.ECR_REGISTRY = params.ECR_REGISTRY_PARAM.toString().trim()
+                        echo "⚠️  Using override ECR registry: ${env.ECR_REGISTRY}"
                     } else if (manifest.ecr_registry && !manifest.ecr_registry.isEmpty()) {
-                        ecrRegistryValue = manifest.ecr_registry
-                        echo "✅ Using ECR registry from manifest: ${ecrRegistryValue}"
+                        // Direct assignment to avoid closure scoping issues
+                        env.ECR_REGISTRY = manifest.ecr_registry.toString().trim()
+                        echo "✅ Using ECR registry from manifest: ${env.ECR_REGISTRY}"
                     } else {
                         // Fallback: auto-detect
                         withCredentials([usernamePassword(
@@ -194,22 +193,17 @@ pipeline {
                                 returnStdout: true
                             ).trim()
                             def ecrRepo = manifest.ecr_repo ?: ECR_REPO
-                            ecrRegistryValue = "${accountId}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ecrRepo}"
-                            echo "✅ Auto-detected ECR registry: ${ecrRegistryValue}"
+                            env.ECR_REGISTRY = "${accountId}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ecrRepo}".toString().trim()
+                            echo "✅ Auto-detected ECR registry: ${env.ECR_REGISTRY}"
                         }
                     }
                     
-                    // Debug: Check value before assignment
-                    echo "🔍 Debug - ecrRegistryValue before assignment: '${ecrRegistryValue}'"
-                    echo "🔍 Debug - ecrRegistryValue type: ${ecrRegistryValue?.getClass()?.getName()}"
-                    
-                    // Set env variable outside withCredentials to ensure persistence
-                    if (ecrRegistryValue && !ecrRegistryValue.toString().isEmpty()) {
-                        env.ECR_REGISTRY = ecrRegistryValue.toString()
-                        echo "✅ ECR_REGISTRY set to: ${env.ECR_REGISTRY}"
-                    } else {
-                        error("Failed to determine ECR_REGISTRY from manifest, parameters, or auto-detection. Value was: '${ecrRegistryValue}'")
+                    // Verify ECR_REGISTRY is set
+                    if (!env.ECR_REGISTRY || env.ECR_REGISTRY.isEmpty()) {
+                        error("ECR_REGISTRY is not set! Check deployment manifest or provide ECR_REGISTRY_PARAM.")
                     }
+                    
+                    echo "✅ ECR_REGISTRY verified: ${env.ECR_REGISTRY}"
                     
                     // Get ECR repo
                     def ecrRepo = manifest.ecr_repo ?: ECR_REPO
