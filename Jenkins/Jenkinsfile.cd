@@ -146,12 +146,20 @@ pipeline {
                             if (parts.length == 2) {
                                 def key = parts[0].trim()
                                 def value = parts[1].trim().replaceAll(/^["']|["']$/, '')
-                                // Skip "null" values
-                                if (value != 'null' && !value.isEmpty()) {
+                                // Skip "null" values and empty strings
+                                if (value != 'null' && !value.isEmpty() && value != '""' && value != "''") {
                                     manifest[key] = value
                                 }
                             }
                         }
+                    }
+                    
+                    // Debug: Show parsed manifest
+                    echo "📋 Parsed manifest keys: ${manifest.keySet()}"
+                    if (manifest.ecr_registry) {
+                        echo "✅ Found ecr_registry in manifest: ${manifest.ecr_registry}"
+                    } else {
+                        echo "⚠️  ecr_registry not found in manifest"
                     }
                     
                     // Set version and registry from manifest (or override from parameters)
@@ -165,12 +173,15 @@ pipeline {
                         error("No version found in deployment manifest and no override provided.")
                     }
                     
+                    // Set ECR_REGISTRY (with proper scoping to persist outside withCredentials)
+                    def ecrRegistryValue = null
+                    
                     if (params.ECR_REGISTRY_PARAM && !params.ECR_REGISTRY_PARAM.isEmpty()) {
-                        env.ECR_REGISTRY = params.ECR_REGISTRY_PARAM
-                        echo "⚠️  Using override ECR registry: ${env.ECR_REGISTRY}"
+                        ecrRegistryValue = params.ECR_REGISTRY_PARAM
+                        echo "⚠️  Using override ECR registry: ${ecrRegistryValue}"
                     } else if (manifest.ecr_registry && !manifest.ecr_registry.isEmpty()) {
-                        env.ECR_REGISTRY = manifest.ecr_registry
-                        echo "✅ Using ECR registry from manifest: ${env.ECR_REGISTRY}"
+                        ecrRegistryValue = manifest.ecr_registry
+                        echo "✅ Using ECR registry from manifest: ${ecrRegistryValue}"
                     } else {
                         // Fallback: auto-detect
                         withCredentials([usernamePassword(
@@ -183,9 +194,17 @@ pipeline {
                                 returnStdout: true
                             ).trim()
                             def ecrRepo = manifest.ecr_repo ?: ECR_REPO
-                            env.ECR_REGISTRY = "${accountId}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ecrRepo}"
-                            echo "✅ Auto-detected ECR registry: ${env.ECR_REGISTRY}"
+                            ecrRegistryValue = "${accountId}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ecrRepo}"
+                            echo "✅ Auto-detected ECR registry: ${ecrRegistryValue}"
                         }
+                    }
+                    
+                    // Set env variable outside withCredentials to ensure persistence
+                    if (ecrRegistryValue) {
+                        env.ECR_REGISTRY = ecrRegistryValue
+                        echo "✅ ECR_REGISTRY set to: ${env.ECR_REGISTRY}"
+                    } else {
+                        error("Failed to determine ECR_REGISTRY from manifest, parameters, or auto-detection")
                     }
                     
                     // Get ECR repo
