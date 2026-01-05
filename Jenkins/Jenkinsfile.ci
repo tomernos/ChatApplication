@@ -182,8 +182,7 @@ pipeline {
             }
         }
 
-        stage('Authenticate to AWS & Set ECR Registry') {
-            // Always run this stage if we need to push to ECR
+        stage('Push to ECR') {
             when {
                 anyOf {
                     branch 'develop'
@@ -191,26 +190,21 @@ pipeline {
                     expression { env.BRANCH_NAME =~ /^release\// }
                     expression { env.BRANCH_NAME =~ /^hotfix\// }
                     expression { 
-                        def branch = env.BRANCH ?: env.BRANCH_NAME ?: ''
-                        return branch.contains('develop') || 
-                               branch.contains('main') || 
-                               branch.contains('staging') ||
-                               branch.contains('release') ||
-                               branch.contains('hotfix')
+                        def branch = env.BRANCH ?: env.BRANCH_NAME
+                        return branch ==~ /.*develop.*/ || 
+                               branch ==~ /.*main.*/ || 
+                               branch ==~ /.*staging.*/
                     }
                 }
             }
             steps {
                 script {
-                    logMessage('Authenticating to AWS and setting ECR registry', '🔐')
+                    logMessage("Pushing Images to ECR", '📤')
                     
-                    // Get region (best practice: use environment variable)
+                    // Get region
                     def region = env.AWS_REGION ?: 'eu-central-1'
-                    env.AWS_DEFAULT_REGION = region
                     
-                    // Define accountId OUTSIDE withCredentials so it persists (fixes Groovy closure scoping)
-                    def accountId = null
-                    
+                    // Authenticate, get account ID, set ECR variables, and push - all in one withCredentials block
                     withCredentials([usernamePassword(
                         credentialsId: AWS_CREDENTIALS_ID,
                         usernameVariable: 'AWS_ACCESS_KEY_ID',
@@ -234,195 +228,43 @@ pipeline {
                             fi
                         '''
                         
-                        // Verify AWS credentials are set and get account ID
-                        echo "🔍 Getting AWS account ID..."
-                        echo "AWS_REGION: ${env.AWS_REGION}"
-                        echo "BRANCH: ${BRANCH}"
-                        echo "BRANCH_NAME: ${env.BRANCH_NAME}"
-                        
-                        // Get account ID (assign to variable defined outside closure)
-                        // Redirect informational messages to stderr, only output account ID to stdout
-                        accountId = sh(
+                        // Get AWS account ID
+                        def accountId = sh(
                             script: """
                                 set -e
-                                # Credentials are already available from withCredentials
-                                if [ -z "\${AWS_ACCESS_KEY_ID}" ] || [ -z "\${AWS_SECRET_ACCESS_KEY}" ]; then
-                                    echo "❌ AWS credentials not available in shell!" >&2
-                                    exit 1
-                                fi
-                                echo "✅ AWS credentials available" >&2
-                                
-                                # Set region
                                 export AWS_DEFAULT_REGION=${region}
-                                
-                                # Get account ID (only account ID to stdout, errors to stderr)
-                                # Extract only 12-digit account ID, ignore any other output
                                 aws sts get-caller-identity --query Account --output text 2>/dev/null | grep -oE '[0-9]{12}' | head -n 1
                             """,
                             returnStdout: true
                         ).trim()
                         
-                        echo "Account ID response: '${accountId}'"
-                        
-                        if (!accountId || accountId.isEmpty() || accountId.contains("error") || accountId.contains("Unable") || accountId.contains("None") || accountId.contains("Unable to locate credentials")) {
-                            error("Failed to get AWS account ID. Response: '${accountId}'. Check AWS credentials and region.")
+                        if (!accountId || accountId.isEmpty()) {
+                            error("Failed to get AWS account ID. Check AWS credentials and region.")
                         }
                         
-                        echo "✅ AWS authenticated successfully"
-                        echo "Account ID (local var): ${accountId}"
-                        echo "Region: ${region}"
+                        // Calculate ECR registry values
+                        def ecrRegistryBase = "${accountId}.dkr.ecr.${region}.amazonaws.com"
+                        def ecrRegistry = "${ecrRegistryBase}/${ECR_REPO}"
                         
-                        // Workaround for Jenkins closure scoping: Write to file inside withCredentials
-                        // Then read back outside to set env variables (ensures persistence)
-                        sh """
-                            echo "${accountId}" > /tmp/aws_account_id.txt
-                            echo "${region}" > /tmp/aws_region.txt
-                        """
-                    } // End withCredentials
-                    
-                    // Read account ID from file (workaround for Jenkins env variable persistence issue)
-                    def accountIdFromFile = sh(
-                        script: 'cat /tmp/aws_account_id.txt',
-                        returnStdout: true
-                    ).trim()
-                    
-                    def regionFromFile = sh(
-                        script: 'cat /tmp/aws_region.txt',
-                        returnStdout: true
-                    ).trim()
-                    
-                    // Verify we got the values
-                    if (!accountIdFromFile || accountIdFromFile.isEmpty()) {
-                        error("Failed to read account ID from file! Local accountId was: ${accountId}")
-                    }
-                    
-                    // Set environment variables OUTSIDE withCredentials (using values from file)
-                    env.AWS_ACCOUNT_ID = accountIdFromFile
-                    env.AWS_DEFAULT_REGION = regionFromFile ?: region
-                    
-                    // Calculate ECR registry values
-                    def ecrRegistryBase = "${accountIdFromFile}.dkr.ecr.${env.AWS_DEFAULT_REGION}.amazonaws.com"
-                    def ecrRegistry = "${ecrRegistryBase}/${ECR_REPO}"
-                    
-                    // Set ECR environment variables
-                    env.ECR_REGISTRY_BASE = ecrRegistryBase
-                    env.ECR_REGISTRY = ecrRegistry
-                    
-                    // Clean up temp files
-                    sh 'rm -f /tmp/aws_account_id.txt /tmp/aws_region.txt'
-                    
-                    echo "✅ AWS Configuration Set:"
-                    echo "   AWS Account ID: ${env.AWS_ACCOUNT_ID}"
-                    echo "   AWS Region: ${env.AWS_DEFAULT_REGION}"
-                    echo "   ECR Registry Base: ${env.ECR_REGISTRY_BASE}"
-                    echo "   ECR Repository: ${ECR_REPO}"
-                    echo "   ECR Registry (Full): ${env.ECR_REGISTRY}"
-                    
-                    // Verify all variables are set (best practice: verify after withCredentials)
-                    if (!env.AWS_ACCOUNT_ID || env.AWS_ACCOUNT_ID.isEmpty()) {
-                        error("AWS_ACCOUNT_ID is not set!")
-                    }
-                    if (!env.ECR_REGISTRY_BASE || env.ECR_REGISTRY_BASE.isEmpty()) {
-                        error("ECR_REGISTRY_BASE is not set!")
-                    }
-                    if (!env.ECR_REGISTRY || env.ECR_REGISTRY.isEmpty()) {
-                        error("ECR_REGISTRY is not set! Base: ${env.ECR_REGISTRY_BASE}, Repo: ${ECR_REPO}")
-                    }
-                    
-                    echo "✅ All ECR variables verified and set"
-                }
-            }
-        }
-
-        stage('Push to ECR') {
-            when {
-                anyOf {
-                    branch 'develop'
-                    branch 'main'
-                    expression { env.BRANCH_NAME =~ /^release\// }
-                    expression { env.BRANCH_NAME =~ /^hotfix\// }
-                    expression { 
-                        def branch = env.BRANCH ?: env.BRANCH_NAME
-                        return branch ==~ /.*develop.*/ || 
-                               branch ==~ /.*main.*/ || 
-                               branch ==~ /.*staging.*/
-                    }
-                }
-            }
-            steps {
-                script {
-                    logMessage("Pushing Images to ECR", '📤')
-                    
-                    // Verify ECR_REGISTRY is set, if not try to set it
-                    if (!env.ECR_REGISTRY || env.ECR_REGISTRY.isEmpty()) {
-                        echo "⚠️  ECR_REGISTRY not set, attempting to set it now..."
-                        withCredentials([usernamePassword(
-                            credentialsId: AWS_CREDENTIALS_ID,
-                            usernameVariable: 'AWS_ACCESS_KEY_ID',
-                            passwordVariable: 'AWS_SECRET_ACCESS_KEY'
-                        )]) {
-                            // Install AWS CLI if not available
-                            sh '''
-                                set -e
-                                if ! command -v aws &> /dev/null; then
-                                    echo "📦 Installing AWS CLI..."
-                                    apt-get update -qq
-                                    apt-get install -y -qq curl unzip
-                                    curl -sSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-                                    unzip -q awscliv2.zip
-                                    ./aws/install
-                                    rm -rf awscliv2.zip aws
-                                    echo "✅ AWS CLI installed"
-                                fi
-                            '''
-                            
-                            def accountId = sh(
-                                script: """
-                                    export AWS_ACCESS_KEY_ID=\${AWS_ACCESS_KEY_ID}
-                                    export AWS_SECRET_ACCESS_KEY=\${AWS_SECRET_ACCESS_KEY}
-                                    export AWS_DEFAULT_REGION=${env.AWS_REGION ?: 'eu-central-1'}
-                                    aws sts get-caller-identity --query Account --output text 2>&1
-                                """,
-                                returnStdout: true
-                            ).trim()
-                            
-                            echo "Fallback Account ID response: '${accountId}'"
-                            
-                            if (accountId && !accountId.isEmpty() && !accountId.contains("error") && !accountId.contains("Unable") && !accountId.contains("None")) {
-                                def region = env.AWS_REGION ?: 'eu-central-1'
-                                // Set variables following best practice pattern
-                                env.AWS_ACCOUNT_ID = accountId
-                                env.AWS_DEFAULT_REGION = region
-                                env.ECR_REGISTRY_BASE = "${accountId}.dkr.ecr.${region}.amazonaws.com"
-                                env.ECR_REGISTRY = "${env.ECR_REGISTRY_BASE}/${ECR_REPO}"
-                                echo "✅ ECR variables set (fallback):"
-                                echo "   ECR_REGISTRY_BASE: ${env.ECR_REGISTRY_BASE}"
-                                echo "   ECR_REGISTRY: ${env.ECR_REGISTRY}"
-                            } else {
-                                error("ECR_REGISTRY is not set and cannot be auto-detected! Response: '${accountId}'. Check AWS credentials.")
-                            }
-                        }
-                    }
-                    
-                    withCredentials([usernamePassword(
-                        credentialsId: AWS_CREDENTIALS_ID,
-                        usernameVariable: 'AWS_ACCESS_KEY_ID',
-                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
-                    )]) {
+                        echo "✅ AWS Configuration:"
+                        echo "   Account ID: ${accountId}"
+                        echo "   Region: ${region}"
+                        echo "   ECR Registry: ${ecrRegistry}"
+                        echo ""
                         sh """
                             echo "════════════════════════════════════════"
                             echo "📦 BUILD INFORMATION"
                             echo "════════════════════════════════════════"
                             echo "Version:      ${env.VERSION}"
                             echo "Environment:  ${env.TARGET_ENVIRONMENT}"
-                            echo "ECR Registry: ${env.ECR_REGISTRY}"
+                            echo "ECR Registry: ${ecrRegistry}"
                             echo "Branch:       ${BRANCH}"
                             echo "════════════════════════════════════════"
                             echo ""
                             
-                            # Login to ECR (best practice: use ECR_REGISTRY_BASE for login)
+                            # Login to ECR
                             echo "🔐 Logging into ECR..."
-                            aws ecr get-login-password --region ${env.AWS_REGION} | docker login --username AWS --password-stdin ${env.ECR_REGISTRY_BASE}
+                            aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${ecrRegistryBase}
                             
                             if [ \$? -ne 0 ]; then
                                 echo "❌ ECR login failed"
@@ -431,7 +273,7 @@ pipeline {
                             
                             # Verify ECR repository exists (created by Terraform)
                             echo "📦 Verifying ECR repository exists (created by Terraform)..."
-                            if ! aws ecr describe-repositories --repository-names ${ECR_REPO} --region ${env.AWS_REGION} &>/dev/null; then
+                            if ! aws ecr describe-repositories --repository-names ${ECR_REPO} --region ${region} &>/dev/null; then
                                 echo "❌ ERROR: ECR repository '${ECR_REPO}' does not exist!"
                                 echo "   Run Terraform to create ECR repository first."
                                 exit 1
@@ -439,41 +281,46 @@ pipeline {
                             
                             echo "✅ ECR repository verified (created by Terraform)"
                             echo ""
-                            echo "🏷️  Tagging images with ECR paths (same repository, different tags)..."
+                            echo "🏷️  Tagging images with ECR paths..."
                             
-                            # Tag backend: {ECR_REGISTRY}:backend-{version} (ECR_REGISTRY = ECR_REGISTRY_BASE/ECR_REPO)
-                            docker tag connecthub-backend:latest ${env.ECR_REGISTRY}:backend-${env.VERSION}
-                            docker tag connecthub-backend:latest ${env.ECR_REGISTRY}:backend-latest
-                            echo "✅ Tagged: ${env.ECR_REGISTRY}:backend-${env.VERSION}"
+                            # Tag backend
+                            docker tag connecthub-backend:latest ${ecrRegistry}:backend-${env.VERSION}
+                            docker tag connecthub-backend:latest ${ecrRegistry}:backend-latest
+                            echo "✅ Tagged: ${ecrRegistry}:backend-${env.VERSION}"
                             
-                            # Tag frontend: {ECR_REGISTRY}:frontend-{version} (ECR_REGISTRY = ECR_REGISTRY_BASE/ECR_REPO)
-                            docker tag connecthub-frontend:latest ${env.ECR_REGISTRY}:frontend-${env.VERSION}
-                            docker tag connecthub-frontend:latest ${env.ECR_REGISTRY}:frontend-latest
-                            echo "✅ Tagged: ${env.ECR_REGISTRY}:frontend-${env.VERSION}"
+                            # Tag frontend
+                            docker tag connecthub-frontend:latest ${ecrRegistry}:frontend-${env.VERSION}
+                            docker tag connecthub-frontend:latest ${ecrRegistry}:frontend-latest
+                            echo "✅ Tagged: ${ecrRegistry}:frontend-${env.VERSION}"
                             
                             echo ""
                             echo "📤 Pushing images to ECR..."
                             
                             # Push backend
-                            docker push ${env.ECR_REGISTRY}:backend-${env.VERSION}
-                            docker push ${env.ECR_REGISTRY}:backend-latest
-                            echo "✅ Pushed: ${env.ECR_REGISTRY}:backend-${env.VERSION}"
+                            docker push ${ecrRegistry}:backend-${env.VERSION}
+                            docker push ${ecrRegistry}:backend-latest
+                            echo "✅ Pushed: ${ecrRegistry}:backend-${env.VERSION}"
                             
                             # Push frontend
-                            docker push ${env.ECR_REGISTRY}:frontend-${env.VERSION}
-                            docker push ${env.ECR_REGISTRY}:frontend-latest
-                            echo "✅ Pushed: ${env.ECR_REGISTRY}:frontend-${env.VERSION}"
+                            docker push ${ecrRegistry}:frontend-${env.VERSION}
+                            docker push ${ecrRegistry}:frontend-latest
+                            echo "✅ Pushed: ${ecrRegistry}:frontend-${env.VERSION}"
                             
                             echo ""
                             echo "════════════════════════════════════════"
                             echo "✅ IMAGES PUBLISHED TO ECR"
                             echo "════════════════════════════════════════"
-                            echo "Repository: ${env.ECR_REGISTRY}"
+                            echo "Repository: ${ecrRegistry}"
                             echo "Version: ${env.VERSION}"
-                            echo "Backend:  ${env.ECR_REGISTRY}:backend-${env.VERSION}"
-                            echo "Frontend: ${env.ECR_REGISTRY}:frontend-${env.VERSION}"
+                            echo "Backend:  ${ecrRegistry}:backend-${env.VERSION}"
+                            echo "Frontend: ${ecrRegistry}:frontend-${env.VERSION}"
                             echo "════════════════════════════════════════"
                         """
+                        
+                        // Set env variables for use in later stages (deployment manifest)
+                        env.AWS_ACCOUNT_ID = accountId
+                        env.ECR_REGISTRY_BASE = ecrRegistryBase
+                        env.ECR_REGISTRY = ecrRegistry
                     }
                 }
             }
