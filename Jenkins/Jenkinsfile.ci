@@ -272,37 +272,44 @@ pipeline {
                         echo "Account ID (local var): ${accountId}"
                         echo "Region: ${region}"
                         
-                        // Set environment variables INSIDE withCredentials where accountId is guaranteed to be valid
-                        // This ensures the assignment happens while we have the value
-                        env.AWS_ACCOUNT_ID = accountId
-                        
-                        // Calculate ECR registry values
-                        def ecrRegistryBase = "${accountId}.dkr.ecr.${region}.amazonaws.com"
-                        def ecrRegistry = "${ecrRegistryBase}/${ECR_REPO}"
-                        
-                        // Set ECR environment variables
-                        env.ECR_REGISTRY_BASE = ecrRegistryBase
-                        env.ECR_REGISTRY = ecrRegistry
-                        
-                        // Verify assignment immediately
-                        echo "🔍 Debug - Inside withCredentials after assignment:"
-                        echo "   accountId (local): '${accountId}'"
-                        echo "   env.AWS_ACCOUNT_ID: '${env.AWS_ACCOUNT_ID}'"
-                        echo "   env.ECR_REGISTRY_BASE: '${env.ECR_REGISTRY_BASE}'"
-                        echo "   env.ECR_REGISTRY: '${env.ECR_REGISTRY}'"
+                        // Workaround for Jenkins closure scoping: Write to file inside withCredentials
+                        // Then read back outside to set env variables (ensures persistence)
+                        sh """
+                            echo "${accountId}" > /tmp/aws_account_id.txt
+                            echo "${region}" > /tmp/aws_region.txt
+                        """
                     } // End withCredentials
                     
-                    // Verify environment variables are set (best practice: verify after withCredentials)
-                    if (!env.AWS_ACCOUNT_ID || env.AWS_ACCOUNT_ID.isEmpty() || env.AWS_ACCOUNT_ID == 'null') {
-                        error("AWS_ACCOUNT_ID is not set after withCredentials! Local accountId was: ${accountId}")
+                    // Read account ID from file (workaround for Jenkins env variable persistence issue)
+                    def accountIdFromFile = sh(
+                        script: 'cat /tmp/aws_account_id.txt',
+                        returnStdout: true
+                    ).trim()
+                    
+                    def regionFromFile = sh(
+                        script: 'cat /tmp/aws_region.txt',
+                        returnStdout: true
+                    ).trim()
+                    
+                    // Verify we got the values
+                    if (!accountIdFromFile || accountIdFromFile.isEmpty()) {
+                        error("Failed to read account ID from file! Local accountId was: ${accountId}")
                     }
                     
-                    // Re-calculate and re-assign if needed (fallback)
-                    if (!env.ECR_REGISTRY_BASE || env.ECR_REGISTRY_BASE.isEmpty() || env.ECR_REGISTRY_BASE == 'null') {
-                        def ecrRegistryBase = "${env.AWS_ACCOUNT_ID}.dkr.ecr.${region}.amazonaws.com"
-                        env.ECR_REGISTRY_BASE = ecrRegistryBase
-                        env.ECR_REGISTRY = "${ecrRegistryBase}/${ECR_REPO}"
-                    }
+                    // Set environment variables OUTSIDE withCredentials (using values from file)
+                    env.AWS_ACCOUNT_ID = accountIdFromFile
+                    env.AWS_DEFAULT_REGION = regionFromFile ?: region
+                    
+                    // Calculate ECR registry values
+                    def ecrRegistryBase = "${accountIdFromFile}.dkr.ecr.${env.AWS_DEFAULT_REGION}.amazonaws.com"
+                    def ecrRegistry = "${ecrRegistryBase}/${ECR_REPO}"
+                    
+                    // Set ECR environment variables
+                    env.ECR_REGISTRY_BASE = ecrRegistryBase
+                    env.ECR_REGISTRY = ecrRegistry
+                    
+                    // Clean up temp files
+                    sh 'rm -f /tmp/aws_account_id.txt /tmp/aws_region.txt'
                     
                     echo "✅ AWS Configuration Set:"
                     echo "   AWS Account ID: ${env.AWS_ACCOUNT_ID}"
