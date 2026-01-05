@@ -61,14 +61,17 @@ pipeline {
                     logMessage('Installing required tools', '📦')
                     
                     sh '''
+                        # Install dependencies including openssl for Helm
+                        apk add --no-cache curl unzip python3 py3-pip openssl
+                        
                         # Install AWS CLI
-                        apk add --no-cache curl unzip python3 py3-pip
                         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-                        unzip awscliv2.zip
-                        ./aws/install
+                        unzip -q -o awscliv2.zip
+                        rm -rf /usr/local/aws-cli /usr/local/bin/aws
+                        ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
                         rm -rf awscliv2.zip aws
                         
-                        # Install Helm
+                        # Install Helm (openssl is now installed for checksum verification)
                         curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
                         
                         # Verify tools
