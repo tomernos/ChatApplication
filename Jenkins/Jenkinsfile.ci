@@ -181,6 +181,7 @@ pipeline {
         }
 
         stage('Authenticate to AWS & Set ECR Registry') {
+            // Always run this stage if we need to push to ECR
             when {
                 anyOf {
                     branch 'develop'
@@ -188,10 +189,12 @@ pipeline {
                     expression { env.BRANCH_NAME =~ /^release\// }
                     expression { env.BRANCH_NAME =~ /^hotfix\// }
                     expression { 
-                        def branch = env.BRANCH ?: env.BRANCH_NAME
-                        return branch ==~ /.*develop.*/ || 
-                               branch ==~ /.*main.*/ || 
-                               branch ==~ /.*staging.*/
+                        def branch = env.BRANCH ?: env.BRANCH_NAME ?: ''
+                        return branch.contains('develop') || 
+                               branch.contains('main') || 
+                               branch.contains('staging') ||
+                               branch.contains('release') ||
+                               branch.contains('hotfix')
                     }
                 }
             }
@@ -222,24 +225,35 @@ pipeline {
                             fi
                         '''
                         
-                        // Verify AWS credentials are set
-                        sh '''
-                            if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
-                                echo "❌ AWS credentials not set!"
-                                exit 1
-                            fi
-                            echo "✅ AWS credentials are set"
-                        '''
-                        
-                        // Get AWS account ID and set ECR registry
+                        // Verify AWS credentials are set and get account ID
                         echo "🔍 Getting AWS account ID..."
+                        echo "AWS_REGION: ${env.AWS_REGION}"
+                        echo "BRANCH: ${BRANCH}"
+                        echo "BRANCH_NAME: ${env.BRANCH_NAME}"
+                        
                         def accountId = sh(
-                            script: 'aws sts get-caller-identity --query Account --output text 2>&1',
+                            script: """
+                                set -e
+                                # Credentials are already available from withCredentials
+                                if [ -z "\${AWS_ACCESS_KEY_ID}" ] || [ -z "\${AWS_SECRET_ACCESS_KEY}" ]; then
+                                    echo "❌ AWS credentials not available in shell!"
+                                    exit 1
+                                fi
+                                echo "✅ AWS credentials available"
+                                
+                                # Set region
+                                export AWS_DEFAULT_REGION=${env.AWS_REGION ?: 'eu-central-1'}
+                                
+                                # Get account ID
+                                aws sts get-caller-identity --query Account --output text 2>&1
+                            """,
                             returnStdout: true
                         ).trim()
                         
-                        if (accountId.isEmpty() || accountId.contains("error") || accountId.contains("Unable")) {
-                            error("Failed to get AWS account ID. Response: ${accountId}. Check AWS credentials.")
+                        echo "Account ID response: '${accountId}'"
+                        
+                        if (!accountId || accountId.isEmpty() || accountId.contains("error") || accountId.contains("Unable") || accountId.contains("None") || accountId.contains("Unable to locate credentials")) {
+                            error("Failed to get AWS account ID. Response: '${accountId}'. Check AWS credentials and region.")
                         }
                         
                         env.AWS_ACCOUNT_ID = accountId
@@ -247,6 +261,7 @@ pipeline {
                         // Get region from environment
                         def region = env.AWS_REGION ?: 'eu-central-1'
                         env.ECR_REGISTRY = "${accountId}.dkr.ecr.${region}.amazonaws.com"
+                        env.AWS_DEFAULT_REGION = region
                         
                         echo "✅ AWS authenticated successfully"
                         echo "Account ID: ${accountId}"
@@ -305,16 +320,24 @@ pipeline {
                             '''
                             
                             def accountId = sh(
-                                script: 'aws sts get-caller-identity --query Account --output text 2>&1',
+                                script: """
+                                    export AWS_ACCESS_KEY_ID=\${AWS_ACCESS_KEY_ID}
+                                    export AWS_SECRET_ACCESS_KEY=\${AWS_SECRET_ACCESS_KEY}
+                                    export AWS_DEFAULT_REGION=${env.AWS_REGION ?: 'eu-central-1'}
+                                    aws sts get-caller-identity --query Account --output text 2>&1
+                                """,
                                 returnStdout: true
                             ).trim()
                             
-                            if (accountId && !accountId.contains("error") && !accountId.contains("Unable")) {
+                            echo "Fallback Account ID response: '${accountId}'"
+                            
+                            if (accountId && !accountId.isEmpty() && !accountId.contains("error") && !accountId.contains("Unable") && !accountId.contains("None")) {
                                 def region = env.AWS_REGION ?: 'eu-central-1'
                                 env.ECR_REGISTRY = "${accountId}.dkr.ecr.${region}.amazonaws.com"
+                                env.AWS_DEFAULT_REGION = region
                                 echo "✅ ECR_REGISTRY set: ${env.ECR_REGISTRY}"
                             } else {
-                                error("ECR_REGISTRY is not set and cannot be auto-detected! Run 'Authenticate to AWS' stage first.")
+                                error("ECR_REGISTRY is not set and cannot be auto-detected! Response: '${accountId}'. Check AWS credentials.")
                             }
                         }
                     }
