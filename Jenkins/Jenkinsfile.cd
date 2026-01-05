@@ -178,11 +178,11 @@ pipeline {
                         env.ECR_REGISTRY = params.ECR_REGISTRY_PARAM.trim()
                     } else if (manifest.ecr_registry) {
                         env.ECR_REGISTRY = manifest.ecr_registry.trim()
-                    } else {
-                        error("ECR_REGISTRY not found in manifest and no override provided.")
                     }
                     
-                    echo "✅ ECR_REGISTRY: ${env.ECR_REGISTRY}"
+                    if (env.ECR_REGISTRY) {
+                        echo "✅ ECR_REGISTRY: ${env.ECR_REGISTRY}"
+                    }
                     
                     // Get ECR repo
                     def ecrRepo = manifest.ecr_repo ?: ECR_REPO
@@ -289,10 +289,6 @@ pipeline {
                 script {
                     logMessage('Deploying application via Helm', '🚀')
                     
-                    // Verify required variables are set
-                    if (!env.ECR_REGISTRY || env.ECR_REGISTRY.isEmpty()) {
-                        error("ECR_REGISTRY is not set! Check deployment manifest or provide ECR_REGISTRY_PARAM.")
-                    }
                     
                     if (!env.DEPLOY_VERSION || env.DEPLOY_VERSION.isEmpty()) {
                         error("DEPLOY_VERSION is not set! Check deployment manifest or provide IMAGE_VERSION.")
