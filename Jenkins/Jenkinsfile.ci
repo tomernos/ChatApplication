@@ -236,12 +236,22 @@ pipeline {
                                 echo "📦 Installing AWS CLI..."
                                 apt-get update -qq
                                 apt-get install -y -qq curl unzip
+                                
+                                # Clean up any existing AWS CLI installations
+                                rm -rf awscliv2.zip aws /usr/local/aws-cli /usr/local/bin/aws
+                                
+                                # Download and install AWS CLI non-interactively
                                 curl -sSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-                                unzip -q awscliv2.zip
-                                # Remove existing aws directory if present, then install non-interactively
-                                rm -rf aws /usr/local/aws-cli
-                                ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+                                unzip -q -o awscliv2.zip
+                                
+                                # Install with explicit paths and update flag (non-interactive)
+                                ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update 2>&1 | grep -v "replace" || true
+                                
+                                # Clean up
                                 rm -rf awscliv2.zip aws
+                                
+                                # Verify installation
+                                /usr/local/bin/aws --version
                                 echo "✅ AWS CLI installed"
                             else
                                 echo "✅ AWS CLI already installed"
