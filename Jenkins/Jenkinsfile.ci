@@ -268,54 +268,29 @@ pipeline {
                         echo "✅ AWS authenticated successfully"
                         echo "Account ID (local var): ${accountId}"
                         echo "Region: ${region}"
-                        
-                        // Verify accountId is not null before assignment
-                        if (!accountId || accountId.isEmpty()) {
-                            error("accountId is null or empty before assignment!")
-                        }
-                        
-                        // Calculate values first
-                        def ecrRegistryBase = "${accountId}.dkr.ecr.${region}.amazonaws.com"
-                        def ecrRegistry = "${ecrRegistryBase}/${ECR_REPO}"
-                        
-                        // Set environment variables directly (best practice: set immediately after retrieval)
-                        // Direct assignment should work - if not, there's a Jenkins bug
-                        env.AWS_ACCOUNT_ID = accountId
-                        env.ECR_REGISTRY_BASE = ecrRegistryBase
-                        env.ECR_REGISTRY = ecrRegistry
-                        
-                        // Force verify by reading back immediately
-                        def verifyAccountId = env.AWS_ACCOUNT_ID
-                        def verifyBase = env.ECR_REGISTRY_BASE
-                        def verifyRegistry = env.ECR_REGISTRY
-                        
-                        echo "🔍 Debug - After assignment:"
-                        echo "   accountId (local): '${accountId}'"
-                        echo "   verifyAccountId: '${verifyAccountId}'"
-                        echo "   env.AWS_ACCOUNT_ID: '${env.AWS_ACCOUNT_ID}'"
-                        echo "   env.ECR_REGISTRY_BASE: '${env.ECR_REGISTRY_BASE}'"
-                        echo "   env.ECR_REGISTRY: '${env.ECR_REGISTRY}'"
-                        
-                        // If still null, try alternative method using sh
-                        if (!verifyAccountId || verifyAccountId == 'null' || verifyAccountId.isEmpty()) {
-                            echo "⚠️  Direct assignment failed, trying alternative method..."
-                            sh """
-                                # Set via shell (Jenkins will pick these up)
-                                echo "AWS_ACCOUNT_ID=${accountId}" >> \${ENV_FILE:-/dev/stdout} || true
-                            """
-                            // Try again with explicit string
-                            env.AWS_ACCOUNT_ID = "${accountId}"
-                            env.ECR_REGISTRY_BASE = "${ecrRegistryBase}"
-                            env.ECR_REGISTRY = "${ecrRegistry}"
-                        }
-                        
-                        echo "✅ AWS Configuration Set:"
-                        echo "   AWS Account ID: ${env.AWS_ACCOUNT_ID}"
-                        echo "   AWS Region: ${env.AWS_DEFAULT_REGION}"
-                        echo "   ECR Registry Base: ${env.ECR_REGISTRY_BASE}"
-                        echo "   ECR Repository: ${ECR_REPO}"
-                        echo "   ECR Registry (Full): ${env.ECR_REGISTRY}"
                     } // End withCredentials
+                    
+                    // Set environment variables OUTSIDE withCredentials (fixes Jenkins closure scoping issue)
+                    // The accountId variable persists because we're still in the same script block
+                    if (!accountId || accountId.isEmpty()) {
+                        error("accountId is null or empty after withCredentials! This should not happen.")
+                    }
+                    
+                    // Calculate ECR registry values
+                    def ecrRegistryBase = "${accountId}.dkr.ecr.${region}.amazonaws.com"
+                    def ecrRegistry = "${ecrRegistryBase}/${ECR_REPO}"
+                    
+                    // Set environment variables (best practice: set outside closure to ensure persistence)
+                    env.AWS_ACCOUNT_ID = accountId
+                    env.ECR_REGISTRY_BASE = ecrRegistryBase
+                    env.ECR_REGISTRY = ecrRegistry
+                    
+                    echo "✅ AWS Configuration Set:"
+                    echo "   AWS Account ID: ${env.AWS_ACCOUNT_ID}"
+                    echo "   AWS Region: ${env.AWS_DEFAULT_REGION}"
+                    echo "   ECR Registry Base: ${env.ECR_REGISTRY_BASE}"
+                    echo "   ECR Repository: ${ECR_REPO}"
+                    echo "   ECR Registry (Full): ${env.ECR_REGISTRY}"
                     
                     // Verify all variables are set (best practice: verify after withCredentials)
                     if (!env.AWS_ACCOUNT_ID || env.AWS_ACCOUNT_ID.isEmpty()) {
