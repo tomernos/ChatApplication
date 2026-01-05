@@ -264,16 +264,25 @@ pipeline {
                             # Verify AWS CLI works
                             aws --version || (echo "❌ AWS CLI not working" && exit 1)
                             
+                            # Find where aws is actually installed
+                            AWS_CLI_PATH=$(which aws || find /usr -name aws 2>/dev/null | head -1 || echo "/usr/local/bin/aws")
+                            echo "📍 AWS CLI found at: ${AWS_CLI_PATH}"
+                            
+                            # Ensure /usr/local/bin/aws exists (create symlink if needed)
+                            if [ ! -f /usr/local/bin/aws ] && [ -f "${AWS_CLI_PATH}" ]; then
+                                mkdir -p /usr/local/bin
+                                ln -sf "${AWS_CLI_PATH}" /usr/local/bin/aws
+                                echo "✅ Created symlink: /usr/local/bin/aws -> ${AWS_CLI_PATH}"
+                            fi
+                            
+                            # Verify the symlink works
+                            if [ ! -f /usr/local/bin/aws ]; then
+                                echo "❌ Cannot create /usr/local/bin/aws symlink"
+                                exit 1
+                            fi
+                            
                             echo "🔧 Updating kubeconfig for cluster: ${CLUSTER_NAME}"
                             aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER_NAME}
-                            
-                            # Fix kubeconfig to use 'aws' command instead of hardcoded path if needed
-                            if [ -f /root/.kube/config ]; then
-                                # Replace hardcoded /usr/local/bin/aws with just 'aws' in exec plugin
-                                sed -i 's|/usr/local/bin/aws|aws|g' /root/.kube/config || true
-                                # Ensure PATH is set in the exec plugin environment
-                                sed -i 's|"command": "aws"|"command": "aws", "env": [{"name": "PATH", "value": "/usr/local/bin:/usr/bin:/bin"}]|g' /root/.kube/config || true
-                            fi
                             
                             echo "✅ Verifying cluster access..."
                             kubectl cluster-info
