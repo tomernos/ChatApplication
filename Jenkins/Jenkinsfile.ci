@@ -265,18 +265,31 @@ pipeline {
                         echo "Region: ${region}"
                     } // End withCredentials
                     
-                    // Calculate ECR registry and set environment variables OUTSIDE withCredentials
-                    def ecrRegistry = "${accountId}.dkr.ecr.${region}.amazonaws.com"
+                    // Calculate ECR registry with repository name and set environment variables OUTSIDE withCredentials
+                    def ecrRegistry = "${accountId}.dkr.ecr.${region}.amazonaws.com/chatapp"
                     
+                    // Set environment variables - assign directly
                     env.AWS_ACCOUNT_ID = accountId
                     env.AWS_DEFAULT_REGION = region
                     env.ECR_REGISTRY = ecrRegistry
                     
                     echo "ECR Registry (calculated): ${ecrRegistry}"
-                    echo "ECR Registry (env.ECR_REGISTRY after assignment): ${env.ECR_REGISTRY}"
+                    
+                    // Use sh to verify and set if needed (Jenkins sometimes needs this)
+                    sh """
+                        export ECR_REGISTRY="${ecrRegistry}"
+                        echo "ECR_REGISTRY from shell: \${ECR_REGISTRY}"
+                    """
+                    
+                    // Re-assign to ensure it's set
+                    env.ECR_REGISTRY = ecrRegistry
+                    
+                    // Verify assignment by reading it back
+                    def verifyRegistry = env.ECR_REGISTRY
+                    echo "ECR Registry (env.ECR_REGISTRY after assignment): ${verifyRegistry}"
                     
                     // Final verification
-                    if (!env.ECR_REGISTRY || env.ECR_REGISTRY.isEmpty() || env.ECR_REGISTRY.toString() == 'null') {
+                    if (!verifyRegistry || verifyRegistry.toString() == 'null' || verifyRegistry.isEmpty()) {
                         error("ECR_REGISTRY failed to set! Account: ${accountId}, Region: ${region}, Calculated: ${ecrRegistry}")
                     }
                     
@@ -341,7 +354,7 @@ pipeline {
                             
                             if (accountId && !accountId.isEmpty() && !accountId.contains("error") && !accountId.contains("Unable") && !accountId.contains("None")) {
                                 def region = env.AWS_REGION ?: 'eu-central-1'
-                                env.ECR_REGISTRY = "${accountId}.dkr.ecr.${region}.amazonaws.com"
+                                env.ECR_REGISTRY = "${accountId}.dkr.ecr.${region}.amazonaws.com/chatapp"
                                 env.AWS_DEFAULT_REGION = region
                                 echo "✅ ECR_REGISTRY set: ${env.ECR_REGISTRY}"
                             } else {
@@ -366,9 +379,12 @@ pipeline {
                             echo "════════════════════════════════════════"
                             echo ""
                             
-                            # Login to ECR
+                            # Extract registry base URL for ECR login (without /chatapp)
+                            ECR_BASE=\$(echo "${env.ECR_REGISTRY}" | sed 's|/chatapp\$||')
+                            
+                            # Login to ECR (use base URL without repository)
                             echo "🔐 Logging into ECR..."
-                            aws ecr get-login-password --region ${env.AWS_REGION} | docker login --username AWS --password-stdin ${env.ECR_REGISTRY}
+                            aws ecr get-login-password --region ${env.AWS_REGION} | docker login --username AWS --password-stdin \${ECR_BASE}
                             
                             if [ \$? -ne 0 ]; then
                                 echo "❌ ECR login failed"
@@ -387,37 +403,37 @@ pipeline {
                             echo ""
                             echo "🏷️  Tagging images with ECR paths (same repository, different tags)..."
                             
-                            # Tag backend: chatapp:backend-{version}
-                            docker tag connecthub-backend:latest ${env.ECR_REGISTRY}/${ECR_REPO}:backend-${env.VERSION}
-                            docker tag connecthub-backend:latest ${env.ECR_REGISTRY}/${ECR_REPO}:backend-latest
-                            echo "✅ Tagged: ${env.ECR_REGISTRY}/${ECR_REPO}:backend-${env.VERSION}"
+                            # Tag backend: chatapp:backend-{version} (ECR_REGISTRY already includes /chatapp)
+                            docker tag connecthub-backend:latest ${env.ECR_REGISTRY}:backend-${env.VERSION}
+                            docker tag connecthub-backend:latest ${env.ECR_REGISTRY}:backend-latest
+                            echo "✅ Tagged: ${env.ECR_REGISTRY}:backend-${env.VERSION}"
                             
-                            # Tag frontend: chatapp:frontend-{version}
-                            docker tag connecthub-frontend:latest ${env.ECR_REGISTRY}/${ECR_REPO}:frontend-${env.VERSION}
-                            docker tag connecthub-frontend:latest ${env.ECR_REGISTRY}/${ECR_REPO}:frontend-latest
-                            echo "✅ Tagged: ${env.ECR_REGISTRY}/${ECR_REPO}:frontend-${env.VERSION}"
+                            # Tag frontend: chatapp:frontend-{version} (ECR_REGISTRY already includes /chatapp)
+                            docker tag connecthub-frontend:latest ${env.ECR_REGISTRY}:frontend-${env.VERSION}
+                            docker tag connecthub-frontend:latest ${env.ECR_REGISTRY}:frontend-latest
+                            echo "✅ Tagged: ${env.ECR_REGISTRY}:frontend-${env.VERSION}"
                             
                             echo ""
                             echo "📤 Pushing images to ECR..."
                             
                             # Push backend
-                            docker push ${env.ECR_REGISTRY}/${ECR_REPO}:backend-${env.VERSION}
-                            docker push ${env.ECR_REGISTRY}/${ECR_REPO}:backend-latest
-                            echo "✅ Pushed: ${env.ECR_REGISTRY}/${ECR_REPO}:backend-${env.VERSION}"
+                            docker push ${env.ECR_REGISTRY}:backend-${env.VERSION}
+                            docker push ${env.ECR_REGISTRY}:backend-latest
+                            echo "✅ Pushed: ${env.ECR_REGISTRY}:backend-${env.VERSION}"
                             
                             # Push frontend
-                            docker push ${env.ECR_REGISTRY}/${ECR_REPO}:frontend-${env.VERSION}
-                            docker push ${env.ECR_REGISTRY}/${ECR_REPO}:frontend-latest
-                            echo "✅ Pushed: ${env.ECR_REGISTRY}/${ECR_REPO}:frontend-${env.VERSION}"
+                            docker push ${env.ECR_REGISTRY}:frontend-${env.VERSION}
+                            docker push ${env.ECR_REGISTRY}:frontend-latest
+                            echo "✅ Pushed: ${env.ECR_REGISTRY}:frontend-${env.VERSION}"
                             
                             echo ""
                             echo "════════════════════════════════════════"
                             echo "✅ IMAGES PUBLISHED TO ECR"
                             echo "════════════════════════════════════════"
-                            echo "Repository: ${env.ECR_REGISTRY}/${ECR_REPO}"
+                            echo "Repository: ${env.ECR_REGISTRY}"
                             echo "Version: ${env.VERSION}"
-                            echo "Backend:  ${env.ECR_REGISTRY}/${ECR_REPO}:backend-${env.VERSION}"
-                            echo "Frontend: ${env.ECR_REGISTRY}/${ECR_REPO}:frontend-${env.VERSION}"
+                            echo "Backend:  ${env.ECR_REGISTRY}:backend-${env.VERSION}"
+                            echo "Frontend: ${env.ECR_REGISTRY}:frontend-${env.VERSION}"
                             echo "════════════════════════════════════════"
                         """
                     }
@@ -461,6 +477,7 @@ pipeline {
                     def timestamp = new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC'))
                     
                     // Create deployment manifest content
+                    // Note: ECR_REGISTRY already includes /chatapp, so use it directly
                     def manifestContent = """# Deployment Manifest - Auto-generated by CI
 # DO NOT manually edit - CI will overwrite changes
 # Last updated: ${timestamp}
@@ -468,8 +485,8 @@ pipeline {
 version: "${env.VERSION}"
 ecr_registry: "${env.ECR_REGISTRY}"
 ecr_repo: "${ECR_REPO}"
-backend_image: "${env.ECR_REGISTRY}/${ECR_REPO}:backend-${env.VERSION}"
-frontend_image: "${env.ECR_REGISTRY}/${ECR_REPO}:frontend-${env.VERSION}"
+backend_image: "${env.ECR_REGISTRY}:backend-${env.VERSION}"
+frontend_image: "${env.ECR_REGISTRY}:frontend-${env.VERSION}"
 deployed_at: "${timestamp}"
 deployed_by: "jenkins"
 git_commit: "${env.GIT_COMMIT}"
