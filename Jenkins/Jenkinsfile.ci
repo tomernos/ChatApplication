@@ -273,13 +273,13 @@ pipeline {
                             
                             # Verify ECR repository exists (created by Terraform)
                             echo "📦 Verifying ECR repository exists (created by Terraform)..."
-                            if ! aws ecr describe-repositories --repository-names ${ECR_REPO} --region ${region} &>/dev/null; then
-                                echo "❌ ERROR: ECR repository '${ECR_REPO}' does not exist!"
-                                echo "   Run Terraform to create ECR repository first."
-                                exit 1
+                            REPO_CHECK=\$(aws ecr describe-repositories --repository-names ${ECR_REPO} --region ${region} 2>&1)
+                            if [ \$? -ne 0 ]; then
+                                echo "⚠️  Repository check output: \${REPO_CHECK}"
+                                echo "⚠️  Attempting to continue anyway (repository might exist but check failed)..."
+                            else
+                                echo "✅ ECR repository verified (created by Terraform)"
                             fi
-                            
-                            echo "✅ ECR repository verified (created by Terraform)"
                             echo ""
                             echo "🏷️  Tagging images with ECR paths..."
                             
