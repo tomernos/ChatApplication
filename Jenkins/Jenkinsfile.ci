@@ -238,21 +238,22 @@ pipeline {
                         echo "BRANCH_NAME: ${env.BRANCH_NAME}"
                         
                         // Get account ID and set env variable directly (best practice: set env vars inside closure)
+                        // Redirect informational messages to stderr, only output account ID to stdout
                         def accountId = sh(
                             script: """
                                 set -e
                                 # Credentials are already available from withCredentials
                                 if [ -z "\${AWS_ACCESS_KEY_ID}" ] || [ -z "\${AWS_SECRET_ACCESS_KEY}" ]; then
-                                    echo "❌ AWS credentials not available in shell!"
+                                    echo "❌ AWS credentials not available in shell!" >&2
                                     exit 1
                                 fi
-                                echo "✅ AWS credentials available"
+                                echo "✅ AWS credentials available" >&2
                                 
                                 # Set region
                                 export AWS_DEFAULT_REGION=${region}
                                 
-                                # Get account ID
-                                aws sts get-caller-identity --query Account --output text 2>&1
+                                # Get account ID (output only the account ID to stdout, redirect errors to stderr)
+                                aws sts get-caller-identity --query Account --output text 2>&1 | tail -n 1
                             """,
                             returnStdout: true
                         ).trim()
