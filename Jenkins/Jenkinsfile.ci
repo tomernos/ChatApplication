@@ -274,31 +274,39 @@ pipeline {
                             error("accountId is null or empty before assignment!")
                         }
                         
-                        // Set environment variables INSIDE withCredentials (best practice: set immediately after retrieval)
-                        // Use script block to ensure proper variable scoping and assignment
-                        script {
-                            // Verify accountId is valid before assignment
-                            if (!accountId || accountId.isEmpty()) {
-                                error("accountId is null or empty before assignment!")
-                            }
-                            
-                            // Set environment variables with explicit assignment
-                            env.AWS_ACCOUNT_ID = accountId
-                            
-                            // Calculate ECR registry base (best practice: separate registry base from repository)
-                            def ecrRegistryBase = "${accountId}.dkr.ecr.${region}.amazonaws.com"
-                            env.ECR_REGISTRY_BASE = ecrRegistryBase
-                            
-                            // Calculate full ECR registry with repository (best practice: compose from base + repo)
-                            def ecrRegistry = "${ecrRegistryBase}/${ECR_REPO}"
-                            env.ECR_REGISTRY = ecrRegistry
-                            
-                            // Debug: Check values immediately after assignment
-                            echo "🔍 Debug - After assignment:"
-                            echo "   accountId (local): '${accountId}'"
-                            echo "   env.AWS_ACCOUNT_ID: '${env.AWS_ACCOUNT_ID}'"
-                            echo "   env.ECR_REGISTRY_BASE: '${env.ECR_REGISTRY_BASE}'"
-                            echo "   env.ECR_REGISTRY: '${env.ECR_REGISTRY}'"
+                        // Calculate values first
+                        def ecrRegistryBase = "${accountId}.dkr.ecr.${region}.amazonaws.com"
+                        def ecrRegistry = "${ecrRegistryBase}/${ECR_REPO}"
+                        
+                        // Set environment variables directly (best practice: set immediately after retrieval)
+                        // Direct assignment should work - if not, there's a Jenkins bug
+                        env.AWS_ACCOUNT_ID = accountId
+                        env.ECR_REGISTRY_BASE = ecrRegistryBase
+                        env.ECR_REGISTRY = ecrRegistry
+                        
+                        // Force verify by reading back immediately
+                        def verifyAccountId = env.AWS_ACCOUNT_ID
+                        def verifyBase = env.ECR_REGISTRY_BASE
+                        def verifyRegistry = env.ECR_REGISTRY
+                        
+                        echo "🔍 Debug - After assignment:"
+                        echo "   accountId (local): '${accountId}'"
+                        echo "   verifyAccountId: '${verifyAccountId}'"
+                        echo "   env.AWS_ACCOUNT_ID: '${env.AWS_ACCOUNT_ID}'"
+                        echo "   env.ECR_REGISTRY_BASE: '${env.ECR_REGISTRY_BASE}'"
+                        echo "   env.ECR_REGISTRY: '${env.ECR_REGISTRY}'"
+                        
+                        // If still null, try alternative method using sh
+                        if (!verifyAccountId || verifyAccountId == 'null' || verifyAccountId.isEmpty()) {
+                            echo "⚠️  Direct assignment failed, trying alternative method..."
+                            sh """
+                                # Set via shell (Jenkins will pick these up)
+                                echo "AWS_ACCOUNT_ID=${accountId}" >> \${ENV_FILE:-/dev/stdout} || true
+                            """
+                            // Try again with explicit string
+                            env.AWS_ACCOUNT_ID = "${accountId}"
+                            env.ECR_REGISTRY_BASE = "${ecrRegistryBase}"
+                            env.ECR_REGISTRY = "${ecrRegistry}"
                         }
                         
                         echo "✅ AWS Configuration Set:"
