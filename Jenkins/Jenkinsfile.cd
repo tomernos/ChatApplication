@@ -301,12 +301,13 @@ pipeline {
                         usernameVariable: 'AWS_ACCESS_KEY_ID',
                         passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                     )]) {
-                        dir('ChatApplication') {
                             sh """
                                 echo "📦 Deploying with Helm..."
                                 echo "Environment: ${env.DEPLOY_ENVIRONMENT}"
                                 echo "Namespace: ${namespace}"
-                                echo "Chart: helm-chart/"
+                                echo "Current directory: \$(pwd)"
+                                echo "Chart location: helm-chart/"
+                                ls -la helm-chart/ || echo "⚠️  helm-chart not found in current directory"
                                 echo "Backend Image: ${env.BACKEND_IMAGE}"
                                 echo "Frontend Image: ${env.FRONTEND_IMAGE}"
                                 
