@@ -202,6 +202,10 @@ pipeline {
                 script {
                     logMessage('Authenticating to AWS and setting ECR registry', '🔐')
                     
+                    // Define variables outside withCredentials
+                    def accountId = null
+                    def region = env.AWS_REGION ?: 'eu-central-1'
+                    
                     withCredentials([usernamePassword(
                         credentialsId: AWS_CREDENTIALS_ID,
                         usernameVariable: 'AWS_ACCESS_KEY_ID',
@@ -231,7 +235,7 @@ pipeline {
                         echo "BRANCH: ${BRANCH}"
                         echo "BRANCH_NAME: ${env.BRANCH_NAME}"
                         
-                        def accountId = sh(
+                        accountId = sh(
                             script: """
                                 set -e
                                 # Credentials are already available from withCredentials
@@ -242,7 +246,7 @@ pipeline {
                                 echo "✅ AWS credentials available"
                                 
                                 # Set region
-                                export AWS_DEFAULT_REGION=${env.AWS_REGION ?: 'eu-central-1'}
+                                export AWS_DEFAULT_REGION=${region}
                                 
                                 # Get account ID
                                 aws sts get-caller-identity --query Account --output text 2>&1
@@ -256,38 +260,27 @@ pipeline {
                             error("Failed to get AWS account ID. Response: '${accountId}'. Check AWS credentials and region.")
                         }
                         
-                        // Get region from environment
-                        def region = env.AWS_REGION ?: 'eu-central-1'
-                        def ecrRegistry = "${accountId}.dkr.ecr.${region}.amazonaws.com"
-                        
-                        // Set environment variables - do this outside withCredentials if possible
-                        env.AWS_ACCOUNT_ID = accountId
-                        env.AWS_DEFAULT_REGION = region
-                        env.ECR_REGISTRY = ecrRegistry
-                        
                         echo "✅ AWS authenticated successfully"
                         echo "Account ID: ${accountId}"
                         echo "Region: ${region}"
-                        echo "ECR Registry (calculated): ${ecrRegistry}"
-                        
-                        // Verify the assignment worked
-                        echo "ECR Registry (env.ECR_REGISTRY check): ${env.ECR_REGISTRY ?: 'IS_NULL'}"
-                        
-                        // Double-check by reading it back
-                        def verifyEcr = env.ECR_REGISTRY
-                        if (verifyEcr == null || verifyEcr.toString() == 'null' || verifyEcr.isEmpty()) {
-                            // Force assignment
-                            env.ECR_REGISTRY = ecrRegistry
-                            echo "⚠️  ECR_REGISTRY was null, reassigned to: ${ecrRegistry}"
-                        }
-                        
-                        // Final verification
-                        if (!env.ECR_REGISTRY || env.ECR_REGISTRY.isEmpty() || env.ECR_REGISTRY.toString() == 'null') {
-                            error("ECR_REGISTRY failed to set! Account: ${accountId}, Region: ${region}, Calculated: ${ecrRegistry}")
-                        }
-                        
-                        echo "✅ ECR_REGISTRY verified: ${env.ECR_REGISTRY}"
+                    } // End withCredentials
+                    
+                    // Calculate ECR registry and set environment variables OUTSIDE withCredentials
+                    def ecrRegistry = "${accountId}.dkr.ecr.${region}.amazonaws.com"
+                    
+                    env.AWS_ACCOUNT_ID = accountId
+                    env.AWS_DEFAULT_REGION = region
+                    env.ECR_REGISTRY = ecrRegistry
+                    
+                    echo "ECR Registry (calculated): ${ecrRegistry}"
+                    echo "ECR Registry (env.ECR_REGISTRY after assignment): ${env.ECR_REGISTRY}"
+                    
+                    // Final verification
+                    if (!env.ECR_REGISTRY || env.ECR_REGISTRY.isEmpty() || env.ECR_REGISTRY.toString() == 'null') {
+                        error("ECR_REGISTRY failed to set! Account: ${accountId}, Region: ${region}, Calculated: ${ecrRegistry}")
                     }
+                    
+                    echo "✅ ECR_REGISTRY verified: ${env.ECR_REGISTRY}"
                 }
             }
         }
