@@ -392,6 +392,14 @@ git_branch: "${normalizedBranch}"
                             git config user.name "Jenkins CI"
                             git config user.email "jenkins@ci.local"
                             
+                            # Get the actual branch name (remove origin/ prefix if present)
+                            ACTUAL_BRANCH=\$(echo ${env.BRANCH_NAME} | sed 's|origin/||')
+                            if [ -z "\${ACTUAL_BRANCH}" ]; then
+                                ACTUAL_BRANCH="${normalizedBranch}"
+                            fi
+                            
+                            echo "📝 Branch for push: \${ACTUAL_BRANCH}"
+                            
                             # Add deployment file
                             git add ${deploymentFile}
                             
@@ -403,9 +411,14 @@ git_branch: "${normalizedBranch}"
                                 # Jenkins should be configured to ignore commits with [skip ci] in message
                                 git commit -m "CI: Update deployment manifest to ${env.VERSION} [skip ci]" || true
                                 
-                                # Push changes
+                                # Push changes - use the actual branch name
                                 git remote set-url origin https://\${GIT_USERNAME}:\${GIT_PASSWORD}@\$(echo ${env.GIT_URL} | sed -E 's|.*github.com[:/](.*)\\.git|github.com/\\1|' | sed 's|git@||')
-                                git push origin ${normalizedBranch} || echo "⚠️  Failed to push deployment manifest (may need manual push)"
+                                
+                                # Try to push, if it fails try with origin/ prefix
+                                if ! git push origin \${ACTUAL_BRANCH} 2>&1; then
+                                    echo "⚠️  First push attempt failed, trying with HEAD..."
+                                    git push origin HEAD:\${ACTUAL_BRANCH} || echo "⚠️  Failed to push deployment manifest (may need manual push)"
+                                fi
                                 
                                 echo "✅ Deployment manifest updated and committed with [skip ci]"
                             fi
