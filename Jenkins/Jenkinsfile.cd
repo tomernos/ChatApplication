@@ -199,12 +199,16 @@ pipeline {
                         }
                     }
                     
+                    // Debug: Check value before assignment
+                    echo "🔍 Debug - ecrRegistryValue before assignment: '${ecrRegistryValue}'"
+                    echo "🔍 Debug - ecrRegistryValue type: ${ecrRegistryValue?.getClass()?.getName()}"
+                    
                     // Set env variable outside withCredentials to ensure persistence
-                    if (ecrRegistryValue) {
-                        env.ECR_REGISTRY = ecrRegistryValue
+                    if (ecrRegistryValue && !ecrRegistryValue.toString().isEmpty()) {
+                        env.ECR_REGISTRY = ecrRegistryValue.toString()
                         echo "✅ ECR_REGISTRY set to: ${env.ECR_REGISTRY}"
                     } else {
-                        error("Failed to determine ECR_REGISTRY from manifest, parameters, or auto-detection")
+                        error("Failed to determine ECR_REGISTRY from manifest, parameters, or auto-detection. Value was: '${ecrRegistryValue}'")
                     }
                     
                     // Get ECR repo
