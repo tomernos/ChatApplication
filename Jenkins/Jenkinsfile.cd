@@ -342,7 +342,6 @@ pipeline {
                                 
                                 echo "✅ Helm deployment completed"
                             """
-                        }
                     }
                 }
             }
