@@ -1,0 +1,436 @@
+@Library('jenkins-shared-library') _
+
+pipeline {
+    agent {
+        docker {
+            // Using Ubuntu instead of Alpine for better AWS CLI/kubectl compatibility
+            // Alpine's musl libc causes issues with AWS CLI exec plugins in kubeconfig
+            image 'ubuntu:22.04'
+            args '-v /var/run/docker.sock:/var/run/docker.sock -u root'
+        }
+    }
+
+    options {
+        timeout(time: 1, unit: 'HOURS')
+        timestamps()
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
+    environment {
+        AWS_REGION = 'eu-central-1'
+        AWS_CREDENTIALS_ID = 'aws-creds'
+        
+        // Cluster name - modular: can be per-environment or shared
+        // Format: {tenant}-{region}-{project}-{env}-eks
+        // For now: single cluster for all environments (modular for future separation)
+        CLUSTER_NAME = 'tnt-eu-chatapp-dev-eks'  // TODO: Make environment-aware if separate clusters needed
+        
+        // ECR Registry (should be set from CI pipeline artifacts or parameter)
+        ECR_REGISTRY = ''
+        ECR_REPO = 'chatapp'  // Single ECR repository for both backend and frontend (modular for future separation)
+        
+        // Version (should be passed as parameter or from CI pipeline)
+        VERSION = ''
+        
+        // Detect branch
+        BRANCH = "${env.BRANCH_NAME ?: env.GIT_BRANCH?.replaceAll('origin/', '') ?: 'unknown'}"
+    }
+
+    parameters {
+        choice(
+            name: 'ENVIRONMENT',
+            choices: ['dev', 'staging', 'prod'],
+            description: 'Target environment to deploy to'
+        )
+        string(
+            name: 'IMAGE_VERSION',
+            defaultValue: '',
+            description: 'Override: Docker image version to deploy. Leave empty to read from deployment.yaml'
+        )
+        string(
+            name: 'ECR_REGISTRY_PARAM',
+            defaultValue: '',
+            description: 'Override: ECR Registry URL. Leave empty to read from deployment.yaml'
+        )
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Install Tools') {
+            steps {
+                script {
+                    logMessage('Installing required tools', '📦')
+                    
+                    sh '''
+                        set -e
+                        
+                        # Update package list
+                        apt-get update -qq
+                        
+                        # Install base dependencies
+                        apt-get install -y -qq curl unzip ca-certificates gnupg lsb-release
+                        
+                        # Install kubectl
+                        curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+                        echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' | tee /etc/apt/sources.list.d/kubernetes.list
+                        apt-get update -qq
+                        apt-get install -y -qq kubectl
+                        
+                        # Install AWS CLI v2
+                        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                        unzip -q awscliv2.zip
+                        ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+                        rm -rf awscliv2.zip aws
+                        
+                        # Install Helm
+                        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+                        
+                        # Verify all tools
+                        echo "✅ Tool versions:"
+                        kubectl version --client
+                        helm version
+                        aws --version
+                    '''
+                }
+            }
+        }
+
+        stage('Read Deployment Manifest') {
+            steps {
+                script {
+                    logMessage('Reading Deployment Manifest', '📖')
+                    
+                    // Determine environment using Groovy logic (no shell script)
+                    def environment = params.ENVIRONMENT
+                    
+                    if (!environment || environment.isEmpty()) {
+                        // Determine from branch name
+                        def normalizedBranch = BRANCH.replaceAll('origin/', '')
+                        
+                        if (normalizedBranch == 'develop') {
+                            environment = 'dev'
+                        } else if (normalizedBranch =~ /^release\//) {
+                            environment = 'staging'
+                        } else if (normalizedBranch == 'main' || normalizedBranch =~ /^hotfix\//) {
+                            environment = 'prod'
+                        } else if (normalizedBranch =~ /^feature\//) {
+                            environment = 'preview'
+                        } else {
+                            environment = 'unknown'
+                        }
+                    }
+                    
+                    if (environment == 'unknown' || environment.isEmpty()) {
+                        error("Cannot determine environment from branch ${BRANCH}. Please specify ENVIRONMENT parameter.")
+                    }
+                    
+                    env.DEPLOY_ENVIRONMENT = environment
+                    
+                    // Modular: Cluster name can be per-environment or shared
+                    // For now: single cluster for all (modular for future: env.CLUSTER_NAME = "tnt-eu-chatapp-${environment}-eks")
+                    // Current: uses shared cluster name from environment block
+                    
+                    // Read deployment manifest
+                    def deploymentFile = "deployments/${environment}/deployment.yaml"
+                    
+                    if (!fileExists(deploymentFile)) {
+                        error("Deployment manifest not found: ${deploymentFile}. Ensure CI has run and updated the manifest.")
+                    }
+                    
+                    // Parse deployment.yaml
+                    def manifestContent = readFile deploymentFile
+                    def manifest = [:]
+                    
+                    // Simple YAML parsing (basic key: value format)
+                    manifestContent.split('\n').each { line ->
+                        def trimmed = line.trim()
+                        if (trimmed && !trimmed.startsWith('#') && trimmed.contains(':')) {
+                            def parts = trimmed.split(':', 2)
+                            if (parts.length == 2) {
+                                def key = parts[0].trim()
+                                def value = parts[1].trim().replaceAll(/^["']|["']$/, '')
+                                // Skip "null" values and empty strings
+                                if (value != 'null' && !value.isEmpty() && value != '""' && value != "''") {
+                                    manifest[key] = value
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Debug: Show parsed manifest
+                    echo "📋 Parsed manifest keys: ${manifest.keySet()}"
+                    if (manifest.ecr_registry) {
+                        echo "✅ Found ecr_registry in manifest: ${manifest.ecr_registry}"
+                    } else {
+                        echo "⚠️  ecr_registry not found in manifest"
+                    }
+                    
+                    // Set version and registry from manifest (or override from parameters)
+                    if (params.IMAGE_VERSION && !params.IMAGE_VERSION.isEmpty()) {
+                        env.DEPLOY_VERSION = params.IMAGE_VERSION
+                        echo "⚠️  Using override version: ${env.DEPLOY_VERSION}"
+                    } else if (manifest.version && !manifest.version.isEmpty()) {
+                        env.DEPLOY_VERSION = manifest.version
+                        echo "✅ Using version from manifest: ${env.DEPLOY_VERSION}"
+                    } else {
+                        error("No version found in deployment manifest and no override provided.")
+                    }
+                    
+                    // Set ECR_REGISTRY from manifest (simple and direct)
+                    if (params.ECR_REGISTRY_PARAM && !params.ECR_REGISTRY_PARAM.isEmpty()) {
+                        env.ECR_REGISTRY = params.ECR_REGISTRY_PARAM.trim()
+                    } else if (manifest.ecr_registry) {
+                        env.ECR_REGISTRY = manifest.ecr_registry.trim()
+                    }
+                    
+                    if (env.ECR_REGISTRY) {
+                        echo "✅ ECR_REGISTRY: ${env.ECR_REGISTRY}"
+                    }
+                    
+                    // Get ECR repo
+                    def ecrRepo = manifest.ecr_repo ?: ECR_REPO
+                    
+                    // Use full image paths from manifest if available (preferred), otherwise construct
+                    if (manifest.backend_image && !manifest.backend_image.isEmpty() && !manifest.backend_image.contains('null')) {
+                        env.BACKEND_IMAGE = manifest.backend_image
+                    } else {
+                        env.BACKEND_IMAGE = "${env.ECR_REGISTRY}:backend-${env.DEPLOY_VERSION}"
+                    }
+                    
+                    if (manifest.frontend_image && !manifest.frontend_image.isEmpty() && !manifest.frontend_image.contains('null')) {
+                        env.FRONTEND_IMAGE = manifest.frontend_image
+                    } else {
+                        env.FRONTEND_IMAGE = "${env.ECR_REGISTRY}:frontend-${env.DEPLOY_VERSION}"
+                    }
+                    
+                    echo """
+                    ╔════════════════════════════════════════╗
+                    ║  DEPLOYMENT INFORMATION                 ║
+                    ╚════════════════════════════════════════╝
+                    Environment:  ${env.DEPLOY_ENVIRONMENT}
+                    Version:      ${env.DEPLOY_VERSION}
+                    ECR Registry: ${env.ECR_REGISTRY}
+                    ECR Repo:     ${ecrRepo}
+                    Backend:      ${env.BACKEND_IMAGE}
+                    Frontend:     ${env.FRONTEND_IMAGE}
+                    ╚════════════════════════════════════════╝
+                    """.stripIndent()
+                }
+            }
+        }
+
+        stage('Authenticate to AWS') {
+            steps {
+                script {
+                    logMessage('Authenticating to AWS', '🔐')
+                    
+                    withCredentials([usernamePassword(
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
+                        sh """
+                            aws sts get-caller-identity
+                            echo "✅ AWS authenticated"
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Configure Kubeconfig') {
+            steps {
+                script {
+                    logMessage('Configuring kubectl for EKS cluster', '⚙️')
+                    
+                    withCredentials([usernamePassword(
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
+                        sh """
+                            echo "🔧 Updating kubeconfig for cluster: ${CLUSTER_NAME}"
+                            aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER_NAME}
+                            
+                            echo "✅ Verifying cluster access..."
+                            #kubectl cluster-info
+                            kubectl get nodes
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Approve Production Deployment') {
+            when {
+                expression { env.DEPLOY_ENVIRONMENT == 'prod' }
+            }
+            steps {
+                script {
+                    logMessage('Production Deployment Approval Required', '🚨')
+                    
+                    def approval = input(
+                        message: "🚨 Deploy ${env.DEPLOY_VERSION} to PRODUCTION?",
+                        ok: 'Deploy to Production',
+                        parameters: [
+                            string(
+                                name: 'DEPLOYMENT_REASON',
+                                description: 'Why are you deploying to production?'
+                            )
+                        ]
+                    )
+                    
+                    env.DEPLOYMENT_REASON = approval.DEPLOYMENT_REASON ?: 'No reason provided'
+                    echo "✅ Production deployment approved"
+                    echo "Reason: ${env.DEPLOYMENT_REASON}"
+                }
+            }
+        }
+
+        stage('Helm Deploy Application') {
+            steps {
+                script {
+                    logMessage('Deploying application via Helm', '🚀')
+                    
+                    
+                    if (!env.DEPLOY_VERSION || env.DEPLOY_VERSION.isEmpty()) {
+                        error("DEPLOY_VERSION is not set! Check deployment manifest or provide IMAGE_VERSION.")
+                    }
+                    
+                    def namespace = "chatapp-${env.DEPLOY_ENVIRONMENT}"
+                    
+                    withCredentials([usernamePassword(
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
+                            sh """
+                                echo "📦 Deploying with Helm..."
+                                echo "Environment: ${env.DEPLOY_ENVIRONMENT}"
+                                echo "Namespace: ${namespace}"
+                                echo "Current directory: \$(pwd)"
+                                echo "Chart location: helm-chart/"
+                                ls -la helm-chart/ || echo "⚠️  helm-chart not found in current directory"
+                                echo "Backend Image: ${env.BACKEND_IMAGE}"
+                                echo "Frontend Image: ${env.FRONTEND_IMAGE}"
+                                
+                                # Verify variables are not empty
+                                BACKEND_IMG="${env.BACKEND_IMAGE}"
+                                FRONTEND_IMG="${env.FRONTEND_IMAGE}"
+                                
+                                if [ -z "\$BACKEND_IMG" ] || [ -z "\$FRONTEND_IMG" ]; then
+                                    echo "❌ BACKEND_IMAGE or FRONTEND_IMAGE is empty! Cannot deploy."
+                                    exit 1
+                                fi
+                                
+                                # Extract repository and tag from full image paths
+                                # Format: {registry}/{repo}:{component}-{version}
+                                BACKEND_REPO=\$(echo "\$BACKEND_IMG" | cut -d: -f1)
+                                BACKEND_TAG=\$(echo "\$BACKEND_IMG" | cut -d: -f2)
+                                FRONTEND_REPO=\$(echo "\$FRONTEND_IMG" | cut -d: -f1)
+                                FRONTEND_TAG=\$(echo "\$FRONTEND_IMG" | cut -d: -f2)
+                                
+                                echo "Backend:  \${BACKEND_REPO}:\${BACKEND_TAG}"
+                                echo "Frontend: \${FRONTEND_REPO}:\${FRONTEND_TAG}"
+                                
+                                helm upgrade --install chatapp ./helm-chart \\
+                                    --namespace ${namespace} \\
+                                    --create-namespace \\
+                                    --set backend.image.repository=\${BACKEND_REPO} \\
+                                    --set backend.image.tag=\${BACKEND_TAG} \\
+                                    --set frontend.image.repository=\${FRONTEND_REPO} \\
+                                    --set frontend.image.tag=\${FRONTEND_TAG} \\
+                                    --set backend.monitoring.enabled=false \\
+                                    --set backend.secretsProvider.enabled=true \\
+                                    --set backend.secretsProvider.className=chatapp-secrets \\
+                                    --wait \\
+                                    --timeout 10m
+                                
+                                echo "✅ Helm deployment completed"
+                            """
+                    }
+                }
+            }
+        }
+
+        stage('Post-Deployment Smoke Tests') {
+            steps {
+                script {
+                    logMessage('Running Post-Deployment Smoke Tests', '🔬')
+                    
+                    def namespace = "chatapp-${env.DEPLOY_ENVIRONMENT}"
+                    
+                    withCredentials([usernamePassword(
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
+                        sh """
+                            CLUSTER="${CLUSTER_NAME}"
+                            echo "Environment: ${env.DEPLOY_ENVIRONMENT}"
+                            echo "Version: ${env.DEPLOY_VERSION}"
+                            echo "Namespace: ${namespace}"
+                            echo "Cluster: \$CLUSTER"
+                            echo ""
+                            
+                            echo "🔍 Checking deployment status..."
+                            kubectl rollout status deployment/chatapp-backend -n ${namespace} --timeout=5m || true
+                            kubectl rollout status deployment/chatapp-frontend -n ${namespace} --timeout=5m || true
+                            
+                            echo ""
+                            echo "📊 Checking pod status..."
+                            kubectl get pods -n ${namespace}
+                            
+                            echo ""
+                            echo "🌐 Checking services..."
+                            kubectl get svc -n ${namespace}
+                            
+                            echo ""
+                            echo "🔬 Running health check..."
+                            # Port-forward to backend and test health endpoint
+                            kubectl port-forward -n ${namespace} svc/chatapp-backend 5000:5000 &
+                            PF_PID=\$!
+                            sleep 5
+                            
+                            if curl -f http://localhost:5000/health; then
+                                echo "✅ Backend health check passed"
+                                kill \$PF_PID || true
+                            else
+                                echo "❌ Backend health check failed"
+                                kill \$PF_PID || true
+                                exit 1
+                            fi
+                            
+                            echo ""
+                            echo "✅ All smoke tests passed"
+                        """
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                logMessage('CD Pipeline Completed', '📊')
+            }
+        }
+        success {
+            script {
+                logMessage('CD Pipeline Completed Successfully!', '✅')
+            }
+        }
+        failure {
+            script {
+                logMessage('CD Pipeline Failed!', '❌')
+            }
+        }
+    }
+}
+

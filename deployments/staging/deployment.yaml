@@ -1,0 +1,14 @@
+# Deployment Manifest - Staging Environment
+# This file is automatically updated by CI pipeline on release/* branches
+# DO NOT manually edit - CI will overwrite changes
+
+version: ""  # Will be set by CI (e.g., v2.2.0-rc.1)
+ecr_registry: ""  # Will be auto-detected by CI
+ecr_repo: "chatapp"  # Single ECR repository for both backend and frontend
+backend_image: ""  # Will be set by CI (e.g., {registry}/chatapp:backend-v2.2.0-rc.1)
+frontend_image: ""  # Will be set by CI (e.g., {registry}/chatapp:frontend-v2.2.0-rc.1)
+deployed_at: ""  # Auto-filled by CI
+deployed_by: "jenkins"  # Auto-filled
+git_commit: ""  # Auto-filled
+git_branch: ""  # Auto-filled (e.g., release/v2.2.0)
+
