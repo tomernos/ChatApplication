@@ -1,14 +1,16 @@
 # Deployment Manifest - Staging Environment
-# This file is automatically updated by CI pipeline on release/* branches
-# DO NOT manually edit - CI will overwrite changes
+# Auto-promoted from dev environment by CD pipeline
+# DO NOT manually edit - CD will overwrite changes
+# Last updated: 2026-01-06T16:48:22Z
 
-version: ""  # Will be set by CI (e.g., v2.2.0-rc.1)
-ecr_registry: ""  # Will be auto-detected by CI
-ecr_repo: "chatapp"  # Single ECR repository for both backend and frontend
-backend_image: ""  # Will be set by CI (e.g., {registry}/chatapp:backend-v2.2.0-rc.1)
-frontend_image: ""  # Will be set by CI (e.g., {registry}/chatapp:frontend-v2.2.0-rc.1)
-deployed_at: ""  # Auto-filled by CI
-deployed_by: "jenkins"  # Auto-filled
-git_commit: ""  # Auto-filled
-git_branch: ""  # Auto-filled (e.g., release/v2.2.0)
-
+version: "dev-8e5d356"
+ecr_registry: "654654526828.dkr.ecr.eu-central-1.amazonaws.com/chatapp"
+ecr_repo: "chatapp"
+backend_image: "654654526828.dkr.ecr.eu-central-1.amazonaws.com/chatapp:backend-dev-8e5d356"
+frontend_image: "654654526828.dkr.ecr.eu-central-1.amazonaws.com/chatapp:frontend-dev-8e5d356"
+deployed_at: "2026-01-06T16:48:22Z"
+deployed_by: "jenkins-cd"
+git_commit: "1bda81f1c640c9fb94fdebb87aa826a451b58995"
+git_branch: "staging"
+promoted_from: "dev"
+promoted_at: "2026-01-06T16:48:22Z"
