@@ -19,6 +19,7 @@ pipeline {
     environment {
         AWS_REGION = 'eu-central-1'
         AWS_CREDENTIALS_ID = 'aws-creds'
+        GIT_CREDENTIALS_ID = 'gitpat'  // For Git operations (promotion commits)
         
         // Cluster name - modular: can be per-environment or shared
         // Format: {tenant}-{region}-{project}-{env}-eks
@@ -96,6 +97,120 @@ pipeline {
                         helm version
                         aws --version
                     '''
+                }
+            }
+        }
+
+        stage('Promote Version (Auto)') {
+            when {
+                anyOf {
+                    branch 'staging'
+                    branch 'prod'
+                    branch 'main'
+                }
+            }
+            steps {
+                script {
+                    logMessage('Auto-Promoting Version', '🔄')
+                    
+                    def normalizedBranch = BRANCH.replaceAll('origin/', '')
+                    def sourceEnv = null
+                    def targetEnv = null
+                    
+                    // Determine promotion path based on branch
+                    if (normalizedBranch == 'staging') {
+                        sourceEnv = 'dev'
+                        targetEnv = 'staging'
+                    } else if (normalizedBranch == 'prod' || normalizedBranch == 'main') {
+                        sourceEnv = 'staging'
+                        targetEnv = 'prod'
+                    }
+                    
+                    if (sourceEnv && targetEnv) {
+                        echo "🔄 Auto-promoting from ${sourceEnv} to ${targetEnv}"
+                        
+                        // Read source manifest
+                        def sourceFile = "deployments/${sourceEnv}/deployment.yaml"
+                        if (!fileExists(sourceFile)) {
+                            error("Source manifest not found: ${sourceFile}. Cannot promote.")
+                        }
+                        
+                        // Parse source manifest
+                        def sourceContent = readFile sourceFile
+                        def sourceManifest = [:]
+                        sourceContent.split('\n').each { line ->
+                            def trimmed = line.trim()
+                            if (trimmed && !trimmed.startsWith('#') && trimmed.contains(':')) {
+                                def parts = trimmed.split(':', 2)
+                                if (parts.length == 2) {
+                                    def key = parts[0].trim()
+                                    def value = parts[1].trim().replaceAll(/^["']|["']$/, '')
+                                    if (value != 'null' && !value.isEmpty() && value != '""' && value != "''") {
+                                        sourceManifest[key] = value
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Validate source manifest has version
+                        if (!sourceManifest.version || sourceManifest.version.isEmpty()) {
+                            error("Source manifest (${sourceEnv}) has no version. Cannot promote.")
+                        }
+                        
+                        echo "✅ Source version: ${sourceManifest.version}"
+                        echo "✅ Source backend image: ${sourceManifest.backend_image}"
+                        
+                        // Create target manifest
+                        def timestamp = new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC'))
+                        def targetFile = "deployments/${targetEnv}/deployment.yaml"
+                        def targetContent = """# Deployment Manifest - ${targetEnv.capitalize()} Environment
+# Auto-promoted from ${sourceEnv} environment by CD pipeline
+# DO NOT manually edit - CD will overwrite changes
+# Last updated: ${timestamp}
+
+version: "${sourceManifest.version}"
+ecr_registry: "${sourceManifest.ecr_registry}"
+ecr_repo: "${sourceManifest.ecr_repo ?: 'chatapp'}"
+backend_image: "${sourceManifest.backend_image}"
+frontend_image: "${sourceManifest.frontend_image}"
+deployed_at: "${timestamp}"
+deployed_by: "jenkins-cd"
+git_commit: "${env.GIT_COMMIT}"
+git_branch: "${normalizedBranch}"
+promoted_from: "${sourceEnv}"
+promoted_at: "${timestamp}"
+"""
+                        
+                        // Write target manifest
+                        writeFile file: targetFile, text: targetContent
+                        echo "✅ Created target manifest: ${targetFile}"
+                        
+                        // Commit and push promotion
+                        withCredentials([usernamePassword(
+                            credentialsId: GIT_CREDENTIALS_ID,
+                            usernameVariable: 'GIT_USERNAME',
+                            passwordVariable: 'GIT_PASSWORD'
+                        )]) {
+                            sh """
+                                git config user.name "Jenkins CD"
+                                git config user.email "jenkins@cd.local"
+                                
+                                git add ${targetFile}
+                                
+                                if git diff --staged --quiet; then
+                                    echo "ℹ️  No changes to commit (manifest already has this version)"
+                                else
+                                    git commit -m "CD: Auto-promote ${sourceManifest.version} from ${sourceEnv} to ${targetEnv} [skip ci]" || true
+                                    
+                                    git remote set-url origin https://\${GIT_USERNAME}:\${GIT_PASSWORD}@\$(echo ${env.GIT_URL} | sed -E 's|.*github.com[:/](.*)\\.git|github.com/\\1|' | sed 's|git@||')
+                                    git push origin ${normalizedBranch} || git push origin HEAD:${normalizedBranch} || true
+                                    echo "✅ Promotion committed and pushed"
+                                fi
+                            """
+                        }
+                        
+                        echo "✅ Auto-promotion complete: ${sourceManifest.version} promoted to ${targetEnv}"
+                    }
                 }
             }
         }
