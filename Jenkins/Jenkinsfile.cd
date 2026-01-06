@@ -93,6 +93,7 @@ pipeline {
                         
                         # Verify all tools
                         echo "✅ Tool versions:"
+                        git --version
                         kubectl version --client
                         helm version
                         aws --version
