@@ -225,30 +225,41 @@ promoted_at: "${timestamp}"
                     echo "  BRANCH variable: ${BRANCH}"
                     echo "  env.BRANCH_NAME: ${env.BRANCH_NAME ?: 'not set'}"
                     echo "  env.GIT_BRANCH: ${env.GIT_BRANCH ?: 'not set'}"
+                    echo "  params.ENVIRONMENT: ${params.ENVIRONMENT ?: 'not set'}"
                     
-                    // Determine environment using Groovy logic (no shell script)
-                    def environment = params.ENVIRONMENT
+                    // Determine environment: Prioritize branch detection for auto-promotion
+                    // Only use parameter if branch detection fails
+                    def normalizedBranch = BRANCH.replaceAll('origin/', '')
+                    echo "  Normalized branch: ${normalizedBranch}"
                     
+                    def environment = null
+                    
+                    // First, try to detect from branch (for auto-promotion)
+                    if (normalizedBranch == 'develop') {
+                        environment = 'dev'
+                    } else if (normalizedBranch == 'staging' || normalizedBranch =~ /^release\//) {
+                        environment = 'staging'
+                    } else if (normalizedBranch == 'main' || normalizedBranch == 'prod' || normalizedBranch =~ /^hotfix\//) {
+                        environment = 'prod'
+                    } else if (normalizedBranch =~ /^feature\//) {
+                        environment = 'preview'
+                    }
+                    
+                    // If branch detection failed, use parameter (fallback)
                     if (!environment || environment.isEmpty()) {
-                        // Determine from branch name
-                        def normalizedBranch = BRANCH.replaceAll('origin/', '')
-                        echo "  Normalized branch: ${normalizedBranch}"
-                        
-                        if (normalizedBranch == 'develop') {
-                            environment = 'dev'
-                        } else if (normalizedBranch == 'staging' || normalizedBranch =~ /^release\//) {
-                            environment = 'staging'
-                        } else if (normalizedBranch == 'main' || normalizedBranch == 'prod' || normalizedBranch =~ /^hotfix\//) {
-                            environment = 'prod'
-                        } else if (normalizedBranch =~ /^feature\//) {
-                            environment = 'preview'
+                        if (params.ENVIRONMENT && !params.ENVIRONMENT.isEmpty()) {
+                            environment = params.ENVIRONMENT
+                            echo "  ⚠️  Branch detection failed, using parameter: ${environment}"
                         } else {
                             environment = 'unknown'
+                            echo "  ❌ Cannot determine environment from branch or parameter"
                         }
-                        
-                        echo "  Detected environment: ${environment}"
                     } else {
-                        echo "  Using parameter environment: ${environment}"
+                        echo "  ✅ Detected environment from branch: ${environment}"
+                        // Warn if parameter doesn't match branch (but still use branch)
+                        if (params.ENVIRONMENT && !params.ENVIRONMENT.isEmpty() && params.ENVIRONMENT != environment) {
+                            echo "  ⚠️  WARNING: Parameter ENVIRONMENT=${params.ENVIRONMENT} doesn't match branch ${normalizedBranch} (using ${environment})"
+                        }
                     }
                     
                     if (environment == 'unknown' || environment.isEmpty()) {
