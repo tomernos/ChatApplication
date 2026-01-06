@@ -314,27 +314,23 @@ pipeline {
                             echo ""
                             echo "🏷️  Tagging images with ECR paths..."
                             
-                            # Tag backend
+                            # Tag backend (NO latest tag - ECR tags are immutable)
                             docker tag connecthub-backend:latest ${ecrRegistry}:backend-${env.VERSION}
-                            docker tag connecthub-backend:latest ${ecrRegistry}:backend-latest
                             echo "✅ Tagged: ${ecrRegistry}:backend-${env.VERSION}"
                             
-                            # Tag frontend
+                            # Tag frontend (NO latest tag - ECR tags are immutable)
                             docker tag connecthub-frontend:latest ${ecrRegistry}:frontend-${env.VERSION}
-                            docker tag connecthub-frontend:latest ${ecrRegistry}:frontend-latest
                             echo "✅ Tagged: ${ecrRegistry}:frontend-${env.VERSION}"
                             
                             echo ""
                             echo "📤 Pushing images to ECR..."
                             
-                            # Push backend
+                            # Push backend (versioned tag only)
                             docker push ${ecrRegistry}:backend-${env.VERSION}
-                            docker push ${ecrRegistry}:backend-latest
                             echo "✅ Pushed: ${ecrRegistry}:backend-${env.VERSION}"
                             
-                            # Push frontend
+                            # Push frontend (versioned tag only)
                             docker push ${ecrRegistry}:frontend-${env.VERSION}
-                            docker push ${ecrRegistry}:frontend-latest
                             echo "✅ Pushed: ${ecrRegistry}:frontend-${env.VERSION}"
                             
                             echo ""
