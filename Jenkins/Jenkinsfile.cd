@@ -114,9 +114,9 @@ pipeline {
                         
                         if (normalizedBranch == 'develop') {
                             environment = 'dev'
-                        } else if (normalizedBranch =~ /^release\//) {
+                        } else if (normalizedBranch == 'staging' || normalizedBranch =~ /^release\//) {
                             environment = 'staging'
-                        } else if (normalizedBranch == 'main' || normalizedBranch =~ /^hotfix\//) {
+                        } else if (normalizedBranch == 'main' || normalizedBranch == 'prod' || normalizedBranch =~ /^hotfix\//) {
                             environment = 'prod'
                         } else if (normalizedBranch =~ /^feature\//) {
                             environment = 'preview'
