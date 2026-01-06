@@ -73,8 +73,8 @@ pipeline {
                         # Update package list
                         apt-get update -qq
                         
-                        # Install base dependencies
-                        apt-get install -y -qq curl unzip ca-certificates gnupg lsb-release
+                        # Install base dependencies (including git for promotion commits)
+                        apt-get install -y -qq curl unzip ca-certificates gnupg lsb-release git
                         
                         # Install kubectl
                         curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
