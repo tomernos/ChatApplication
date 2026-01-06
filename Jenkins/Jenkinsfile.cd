@@ -19,11 +19,15 @@ pipeline {
     environment {
         AWS_REGION = 'eu-central-1'
         AWS_CREDENTIALS_ID = 'aws-creds'
-        CLUSTER_NAME = 'tnt-eu-chatapp-dev-eks'  // Format: {tenant}-{region}-{project}-{env}-eks
+        
+        // Cluster name - modular: can be per-environment or shared
+        // Format: {tenant}-{region}-{project}-{env}-eks
+        // For now: single cluster for all environments (modular for future separation)
+        CLUSTER_NAME = 'tnt-eu-chatapp-dev-eks'  // TODO: Make environment-aware if separate clusters needed
         
         // ECR Registry (should be set from CI pipeline artifacts or parameter)
         ECR_REGISTRY = ''
-        ECR_REPO = 'chatapp'  // Single ECR repository for both backend and frontend
+        ECR_REPO = 'chatapp'  // Single ECR repository for both backend and frontend (modular for future separation)
         
         // Version (should be passed as parameter or from CI pipeline)
         VERSION = ''
@@ -126,6 +130,10 @@ pipeline {
                     }
                     
                     env.DEPLOY_ENVIRONMENT = environment
+                    
+                    // Modular: Cluster name can be per-environment or shared
+                    // For now: single cluster for all (modular for future: env.CLUSTER_NAME = "tnt-eu-chatapp-${environment}-eks")
+                    // Current: uses shared cluster name from environment block
                     
                     // Read deployment manifest
                     def deploymentFile = "deployments/${environment}/deployment.yaml"
