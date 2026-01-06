@@ -105,12 +105,19 @@ pipeline {
                 script {
                     logMessage('Reading Deployment Manifest', '📖')
                     
+                    // Debug: Show branch detection
+                    echo "🔍 Debug - Branch detection:"
+                    echo "  BRANCH variable: ${BRANCH}"
+                    echo "  env.BRANCH_NAME: ${env.BRANCH_NAME ?: 'not set'}"
+                    echo "  env.GIT_BRANCH: ${env.GIT_BRANCH ?: 'not set'}"
+                    
                     // Determine environment using Groovy logic (no shell script)
                     def environment = params.ENVIRONMENT
                     
                     if (!environment || environment.isEmpty()) {
                         // Determine from branch name
                         def normalizedBranch = BRANCH.replaceAll('origin/', '')
+                        echo "  Normalized branch: ${normalizedBranch}"
                         
                         if (normalizedBranch == 'develop') {
                             environment = 'dev'
@@ -123,6 +130,10 @@ pipeline {
                         } else {
                             environment = 'unknown'
                         }
+                        
+                        echo "  Detected environment: ${environment}"
+                    } else {
+                        echo "  Using parameter environment: ${environment}"
                     }
                     
                     if (environment == 'unknown' || environment.isEmpty()) {
@@ -130,6 +141,7 @@ pipeline {
                     }
                     
                     env.DEPLOY_ENVIRONMENT = environment
+                    echo "✅ Final DEPLOY_ENVIRONMENT: ${env.DEPLOY_ENVIRONMENT}"
                     
                     // Modular: Cluster name can be per-environment or shared
                     // For now: single cluster for all (modular for future: env.CLUSTER_NAME = "tnt-eu-chatapp-${environment}-eks")
