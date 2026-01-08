@@ -1,16 +1,16 @@
 # Deployment Manifest - Staging Environment
 # Auto-promoted from dev environment by CD pipeline
 # DO NOT manually edit - CD will overwrite changes
-# Last updated: 2026-01-08T17:06:32Z
+# Last updated: 2026-01-08T17:25:49Z
 
 version: "dev-8e5d356"
 ecr_registry: "654654526828.dkr.ecr.eu-central-1.amazonaws.com/chatapp"
 ecr_repo: "chatapp"
 backend_image: "654654526828.dkr.ecr.eu-central-1.amazonaws.com/chatapp:backend-dev-8e5d356"
 frontend_image: "654654526828.dkr.ecr.eu-central-1.amazonaws.com/chatapp:frontend-dev-8e5d356"
-deployed_at: "2026-01-08T17:06:32Z"
+deployed_at: "2026-01-08T17:25:49Z"
 deployed_by: "jenkins-cd"
-git_commit: "6c09e16ba286115d51005b033436927971acb981"
+git_commit: "c5b90757cf60df50d68baa87397ac7181fb93bec"
 git_branch: "staging"
 promoted_from: "dev"
-promoted_at: "2026-01-08T17:06:32Z"
+promoted_at: "2026-01-08T17:25:49Z"
