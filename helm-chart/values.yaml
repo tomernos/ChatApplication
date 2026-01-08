@@ -255,6 +255,13 @@ serviceAccounts:
     annotations: {}
 
 # Ingress
+# Base configuration - overridden by environment-specific values files:
+# - values-dev.yaml (chatapp-dev.tomernos.xyz)
+# - values-staging.yaml (chatapp-staging.tomernos.xyz)
+# - values-prod.yaml (chatapp-prod.tomernos.xyz)
+#
+# Supports multiple hosts for scalability and flexibility
+# Example: Can add additional hosts like api.chatapp-dev.tomernos.xyz
 ingress:
   enabled: true
   className: nginx
@@ -264,8 +271,10 @@ ingress:
     cert-manager.io/cluster-issuer: letsencrypt-http01  
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
   
+  # Hosts array - supports multiple hosts (scalable, modular)
+  # Each host can have different paths and services
   hosts:
-    - host: chatapp.tomernos.xyz  
+    - host: chatapp-dev.tomernos.xyz  # Default, overridden by env-specific files
       paths:
         - path: /api
           pathType: Prefix
@@ -275,8 +284,16 @@ ingress:
           pathType: Prefix
           serviceName: chatapp-frontend
           servicePort: 80
+    # Example: Add more hosts as needed
+    # - host: api.chatapp-dev.tomernos.xyz
+    #   paths:
+    #     - path: /
+    #       pathType: Prefix
+    #       serviceName: chatapp-backend
+    #       servicePort: 5000
   
+  # TLS configuration
+  # If hosts not specified, will automatically use all hosts from ingress.hosts
   tls:
     - secretName: chatapp-tls
-      hosts:
-        - chatapp.tomernos.xyz
+      # hosts: []  # Empty = use all hosts from ingress.hosts (automatic)

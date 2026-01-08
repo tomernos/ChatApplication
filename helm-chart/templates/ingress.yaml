@@ -19,11 +19,19 @@ spec:
   {{- if .Values.ingress.tls }}
   tls:
   {{- range .Values.ingress.tls }}
-  - hosts:
-    {{- range .hosts }}
-    - {{ . | quote }}
+  - secretName: {{ .secretName }}
+    {{- if .hosts }}
+    hosts:
+      {{- range .hosts }}
+      - {{ . | quote }}
+      {{- end }}
+    {{- else }}
+    # If hosts not specified in TLS, collect from ingress.hosts
+    hosts:
+      {{- range $.Values.ingress.hosts }}
+      - {{ .host | quote }}
+      {{- end }}
     {{- end }}
-    secretName: {{ .secretName }}
   {{- end }}
   {{- end }}
   

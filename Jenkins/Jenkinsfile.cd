@@ -477,9 +477,14 @@ promoted_at: "${timestamp}"
                                 echo "Backend:  \${BACKEND_REPO}:\${BACKEND_TAG}"
                                 echo "Frontend: \${FRONTEND_REPO}:\${FRONTEND_TAG}"
                                 
+                                # Use environment-specific values file (Helm best practice)
+                                VALUES_FILE="values-${env.DEPLOY_ENVIRONMENT}.yaml"
+                                echo "📋 Using values file: \${VALUES_FILE}"
+                                
                                 helm upgrade --install chatapp ./helm-chart \\
                                     --namespace ${namespace} \\
                                     --create-namespace \\
+                                    -f ./helm-chart/\${VALUES_FILE} \\
                                     --set backend.image.repository=\${BACKEND_REPO} \\
                                     --set backend.image.tag=\${BACKEND_TAG} \\
                                     --set frontend.image.repository=\${FRONTEND_REPO} \\
