@@ -104,11 +104,14 @@ pipeline {
 
         stage('Promote Version (Auto)') {
             when {
-                anyOf {
-                    branch 'staging'
-                    branch 'prod'
-                    branch 'main'
-                }
+                // Disabled: Not using promotion per environment for now
+                // Staging and prod will use their own CI-built images
+                expression { return false }
+                // anyOf {
+                //     branch 'staging'
+                //     branch 'prod'
+                //     branch 'main'
+                // }
             }
             steps {
                 script {
@@ -220,6 +223,12 @@ promoted_at: "${timestamp}"
             steps {
                 script {
                     logMessage('Reading Deployment Manifest', '📖')
+                    
+                    // Ensure we have the latest deployment.yaml from git
+                    sh """
+                        git pull origin ${BRANCH.replaceAll('origin/', '')} || true
+                        echo "✅ Pulled latest changes from git"
+                    """
                     
                     // Debug: Show branch detection
                     echo "🔍 Debug - Branch detection:"
