@@ -1,0 +1,31 @@
+# =========================================
+# ChatApplication - Staging Environment Values
+# =========================================
+# This file overrides values.yaml for staging environment
+
+ingress:
+  # Hosts array - supports multiple hosts (scalable, modular, reusable)
+  hosts:
+    - host: chatapp-staging.tomernos.xyz
+      paths:
+        - path: /api
+          pathType: Prefix
+          serviceName: chatapp-backend
+          servicePort: 5000
+        - path: /
+          pathType: Prefix
+          serviceName: chatapp-frontend
+          servicePort: 80
+    # Example: Add more hosts as needed
+    # - host: api-staging.tomernos.xyz
+    #   paths:
+    #     - path: /
+    #       pathType: Prefix
+    #       serviceName: chatapp-backend
+    #       servicePort: 5000
+  
+  # TLS - hosts will be automatically collected from ingress.hosts if not specified
+  tls:
+    - secretName: chatapp-tls
+      # hosts: []  # Empty = use all hosts from ingress.hosts (automatic)
+

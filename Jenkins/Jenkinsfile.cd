@@ -19,6 +19,7 @@ pipeline {
     environment {
         AWS_REGION = 'eu-central-1'
         AWS_CREDENTIALS_ID = 'aws-creds'
+        GIT_CREDENTIALS_ID = 'gitpat'  // For Git operations (promotion commits)
         
         // Cluster name - modular: can be per-environment or shared
         // Format: {tenant}-{region}-{project}-{env}-eks
@@ -72,8 +73,8 @@ pipeline {
                         # Update package list
                         apt-get update -qq
                         
-                        # Install base dependencies
-                        apt-get install -y -qq curl unzip ca-certificates gnupg lsb-release
+                        # Install base dependencies (including git for promotion commits)
+                        apt-get install -y -qq curl unzip ca-certificates gnupg lsb-release git
                         
                         # Install kubectl
                         curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
@@ -92,10 +93,128 @@ pipeline {
                         
                         # Verify all tools
                         echo "✅ Tool versions:"
+                        git --version
                         kubectl version --client
                         helm version
                         aws --version
                     '''
+                }
+            }
+        }
+
+        stage('Promote Version (Auto)') {
+            when {
+                // Disabled: Not using promotion per environment for now
+                // Staging and prod will use their own CI-built images
+                expression { return false }
+                // anyOf {
+                //     branch 'staging'
+                //     branch 'prod'
+                //     branch 'main'
+                // }
+            }
+            steps {
+                script {
+                    logMessage('Auto-Promoting Version', '🔄')
+                    
+                    def normalizedBranch = BRANCH.replaceAll('origin/', '')
+                    def sourceEnv = null
+                    def targetEnv = null
+                    
+                    // Determine promotion path based on branch
+                    if (normalizedBranch == 'staging') {
+                        sourceEnv = 'dev'
+                        targetEnv = 'staging'
+                    } else if (normalizedBranch == 'prod' || normalizedBranch == 'main') {
+                        sourceEnv = 'staging'
+                        targetEnv = 'prod'
+                    }
+                    
+                    if (sourceEnv && targetEnv) {
+                        echo "🔄 Auto-promoting from ${sourceEnv} to ${targetEnv}"
+                        
+                        // Read source manifest
+                        def sourceFile = "deployments/${sourceEnv}/deployment.yaml"
+                        if (!fileExists(sourceFile)) {
+                            error("Source manifest not found: ${sourceFile}. Cannot promote.")
+                        }
+                        
+                        // Parse source manifest
+                        def sourceContent = readFile sourceFile
+                        def sourceManifest = [:]
+                        sourceContent.split('\n').each { line ->
+                            def trimmed = line.trim()
+                            if (trimmed && !trimmed.startsWith('#') && trimmed.contains(':')) {
+                                def parts = trimmed.split(':', 2)
+                                if (parts.length == 2) {
+                                    def key = parts[0].trim()
+                                    def value = parts[1].trim().replaceAll(/^["']|["']$/, '')
+                                    if (value != 'null' && !value.isEmpty() && value != '""' && value != "''") {
+                                        sourceManifest[key] = value
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Validate source manifest has version
+                        if (!sourceManifest.version || sourceManifest.version.isEmpty()) {
+                            error("Source manifest (${sourceEnv}) has no version. Cannot promote.")
+                        }
+                        
+                        echo "✅ Source version: ${sourceManifest.version}"
+                        echo "✅ Source backend image: ${sourceManifest.backend_image}"
+                        
+                        // Create target manifest
+                        def timestamp = new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC'))
+                        def targetFile = "deployments/${targetEnv}/deployment.yaml"
+                        def targetContent = """# Deployment Manifest - ${targetEnv.capitalize()} Environment
+# Auto-promoted from ${sourceEnv} environment by CD pipeline
+# DO NOT manually edit - CD will overwrite changes
+# Last updated: ${timestamp}
+
+version: "${sourceManifest.version}"
+ecr_registry: "${sourceManifest.ecr_registry}"
+ecr_repo: "${sourceManifest.ecr_repo ?: 'chatapp'}"
+backend_image: "${sourceManifest.backend_image}"
+frontend_image: "${sourceManifest.frontend_image}"
+deployed_at: "${timestamp}"
+deployed_by: "jenkins-cd"
+git_commit: "${env.GIT_COMMIT}"
+git_branch: "${normalizedBranch}"
+promoted_from: "${sourceEnv}"
+promoted_at: "${timestamp}"
+"""
+                        
+                        // Write target manifest
+                        writeFile file: targetFile, text: targetContent
+                        echo "✅ Created target manifest: ${targetFile}"
+                        
+                        // Commit and push promotion
+                        withCredentials([usernamePassword(
+                            credentialsId: GIT_CREDENTIALS_ID,
+                            usernameVariable: 'GIT_USERNAME',
+                            passwordVariable: 'GIT_PASSWORD'
+                        )]) {
+                            sh """
+                                git config user.name "Jenkins CD"
+                                git config user.email "jenkins@cd.local"
+                                
+                                git add ${targetFile}
+                                
+                                if git diff --staged --quiet; then
+                                    echo "ℹ️  No changes to commit (manifest already has this version)"
+                                else
+                                    git commit -m "CD: Auto-promote ${sourceManifest.version} from ${sourceEnv} to ${targetEnv} [skip ci]" || true
+                                    
+                                    git remote set-url origin https://\${GIT_USERNAME}:\${GIT_PASSWORD}@\$(echo ${env.GIT_URL} | sed -E 's|.*github.com[:/](.*)\\.git|github.com/\\1|' | sed 's|git@||')
+                                    git push origin ${normalizedBranch} || git push origin HEAD:${normalizedBranch} || true
+                                    echo "✅ Promotion committed and pushed"
+                                fi
+                            """
+                        }
+                        
+                        echo "✅ Auto-promotion complete: ${sourceManifest.version} promoted to ${targetEnv}"
+                    }
                 }
             }
         }
@@ -105,23 +224,51 @@ pipeline {
                 script {
                     logMessage('Reading Deployment Manifest', '📖')
                     
-                    // Determine environment using Groovy logic (no shell script)
-                    def environment = params.ENVIRONMENT
+                    // Ensure we have the latest deployment.yaml from git
+                    sh """
+                        git pull origin ${BRANCH.replaceAll('origin/', '')} || true
+                        echo "✅ Pulled latest changes from git"
+                    """
                     
+                    // Debug: Show branch detection
+                    echo "🔍 Debug - Branch detection:"
+                    echo "  BRANCH variable: ${BRANCH}"
+                    echo "  env.BRANCH_NAME: ${env.BRANCH_NAME ?: 'not set'}"
+                    echo "  env.GIT_BRANCH: ${env.GIT_BRANCH ?: 'not set'}"
+                    echo "  params.ENVIRONMENT: ${params.ENVIRONMENT ?: 'not set'}"
+                    
+                    // Determine environment: Prioritize branch detection for auto-promotion
+                    // Only use parameter if branch detection fails
+                    def normalizedBranch = BRANCH.replaceAll('origin/', '')
+                    echo "  Normalized branch: ${normalizedBranch}"
+                    
+                    def environment = null
+                    
+                    // First, try to detect from branch (for auto-promotion)
+                    if (normalizedBranch == 'develop') {
+                        environment = 'dev'
+                    } else if (normalizedBranch == 'staging' || normalizedBranch =~ /^release\//) {
+                        environment = 'staging'
+                    } else if (normalizedBranch == 'main' || normalizedBranch == 'prod' || normalizedBranch =~ /^hotfix\//) {
+                        environment = 'prod'
+                    } else if (normalizedBranch =~ /^feature\//) {
+                        environment = 'preview'
+                    }
+                    
+                    // If branch detection failed, use parameter (fallback)
                     if (!environment || environment.isEmpty()) {
-                        // Determine from branch name
-                        def normalizedBranch = BRANCH.replaceAll('origin/', '')
-                        
-                        if (normalizedBranch == 'develop') {
-                            environment = 'dev'
-                        } else if (normalizedBranch =~ /^release\//) {
-                            environment = 'staging'
-                        } else if (normalizedBranch == 'main' || normalizedBranch =~ /^hotfix\//) {
-                            environment = 'prod'
-                        } else if (normalizedBranch =~ /^feature\//) {
-                            environment = 'preview'
+                        if (params.ENVIRONMENT && !params.ENVIRONMENT.isEmpty()) {
+                            environment = params.ENVIRONMENT
+                            echo "  ⚠️  Branch detection failed, using parameter: ${environment}"
                         } else {
                             environment = 'unknown'
+                            echo "  ❌ Cannot determine environment from branch or parameter"
+                        }
+                    } else {
+                        echo "  ✅ Detected environment from branch: ${environment}"
+                        // Warn if parameter doesn't match branch (but still use branch)
+                        if (params.ENVIRONMENT && !params.ENVIRONMENT.isEmpty() && params.ENVIRONMENT != environment) {
+                            echo "  ⚠️  WARNING: Parameter ENVIRONMENT=${params.ENVIRONMENT} doesn't match branch ${normalizedBranch} (using ${environment})"
                         }
                     }
                     
@@ -130,6 +277,7 @@ pipeline {
                     }
                     
                     env.DEPLOY_ENVIRONMENT = environment
+                    echo "✅ Final DEPLOY_ENVIRONMENT: ${env.DEPLOY_ENVIRONMENT}"
                     
                     // Modular: Cluster name can be per-environment or shared
                     // For now: single cluster for all (modular for future: env.CLUSTER_NAME = "tnt-eu-chatapp-${environment}-eks")
@@ -164,10 +312,21 @@ pipeline {
                     
                     // Debug: Show parsed manifest
                     echo "📋 Parsed manifest keys: ${manifest.keySet()}"
+                    echo "📋 Full manifest content: ${manifest}"
                     if (manifest.ecr_registry) {
                         echo "✅ Found ecr_registry in manifest: ${manifest.ecr_registry}"
                     } else {
                         echo "⚠️  ecr_registry not found in manifest"
+                    }
+                    if (manifest.backend_image) {
+                        echo "✅ Found backend_image in manifest: ${manifest.backend_image}"
+                    } else {
+                        echo "⚠️  backend_image not found in manifest"
+                    }
+                    if (manifest.frontend_image) {
+                        echo "✅ Found frontend_image in manifest: ${manifest.frontend_image}"
+                    } else {
+                        echo "⚠️  frontend_image not found in manifest"
                     }
                     
                     // Set version and registry from manifest (or override from parameters)
@@ -197,15 +356,19 @@ pipeline {
                     
                     // Use full image paths from manifest if available (preferred), otherwise construct
                     if (manifest.backend_image && !manifest.backend_image.isEmpty() && !manifest.backend_image.contains('null')) {
-                        env.BACKEND_IMAGE = manifest.backend_image
+                        env.BACKEND_IMAGE = manifest.backend_image.trim()
+                        echo "✅ Using backend_image from manifest: ${env.BACKEND_IMAGE}"
                     } else {
                         env.BACKEND_IMAGE = "${env.ECR_REGISTRY}:backend-${env.DEPLOY_VERSION}"
+                        echo "⚠️  Constructed backend_image (manifest not available): ${env.BACKEND_IMAGE}"
                     }
                     
                     if (manifest.frontend_image && !manifest.frontend_image.isEmpty() && !manifest.frontend_image.contains('null')) {
-                        env.FRONTEND_IMAGE = manifest.frontend_image
+                        env.FRONTEND_IMAGE = manifest.frontend_image.trim()
+                        echo "✅ Using frontend_image from manifest: ${env.FRONTEND_IMAGE}"
                     } else {
                         env.FRONTEND_IMAGE = "${env.ECR_REGISTRY}:frontend-${env.DEPLOY_VERSION}"
+                        echo "⚠️  Constructed frontend_image (manifest not available): ${env.FRONTEND_IMAGE}"
                     }
                     
                     echo """
@@ -316,12 +479,20 @@ pipeline {
                                 echo "Current directory: \$(pwd)"
                                 echo "Chart location: helm-chart/"
                                 ls -la helm-chart/ || echo "⚠️  helm-chart not found in current directory"
-                                echo "Backend Image: ${env.BACKEND_IMAGE}"
-                                echo "Frontend Image: ${env.FRONTEND_IMAGE}"
+                                echo ""
+                                echo "🔍 DEBUG - Image variables from Groovy:"
+                                echo "  BACKEND_IMAGE env var: ${env.BACKEND_IMAGE}"
+                                echo "  FRONTEND_IMAGE env var: ${env.FRONTEND_IMAGE}"
+                                echo ""
                                 
                                 # Verify variables are not empty
                                 BACKEND_IMG="${env.BACKEND_IMAGE}"
                                 FRONTEND_IMG="${env.FRONTEND_IMAGE}"
+                                
+                                echo "🔍 DEBUG - Image variables in shell:"
+                                echo "  BACKEND_IMG: \${BACKEND_IMG}"
+                                echo "  FRONTEND_IMG: \${FRONTEND_IMG}"
+                                echo ""
                                 
                                 if [ -z "\$BACKEND_IMG" ] || [ -z "\$FRONTEND_IMG" ]; then
                                     echo "❌ BACKEND_IMAGE or FRONTEND_IMAGE is empty! Cannot deploy."
@@ -338,9 +509,14 @@ pipeline {
                                 echo "Backend:  \${BACKEND_REPO}:\${BACKEND_TAG}"
                                 echo "Frontend: \${FRONTEND_REPO}:\${FRONTEND_TAG}"
                                 
+                                # Use environment-specific values file (Helm best practice)
+                                VALUES_FILE="values-${env.DEPLOY_ENVIRONMENT}.yaml"
+                                echo "📋 Using values file: \${VALUES_FILE}"
+                                
                                 helm upgrade --install chatapp ./helm-chart \\
                                     --namespace ${namespace} \\
                                     --create-namespace \\
+                                    -f ./helm-chart/\${VALUES_FILE} \\
                                     --set backend.image.repository=\${BACKEND_REPO} \\
                                     --set backend.image.tag=\${BACKEND_TAG} \\
                                     --set frontend.image.repository=\${FRONTEND_REPO} \\
