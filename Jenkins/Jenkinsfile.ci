@@ -205,7 +205,7 @@ pipeline {
             when {
                 anyOf {
                     branch 'develop'
-                    branch 'staging'  # Added: CI builds and pushes images for staging
+                    branch 'staging'  // Added: CI builds and pushes images for staging
                     branch 'main'
                     expression { env.BRANCH_NAME =~ /^release\// }
                     expression { env.BRANCH_NAME =~ /^hotfix\// }
@@ -359,7 +359,7 @@ pipeline {
             when {
                 anyOf {
                     branch 'develop'
-                    branch 'staging'  # Added: CI runs on staging to update staging/deployment.yaml
+                    branch 'staging'  // Added: CI runs on staging to update staging/deployment.yaml
                     branch 'main'
                     expression { env.BRANCH_NAME =~ /^release\// }
                     expression { env.BRANCH_NAME =~ /^hotfix\// }
@@ -376,7 +376,7 @@ pipeline {
                     if (normalizedBranch == 'develop') {
                         deploymentFile = 'deployments/dev/deployment.yaml'
                     } else if (normalizedBranch == 'staging' || normalizedBranch =~ /^release\//) {
-                        deploymentFile = 'deployments/staging/deployment.yaml'  # Staging branch updates staging manifest
+                        deploymentFile = 'deployments/staging/deployment.yaml'  // Staging branch updates staging manifest
                     } else if (normalizedBranch == 'main' || normalizedBranch =~ /^hotfix\//) {
                         deploymentFile = 'deployments/prod/deployment.yaml'
                     }
