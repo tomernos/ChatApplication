@@ -224,12 +224,6 @@ promoted_at: "${timestamp}"
                 script {
                     logMessage('Reading Deployment Manifest', '📖')
                     
-                    // Ensure we have the latest deployment.yaml from git
-                    sh """
-                        git pull origin ${BRANCH.replaceAll('origin/', '')} || true
-                        echo "✅ Pulled latest changes from git"
-                    """
-                    
                     // Debug: Show branch detection
                     echo "🔍 Debug - Branch detection:"
                     echo "  BRANCH variable: ${BRANCH}"
