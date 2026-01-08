@@ -3,7 +3,7 @@
 chat application with React frontend and Flask API backend.
 
 ## 🏗️ **Architecture**
-
+test
 ```
 ┌─────────────────┐         ┌──────────────────┐
 │  React Frontend │────────>│   Flask API      │
