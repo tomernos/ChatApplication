@@ -303,10 +303,21 @@ promoted_at: "${timestamp}"
                     
                     // Debug: Show parsed manifest
                     echo "📋 Parsed manifest keys: ${manifest.keySet()}"
+                    echo "📋 Full manifest content: ${manifest}"
                     if (manifest.ecr_registry) {
                         echo "✅ Found ecr_registry in manifest: ${manifest.ecr_registry}"
                     } else {
                         echo "⚠️  ecr_registry not found in manifest"
+                    }
+                    if (manifest.backend_image) {
+                        echo "✅ Found backend_image in manifest: ${manifest.backend_image}"
+                    } else {
+                        echo "⚠️  backend_image not found in manifest"
+                    }
+                    if (manifest.frontend_image) {
+                        echo "✅ Found frontend_image in manifest: ${manifest.frontend_image}"
+                    } else {
+                        echo "⚠️  frontend_image not found in manifest"
                     }
                     
                     // Set version and registry from manifest (or override from parameters)
@@ -336,15 +347,19 @@ promoted_at: "${timestamp}"
                     
                     // Use full image paths from manifest if available (preferred), otherwise construct
                     if (manifest.backend_image && !manifest.backend_image.isEmpty() && !manifest.backend_image.contains('null')) {
-                        env.BACKEND_IMAGE = manifest.backend_image
+                        env.BACKEND_IMAGE = manifest.backend_image.trim()
+                        echo "✅ Using backend_image from manifest: ${env.BACKEND_IMAGE}"
                     } else {
                         env.BACKEND_IMAGE = "${env.ECR_REGISTRY}:backend-${env.DEPLOY_VERSION}"
+                        echo "⚠️  Constructed backend_image (manifest not available): ${env.BACKEND_IMAGE}"
                     }
                     
                     if (manifest.frontend_image && !manifest.frontend_image.isEmpty() && !manifest.frontend_image.contains('null')) {
-                        env.FRONTEND_IMAGE = manifest.frontend_image
+                        env.FRONTEND_IMAGE = manifest.frontend_image.trim()
+                        echo "✅ Using frontend_image from manifest: ${env.FRONTEND_IMAGE}"
                     } else {
                         env.FRONTEND_IMAGE = "${env.ECR_REGISTRY}:frontend-${env.DEPLOY_VERSION}"
+                        echo "⚠️  Constructed frontend_image (manifest not available): ${env.FRONTEND_IMAGE}"
                     }
                     
                     echo """
@@ -455,12 +470,20 @@ promoted_at: "${timestamp}"
                                 echo "Current directory: \$(pwd)"
                                 echo "Chart location: helm-chart/"
                                 ls -la helm-chart/ || echo "⚠️  helm-chart not found in current directory"
-                                echo "Backend Image: ${env.BACKEND_IMAGE}"
-                                echo "Frontend Image: ${env.FRONTEND_IMAGE}"
+                                echo ""
+                                echo "🔍 DEBUG - Image variables from Groovy:"
+                                echo "  BACKEND_IMAGE env var: ${env.BACKEND_IMAGE}"
+                                echo "  FRONTEND_IMAGE env var: ${env.FRONTEND_IMAGE}"
+                                echo ""
                                 
                                 # Verify variables are not empty
                                 BACKEND_IMG="${env.BACKEND_IMAGE}"
                                 FRONTEND_IMG="${env.FRONTEND_IMAGE}"
+                                
+                                echo "🔍 DEBUG - Image variables in shell:"
+                                echo "  BACKEND_IMG: \${BACKEND_IMG}"
+                                echo "  FRONTEND_IMG: \${FRONTEND_IMG}"
+                                echo ""
                                 
                                 if [ -z "\$BACKEND_IMG" ] || [ -z "\$FRONTEND_IMG" ]; then
                                     echo "❌ BACKEND_IMAGE or FRONTEND_IMAGE is empty! Cannot deploy."
