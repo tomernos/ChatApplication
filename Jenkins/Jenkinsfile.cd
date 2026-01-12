@@ -106,19 +106,23 @@ pipeline {
                     logMessage('Reading Deployment Manifest', '📖')
                     
                     // Determine environment using Groovy logic (no shell script)
+                    def normalizedBranch = BRANCH.replaceAll('origin/', '')
                     def environment = params.ENVIRONMENT
                     
-                    if (!environment || environment.isEmpty()) {
-                        // Determine from branch name
-                        def normalizedBranch = BRANCH.replaceAll('origin/', '')
-                        
-                        if (normalizedBranch == 'develop') {
-                            environment = 'dev'
-                        } else if (normalizedBranch =~ /^release\//) {
-                            environment = 'staging'
-                        } else if (normalizedBranch == 'main' || normalizedBranch =~ /^hotfix\//) {
-                            environment = 'prod'
-                        } else if (normalizedBranch =~ /^feature\//) {
+                    // Force environment based on branch for critical branches (safety)
+                    // This prevents accidentally deploying main to dev or dev to prod
+                    if (normalizedBranch == 'main' || normalizedBranch =~ /^hotfix\//) {
+                        environment = 'prod'
+                        echo "🔒 Branch '${normalizedBranch}' forces PROD environment (safety override)"
+                    } else if (normalizedBranch == 'develop') {
+                        environment = 'dev'
+                        echo "🔒 Branch '${normalizedBranch}' forces DEV environment (safety override)"
+                    } else if (normalizedBranch =~ /^release\// || normalizedBranch == 'staging') {
+                        environment = 'staging'
+                        echo "🔒 Branch '${normalizedBranch}' forces STAGING environment (safety override)"
+                    } else if (!environment || environment.isEmpty()) {
+                        // Determine from branch name for other branches
+                        if (normalizedBranch =~ /^feature\//) {
                             environment = 'preview'
                         } else {
                             environment = 'unknown'
