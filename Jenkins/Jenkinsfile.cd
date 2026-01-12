@@ -285,7 +285,7 @@ pipeline {
                         ]
                     )
                     
-                    env.DEPLOYMENT_REASON = approval.DEPLOYMENT_REASON ?: 'No reason provided'
+                    env.DEPLOYMENT_REASON = approval['DEPLOYMENT_REASON'] ?: 'No reason provided'
                     echo "✅ Production deployment approved"
                     echo "Reason: ${env.DEPLOYMENT_REASON}"
                 }

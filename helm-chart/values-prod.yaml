@@ -273,7 +273,7 @@ ingress:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
   
   hosts:
-    - host: chatapp.tomernos.xyz  
+    - host: chatapp-prod.tomernos.xyz  
       paths:
         - path: /api
           pathType: Prefix
