@@ -354,16 +354,6 @@ pipeline {
                                     VALUES_FILE="values.yaml"
                                 fi
                                 
-                                # Handle existing secrets without Helm annotations
-                                # If secret exists but doesn't have Helm ownership, delete it so Helm can recreate
-                                echo "🔍 Checking for existing secrets without Helm annotations..."
-                                if kubectl get secret backend-secret -n ${namespace} &>/dev/null; then
-                                    if ! kubectl get secret backend-secret -n ${namespace} -o jsonpath='{.metadata.annotations.meta\.helm\.sh/release-name}' | grep -q "chatapp"; then
-                                        echo "⚠️  Found backend-secret without Helm annotations, deleting to allow Helm management..."
-                                        kubectl delete secret backend-secret -n ${namespace} || true
-                                    fi
-                                fi
-                                
                                 helm upgrade --install chatapp ./helm-chart \\
                                     --namespace ${namespace} \\
                                     --create-namespace \\
