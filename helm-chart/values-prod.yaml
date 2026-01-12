@@ -277,17 +277,17 @@ ingress:
       paths:
         - path: /api
           pathType: Prefix
-          serviceName: backend
+          serviceName: chatapp-backend
           servicePort: 5000
         - path: /
           pathType: Prefix
-          serviceName: frontend
+          serviceName: chatapp-frontend
           servicePort: 80
   
   tls:
     - secretName: chatapp-tls
       hosts:
-        - chatapp.tomernos.xyz
+        - chatapp-prod.tomernos.xyz
 
 
 
