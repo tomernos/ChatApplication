@@ -1,1 +1,1 @@
-test test ci
+test ci
