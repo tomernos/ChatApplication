@@ -4,6 +4,7 @@
 # This file overrides values.yaml for dev environment
 
 ingress:
+  enabled: true  # Ensure ingress is enabled for dev
   # Hosts array - supports multiple hosts (scalable, modular, reusable)
   hosts:
     - host: chatapp-dev.tomernos.xyz

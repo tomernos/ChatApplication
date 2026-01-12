@@ -253,6 +253,9 @@ serviceAccounts:
   chatapp-sa:
     enabled: true  # Enable for AWS Pod Identity
     annotations: {}
+    # ServiceAccounts (Using IRSA as temporary workaround for Pod Identity agent issue)
+    #annotations:
+    #  eks.amazonaws.com/role-arn: "arn:aws:iam::654654526828:role/chatapp-secrets-role"  # IRSA annotation (temporary workaround)
 
 # Ingress
 # Base configuration - overridden by environment-specific values files:

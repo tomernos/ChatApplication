@@ -224,36 +224,25 @@ promoted_at: "${timestamp}"
                 script {
                     logMessage('Reading Deployment Manifest', '📖')
                     
-                    // Debug: Show branch detection
-                    echo "🔍 Debug - Branch detection:"
-                    echo "  BRANCH variable: ${BRANCH}"
-                    echo "  env.BRANCH_NAME: ${env.BRANCH_NAME ?: 'not set'}"
-                    echo "  env.GIT_BRANCH: ${env.GIT_BRANCH ?: 'not set'}"
-                    echo "  params.ENVIRONMENT: ${params.ENVIRONMENT ?: 'not set'}"
-                    
-                    // Determine environment: Prioritize branch detection for auto-promotion
-                    // Only use parameter if branch detection fails
+                    // Determine environment using Groovy logic (no shell script)
                     def normalizedBranch = BRANCH.replaceAll('origin/', '')
-                    echo "  Normalized branch: ${normalizedBranch}"
+                    def environment = params.ENVIRONMENT
                     
-                    def environment = null
-                    
-                    // First, try to detect from branch (for auto-promotion)
-                    if (normalizedBranch == 'develop') {
-                        environment = 'dev'
-                    } else if (normalizedBranch == 'staging' || normalizedBranch =~ /^release\//) {
-                        environment = 'staging'
-                    } else if (normalizedBranch == 'main' || normalizedBranch == 'prod' || normalizedBranch =~ /^hotfix\//) {
+                    // Force environment based on branch for critical branches (safety)
+                    // This prevents accidentally deploying main to dev or dev to prod
+                    if (normalizedBranch == 'main' || normalizedBranch =~ /^hotfix\//) {
                         environment = 'prod'
-                    } else if (normalizedBranch =~ /^feature\//) {
-                        environment = 'preview'
-                    }
-                    
-                    // If branch detection failed, use parameter (fallback)
-                    if (!environment || environment.isEmpty()) {
-                        if (params.ENVIRONMENT && !params.ENVIRONMENT.isEmpty()) {
-                            environment = params.ENVIRONMENT
-                            echo "  ⚠️  Branch detection failed, using parameter: ${environment}"
+                        echo "🔒 Branch '${normalizedBranch}' forces PROD environment (safety override)"
+                    } else if (normalizedBranch == 'develop') {
+                        environment = 'dev'
+                        echo "🔒 Branch '${normalizedBranch}' forces DEV environment (safety override)"
+                    } else if (normalizedBranch =~ /^release\// || normalizedBranch == 'staging') {
+                        environment = 'staging'
+                        echo "🔒 Branch '${normalizedBranch}' forces STAGING environment (safety override)"
+                    } else if (!environment || environment.isEmpty()) {
+                        // Determine from branch name for other branches
+                        if (normalizedBranch =~ /^feature\//) {
+                            environment = 'preview'
                         } else {
                             environment = 'unknown'
                             echo "  ❌ Cannot determine environment from branch or parameter"
@@ -431,7 +420,8 @@ promoted_at: "${timestamp}"
                 script {
                     logMessage('Production Deployment Approval Required', '🚨')
                     
-                    def approval = input(
+                    // When input() has a single parameter, it returns the value directly (String), not a Map
+                    def deploymentReason = input(
                         message: "🚨 Deploy ${env.DEPLOY_VERSION} to PRODUCTION?",
                         ok: 'Deploy to Production',
                         parameters: [
@@ -442,7 +432,8 @@ promoted_at: "${timestamp}"
                         ]
                     )
                     
-                    env.DEPLOYMENT_REASON = approval.DEPLOYMENT_REASON ?: 'No reason provided'
+                    // Single parameter input returns the string value directly
+                    env.DEPLOYMENT_REASON = deploymentReason ?: 'No reason provided'
                     echo "✅ Production deployment approved"
                     echo "Reason: ${env.DEPLOYMENT_REASON}"
                 }
@@ -506,6 +497,12 @@ promoted_at: "${timestamp}"
                                 # Use environment-specific values file (Helm best practice)
                                 VALUES_FILE="values-${env.DEPLOY_ENVIRONMENT}.yaml"
                                 echo "📋 Using values file: \${VALUES_FILE}"
+                                
+                                # Verify values file exists
+                                if [ ! -f "./helm-chart/\${VALUES_FILE}" ]; then
+                                    echo "⚠️  Warning: Values file \${VALUES_FILE} not found, using base values.yaml"
+                                    VALUES_FILE="values.yaml"
+                                fi
                                 
                                 helm upgrade --install chatapp ./helm-chart \\
                                     --namespace ${namespace} \\
