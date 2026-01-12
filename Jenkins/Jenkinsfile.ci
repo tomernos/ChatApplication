@@ -21,7 +21,7 @@ pipeline {
         AWS_CREDENTIALS_ID = 'aws-creds'
         
         // GitHub credential
-        GIT_CREDENTIALS_ID = 'github-ssh'
+        GIT_CREDENTIALS_ID = 'gitpat'
         
         // Docker Hub Configuration (legacy)
         DOCKER_REGISTRY = 'tomernos'
