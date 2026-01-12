@@ -289,7 +289,8 @@ pipeline {
                         ]
                     )
                     
-                    env.DEPLOYMENT_REASON = approval['DEPLOYMENT_REASON'] ?: 'No reason provided'
+                    // Use .get() method instead of bracket notation to avoid sandbox security issues
+                    env.DEPLOYMENT_REASON = approval.get('DEPLOYMENT_REASON') ?: 'No reason provided'
                     echo "✅ Production deployment approved"
                     echo "Reason: ${env.DEPLOYMENT_REASON}"
                 }
