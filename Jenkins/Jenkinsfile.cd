@@ -278,7 +278,8 @@ pipeline {
                 script {
                     logMessage('Production Deployment Approval Required', '🚨')
                     
-                    def approval = input(
+                    // When input() has a single parameter, it returns the value directly (String), not a Map
+                    def deploymentReason = input(
                         message: "🚨 Deploy ${env.DEPLOY_VERSION} to PRODUCTION?",
                         ok: 'Deploy to Production',
                         parameters: [
@@ -289,8 +290,8 @@ pipeline {
                         ]
                     )
                     
-                    // Use .get() method instead of bracket notation to avoid sandbox security issues
-                    env.DEPLOYMENT_REASON = approval.get('DEPLOYMENT_REASON') ?: 'No reason provided'
+                    // Single parameter input returns the string value directly
+                    env.DEPLOYMENT_REASON = deploymentReason ?: 'No reason provided'
                     echo "✅ Production deployment approved"
                     echo "Reason: ${env.DEPLOYMENT_REASON}"
                 }
