@@ -122,7 +122,8 @@ deployments:
         protocol: TCP
     
     env:
-      API_URL: http://backend:5000
+      API_URL: http://chatapp-backend:5000
+      BACKEND_URL: http://chatapp-backend:5000  # For nginx.conf proxy_pass substitution
       NODE_ENV: production
     
     resources:
