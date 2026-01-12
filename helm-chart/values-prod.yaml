@@ -111,8 +111,8 @@ frontend:
       memory: 128Mi
       cpu: 100m
     limits:
-      memory: 512Mi  # Increased for nginx workers (was 256Mi)
-      cpu: 500m      # Increased for nginx workers (was 200m)
+      memory: 256Mi
+      cpu: 200m
 
 # =========================================
 # REDIS SUBCHART
