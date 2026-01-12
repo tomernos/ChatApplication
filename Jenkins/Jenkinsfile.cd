@@ -344,9 +344,20 @@ pipeline {
                                 echo "Backend:  \${BACKEND_REPO}:\${BACKEND_TAG}"
                                 echo "Frontend: \${FRONTEND_REPO}:\${FRONTEND_TAG}"
                                 
+                                # Use environment-specific values file (Helm best practice)
+                                VALUES_FILE="values-${env.DEPLOY_ENVIRONMENT}.yaml"
+                                echo "📋 Using values file: \${VALUES_FILE}"
+                                
+                                # Verify values file exists
+                                if [ ! -f "./helm-chart/\${VALUES_FILE}" ]; then
+                                    echo "⚠️  Warning: Values file \${VALUES_FILE} not found, using base values.yaml"
+                                    VALUES_FILE="values.yaml"
+                                fi
+                                
                                 helm upgrade --install chatapp ./helm-chart \\
                                     --namespace ${namespace} \\
                                     --create-namespace \\
+                                    -f ./helm-chart/\${VALUES_FILE} \\
                                     --set backend.image.repository=\${BACKEND_REPO} \\
                                     --set backend.image.tag=\${BACKEND_TAG} \\
                                     --set frontend.image.repository=\${FRONTEND_REPO} \\
