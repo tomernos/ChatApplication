@@ -449,52 +449,8 @@ pipeline {
                     def timestamp = new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC'))
                     def normalizedBranch = BRANCH.replaceAll('origin/', '')
                     
-                    // Update GitOps Repository
+                    // Update GitOps Repository (handles commit and push internally)
                     updateGitOpsRepository(normalizedBranch, ecrRegistry, timestamp, env, GITOPS_REPO_URL, GITOPS_REPO_PATH, APP_NAME, ECR_REPO, GIT_CREDENTIALS_ID)
-                    
-                    // Configure git and commit (with [skip ci] to prevent loop)
-                    withCredentials([usernamePassword(
-                        credentialsId: GIT_CREDENTIALS_ID,
-                        usernameVariable: 'GIT_USERNAME',
-                        passwordVariable: 'GIT_PASSWORD'
-                    )]) {
-                        sh """
-                            # Configure git
-                            git config user.name "Jenkins CI"
-                            git config user.email "jenkins@ci.local"
-                            
-                            # Get the actual branch name (remove origin/ prefix if present)
-                            ACTUAL_BRANCH=\$(echo ${env.BRANCH_NAME} | sed 's|origin/||')
-                            if [ -z "\${ACTUAL_BRANCH}" ]; then
-                                ACTUAL_BRANCH="${normalizedBranch}"
-                            fi
-                            
-                            echo "📝 Branch for push: \${ACTUAL_BRANCH}"
-                            
-                            # Add deployment file
-                            git add ${deploymentFile}
-                            
-                            # Check if there are changes to commit
-                            if git diff --staged --quiet; then
-                                echo "ℹ️  No changes to deployment file (version unchanged)"
-                            else
-                                # Commit with [skip ci] to prevent infinite loop
-                                # Jenkins should be configured to ignore commits with [skip ci] in message
-                                git commit -m "CI: Update deployment manifest to ${env.VERSION} [skip ci]" || true
-                                
-                                # Push changes - use the actual branch name
-                                git remote set-url origin https://\${GIT_USERNAME}:\${GIT_PASSWORD}@\$(echo ${env.GIT_URL} | sed -E 's|.*github.com[:/](.*)\\.git|github.com/\\1|' | sed 's|git@||')
-                                
-                                # Try to push, if it fails try with origin/ prefix
-                                if ! git push origin \${ACTUAL_BRANCH} 2>&1; then
-                                    echo "⚠️  First push attempt failed, trying with HEAD..."
-                                    git push origin HEAD:\${ACTUAL_BRANCH} || echo "⚠️  Failed to push deployment manifest (may need manual push)"
-                                fi
-                                
-                                echo "✅ Deployment manifest updated and committed with [skip ci]"
-                            fi
-                        """
-                    }
                 }
             }
         }
