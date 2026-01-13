@@ -286,12 +286,34 @@ promoted_at: "${timestamp}"
                             passwordVariable: 'GIT_PASSWORD'
                         )]) {
                             sh """
+                                echo "📥 Cloning GitOps repository..."
                                 rm -rf ${GITOPS_REPO_PATH}
-                                git clone https://\${GIT_USERNAME}:\${GIT_PASSWORD}@github.com/tomernos/CompanyGitOps.git ${GITOPS_REPO_PATH}
+                                git clone https://\${GIT_USERNAME}:\${GIT_PASSWORD}@github.com/tomernos/CompanyGitOps.git ${GITOPS_REPO_PATH} || {
+                                    echo "❌ Git clone failed"
+                                    exit 1
+                                }
+                                
+                                echo "✅ GitOps repo cloned successfully"
+                                echo "📁 Repository contents:"
+                                ls -la ${GITOPS_REPO_PATH}/ || echo "⚠️  Cannot list repo directory"
+                                echo ""
+                                echo "📁 Applications directory:"
+                                ls -la ${GITOPS_REPO_PATH}/applications/ || echo "⚠️  Applications directory not found"
+                                echo ""
+                                echo "📁 chatapp directory:"
+                                ls -la ${GITOPS_REPO_PATH}/applications/chatapp/ || echo "⚠️  chatapp directory not found"
+                                echo ""
+                                echo "📁 Environment directory (${environment}):"
+                                ls -la ${GITOPS_REPO_PATH}/applications/chatapp/${environment}/ || echo "⚠️  ${environment} directory not found"
+                                echo ""
+                                echo "🔍 Looking for deployment.yaml:"
+                                find ${GITOPS_REPO_PATH} -name "deployment.yaml" -type f || echo "⚠️  No deployment.yaml files found"
                             """
                         }
                         
                         deploymentFile = "${GITOPS_REPO_PATH}/applications/${APP_NAME}/${environment}/deployment.yaml"
+                        
+                        echo "🔍 Checking for deployment file: ${deploymentFile}"
                         
                         if (fileExists(deploymentFile)) {
                             manifestContent = readFile deploymentFile
@@ -299,6 +321,20 @@ promoted_at: "${timestamp}"
                             echo "✅ Successfully read deployment manifest from GitOps repo: ${deploymentFile}"
                         } else {
                             echo "⚠️  GitOps deployment file not found: ${deploymentFile}"
+                            echo "🔍 Debug: Checking if path exists..."
+                            sh """
+                                echo "Path components:"
+                                echo "  GITOPS_REPO_PATH: ${GITOPS_REPO_PATH}"
+                                echo "  APP_NAME: ${APP_NAME}"
+                                echo "  environment: ${environment}"
+                                echo "  Full path: ${deploymentFile}"
+                                echo ""
+                                test -d ${GITOPS_REPO_PATH} && echo "✅ Repo directory exists" || echo "❌ Repo directory missing"
+                                test -d ${GITOPS_REPO_PATH}/applications && echo "✅ Applications dir exists" || echo "❌ Applications dir missing"
+                                test -d ${GITOPS_REPO_PATH}/applications/${APP_NAME} && echo "✅ App dir exists" || echo "❌ App dir missing"
+                                test -d ${GITOPS_REPO_PATH}/applications/${APP_NAME}/${environment} && echo "✅ Env dir exists" || echo "❌ Env dir missing"
+                                test -f ${deploymentFile} && echo "✅ File exists" || echo "❌ File missing"
+                            """
                             throw new Exception("GitOps file not found")
                         }
                     } catch (Exception e) {
