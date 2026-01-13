@@ -35,6 +35,11 @@ pipeline {
         
         // Detect branch
         BRANCH = "${env.BRANCH_NAME ?: env.GIT_BRANCH?.replaceAll('origin/', '') ?: 'unknown'}"
+        
+        // GitOps Repository Configuration
+        GITOPS_REPO_URL = 'https://github.com/tomernos/CompanyGitOps.git'
+        GITOPS_REPO_PATH = '/tmp/gitops-repo'
+        APP_NAME = 'chatapp'  // Application name in GitOps repo
     }
 
     parameters {
@@ -266,16 +271,52 @@ promoted_at: "${timestamp}"
                     // For now: single cluster for all (modular for future: env.CLUSTER_NAME = "tnt-eu-chatapp-${environment}-eks")
                     // Current: uses shared cluster name from environment block
                     
-                    // Read deployment manifest
-                    def deploymentFile = "deployments/${environment}/deployment.yaml"
+                    // Read deployment manifest - Try GitOps repo first, fallback to legacy
+                    def deploymentFile = null
+                    def manifestContent = null
+                    def manifest = [:]
+                    def useGitOps = false
                     
-                    if (!fileExists(deploymentFile)) {
-                        error("Deployment manifest not found: ${deploymentFile}. Ensure CI has run and updated the manifest.")
+                    // Method 1: Try GitOps repository (new method)
+                    try {
+                        echo "🔄 Attempting to read from GitOps repository..."
+                        withCredentials([usernamePassword(
+                            credentialsId: GIT_CREDENTIALS_ID,
+                            usernameVariable: 'GIT_USERNAME',
+                            passwordVariable: 'GIT_PASSWORD'
+                        )]) {
+                            sh """
+                                rm -rf ${GITOPS_REPO_PATH}
+                                git clone https://\${GIT_USERNAME}:\${GIT_PASSWORD}@github.com/tomernos/CompanyGitOps.git ${GITOPS_REPO_PATH}
+                            """
+                        }
+                        
+                        deploymentFile = "${GITOPS_REPO_PATH}/applications/${APP_NAME}/${environment}/deployment.yaml"
+                        
+                        if (fileExists(deploymentFile)) {
+                            manifestContent = readFile deploymentFile
+                            useGitOps = true
+                            echo "✅ Successfully read deployment manifest from GitOps repo: ${deploymentFile}"
+                        } else {
+                            echo "⚠️  GitOps deployment file not found: ${deploymentFile}"
+                            throw new Exception("GitOps file not found")
+                        }
+                    } catch (Exception e) {
+                        echo "⚠️  Failed to read from GitOps repo: ${e.getMessage()}"
+                        echo "🔄 Falling back to legacy method..."
+                        
+                        // Method 2: Fallback to legacy (ChatApplication/deployments/)
+                        deploymentFile = "deployments/${environment}/deployment.yaml"
+                        
+                        if (!fileExists(deploymentFile)) {
+                            error("Deployment manifest not found in either GitOps repo or legacy location: ${deploymentFile}. Ensure CI has run and updated the manifest.")
+                        }
+                        
+                        manifestContent = readFile deploymentFile
+                        echo "✅ Using legacy deployment manifest: ${deploymentFile}"
                     }
                     
-                    // Parse deployment.yaml
-                    def manifestContent = readFile deploymentFile
-                    def manifest = [:]
+                    // Parse deployment.yaml (same parsing logic for both methods)
                     
                     // Simple YAML parsing (basic key: value format)
                     manifestContent.split('\n').each { line ->
@@ -495,19 +536,27 @@ promoted_at: "${timestamp}"
                                 echo "Frontend: \${FRONTEND_REPO}:\${FRONTEND_TAG}"
                                 
                                 # Use environment-specific values file (Helm best practice)
-                                VALUES_FILE="values-${env.DEPLOY_ENVIRONMENT}.yaml"
-                                echo "📋 Using values file: \${VALUES_FILE}"
-                                
-                                # Verify values file exists
-                                if [ ! -f "./helm-chart/\${VALUES_FILE}" ]; then
-                                    echo "⚠️  Warning: Values file \${VALUES_FILE} not found, using base values.yaml"
-                                    VALUES_FILE="values.yaml"
+                                # Try GitOps repo values.yaml first, fallback to local
+                                VALUES_FILE=""
+                                if [ -f "${GITOPS_REPO_PATH}/applications/${APP_NAME}/${environment}/values.yaml" ]; then
+                                    VALUES_FILE="${GITOPS_REPO_PATH}/applications/${APP_NAME}/${environment}/values.yaml"
+                                    echo "✅ Using values file from GitOps repo: \${VALUES_FILE}"
+                                else
+                                    VALUES_FILE="values-${env.DEPLOY_ENVIRONMENT}.yaml"
+                                    echo "📋 Using local values file: \${VALUES_FILE}"
+                                    
+                                    # Verify values file exists
+                                    if [ ! -f "./helm-chart/\${VALUES_FILE}" ]; then
+                                        echo "⚠️  Warning: Values file \${VALUES_FILE} not found, using base values.yaml"
+                                        VALUES_FILE="values.yaml"
+                                    fi
+                                    VALUES_FILE="./helm-chart/\${VALUES_FILE}"
                                 fi
                                 
                                 helm upgrade --install chatapp ./helm-chart \\
                                     --namespace ${namespace} \\
                                     --create-namespace \\
-                                    -f ./helm-chart/\${VALUES_FILE} \\
+                                    -f \${VALUES_FILE} \\
                                     --set backend.image.repository=\${BACKEND_REPO} \\
                                     --set backend.image.tag=\${BACKEND_TAG} \\
                                     --set frontend.image.repository=\${FRONTEND_REPO} \\
