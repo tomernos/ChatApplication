@@ -460,59 +460,27 @@ promoted_at: "${timestamp}"
                         passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                     )]) {
                             sh """
-                                echo "📦 Deploying with Helm..."
-                                echo "Environment: ${env.DEPLOY_ENVIRONMENT}"
-                                echo "Namespace: ${namespace}"
-                                echo "Current directory: \$(pwd)"
-                                echo "Chart location: helm-chart/"
-                                ls -la helm-chart/ || echo "⚠️  helm-chart not found in current directory"
-                                echo ""
-                                echo "🔍 DEBUG - Image variables from Groovy:"
-                                echo "  BACKEND_IMAGE env var: ${env.BACKEND_IMAGE}"
-                                echo "  FRONTEND_IMAGE env var: ${env.FRONTEND_IMAGE}"
-                                echo ""
-                                
-                                # Verify variables are not empty
                                 BACKEND_IMG="${env.BACKEND_IMAGE}"
                                 FRONTEND_IMG="${env.FRONTEND_IMAGE}"
                                 
-                                echo "🔍 DEBUG - Image variables in shell:"
-                                echo "  BACKEND_IMG: \${BACKEND_IMG}"
-                                echo "  FRONTEND_IMG: \${FRONTEND_IMG}"
-                                echo ""
-                                
                                 if [ -z "\$BACKEND_IMG" ] || [ -z "\$FRONTEND_IMG" ]; then
-                                    echo "❌ BACKEND_IMAGE or FRONTEND_IMAGE is empty! Cannot deploy."
+                                    echo "❌ Image variables are empty"
                                     exit 1
                                 fi
                                 
-                                # Extract repository and tag from full image paths
-                                # Format: {registry}/{repo}:{component}-{version}
                                 BACKEND_REPO=\$(echo "\$BACKEND_IMG" | cut -d: -f1)
                                 BACKEND_TAG=\$(echo "\$BACKEND_IMG" | cut -d: -f2)
                                 FRONTEND_REPO=\$(echo "\$FRONTEND_IMG" | cut -d: -f1)
                                 FRONTEND_TAG=\$(echo "\$FRONTEND_IMG" | cut -d: -f2)
                                 
-                                echo "Backend:  \${BACKEND_REPO}:\${BACKEND_TAG}"
-                                echo "Frontend: \${FRONTEND_REPO}:\${FRONTEND_TAG}"
+                                # Use environment-specific values file
+                                VALUES_FILE="values-${env.DEPLOY_ENVIRONMENT}.yaml"
                                 
-                                # Use environment-specific values file (Helm best practice)
-                                # Try GitOps repo values.yaml first, fallback to local
-                                VALUES_FILE=""
-                                if [ -f "${GITOPS_REPO_PATH}/applications/${APP_NAME}/${environment}/values.yaml" ]; then
-                                    VALUES_FILE="${GITOPS_REPO_PATH}/applications/${APP_NAME}/${environment}/values.yaml"
-                                    echo "✅ Using values file from GitOps repo: \${VALUES_FILE}"
-                                else
-                                    VALUES_FILE="values-${env.DEPLOY_ENVIRONMENT}.yaml"
-                                    echo "📋 Using local values file: \${VALUES_FILE}"
-                                    
-                                    # Verify values file exists
-                                    if [ ! -f "./helm-chart/\${VALUES_FILE}" ]; then
-                                        echo "⚠️  Warning: Values file \${VALUES_FILE} not found, using base values.yaml"
-                                        VALUES_FILE="values.yaml"
-                                    fi
-                                    VALUES_FILE="./helm-chart/\${VALUES_FILE}"
+                                # Verify values file exists
+                                if [ ! -f "./helm-chart/\${VALUES_FILE}" ]; then
+                                    VALUES_FILE="values.yaml"
                                 fi
+                                VALUES_FILE="./helm-chart/\${VALUES_FILE}"
                                 
                                 helm upgrade --install chatapp ./helm-chart \\
                                     --namespace ${namespace} \\
@@ -527,8 +495,6 @@ promoted_at: "${timestamp}"
                                     --set backend.secretsProvider.className=chatapp-secrets \\
                                     --wait \\
                                     --timeout 10m
-                                
-                                echo "✅ Helm deployment completed"
                             """
                     }
                 }
