@@ -315,26 +315,31 @@ promoted_at: "${timestamp}"
                         
                         echo "🔍 Checking for deployment file: ${deploymentFile}"
                         
-                        if (fileExists(deploymentFile)) {
-                            manifestContent = readFile deploymentFile
+                        // Use shell to check and read file (fileExists() doesn't work well with absolute paths)
+                        def fileCheckResult = sh(
+                            script: """
+                                if [ -f "${deploymentFile}" ]; then
+                                    echo "FILE_EXISTS"
+                                    cat "${deploymentFile}"
+                                else
+                                    echo "FILE_NOT_FOUND"
+                                    exit 1
+                                fi
+                            """,
+                            returnStatus: true
+                        )
+                        
+                        if (fileCheckResult == 0) {
+                            // Read the file content using shell (more reliable than readFile for absolute paths)
+                            manifestContent = sh(
+                                script: "cat '${deploymentFile}'",
+                                returnStdout: true
+                            ).trim()
+                            
                             useGitOps = true
                             echo "✅ Successfully read deployment manifest from GitOps repo: ${deploymentFile}"
                         } else {
                             echo "⚠️  GitOps deployment file not found: ${deploymentFile}"
-                            echo "🔍 Debug: Checking if path exists..."
-                            sh """
-                                echo "Path components:"
-                                echo "  GITOPS_REPO_PATH: ${GITOPS_REPO_PATH}"
-                                echo "  APP_NAME: ${APP_NAME}"
-                                echo "  environment: ${environment}"
-                                echo "  Full path: ${deploymentFile}"
-                                echo ""
-                                test -d ${GITOPS_REPO_PATH} && echo "✅ Repo directory exists" || echo "❌ Repo directory missing"
-                                test -d ${GITOPS_REPO_PATH}/applications && echo "✅ Applications dir exists" || echo "❌ Applications dir missing"
-                                test -d ${GITOPS_REPO_PATH}/applications/${APP_NAME} && echo "✅ App dir exists" || echo "❌ App dir missing"
-                                test -d ${GITOPS_REPO_PATH}/applications/${APP_NAME}/${environment} && echo "✅ Env dir exists" || echo "❌ Env dir missing"
-                                test -f ${deploymentFile} && echo "✅ File exists" || echo "❌ File missing"
-                            """
                             throw new Exception("GitOps file not found")
                         }
                     } catch (Exception e) {
