@@ -250,13 +250,6 @@ promoted_at: "${timestamp}"
                             environment = 'preview'
                         } else {
                             environment = 'unknown'
-                            echo "  ❌ Cannot determine environment from branch or parameter"
-                        }
-                    } else {
-                        echo "  ✅ Detected environment from branch: ${environment}"
-                        // Warn if parameter doesn't match branch (but still use branch)
-                        if (params.ENVIRONMENT && !params.ENVIRONMENT.isEmpty() && params.ENVIRONMENT != environment) {
-                            echo "  ⚠️  WARNING: Parameter ENVIRONMENT=${params.ENVIRONMENT} doesn't match branch ${normalizedBranch} (using ${environment})"
                         }
                     }
                     
@@ -265,99 +258,34 @@ promoted_at: "${timestamp}"
                     }
                     
                     env.DEPLOY_ENVIRONMENT = environment
-                    echo "✅ Final DEPLOY_ENVIRONMENT: ${env.DEPLOY_ENVIRONMENT}"
                     
                     // Modular: Cluster name can be per-environment or shared
                     // For now: single cluster for all (modular for future: env.CLUSTER_NAME = "tnt-eu-chatapp-${environment}-eks")
                     // Current: uses shared cluster name from environment block
                     
-                    // Read deployment manifest - Try GitOps repo first, fallback to legacy
-                    def deploymentFile = null
-                    def manifestContent = null
-                    def manifest = [:]
-                    def useGitOps = false
-                    
-                    // Method 1: Try GitOps repository (new method)
-                    try {
-                        echo "🔄 Attempting to read from GitOps repository..."
-                        withCredentials([usernamePassword(
-                            credentialsId: GIT_CREDENTIALS_ID,
-                            usernameVariable: 'GIT_USERNAME',
-                            passwordVariable: 'GIT_PASSWORD'
-                        )]) {
-                            sh """
-                                echo "📥 Cloning GitOps repository..."
-                                rm -rf ${GITOPS_REPO_PATH}
-                                git clone https://\${GIT_USERNAME}:\${GIT_PASSWORD}@github.com/tomernos/CompanyGitOps.git ${GITOPS_REPO_PATH} || {
-                                    echo "❌ Git clone failed"
-                                    exit 1
-                                }
-                                
-                                echo "✅ GitOps repo cloned successfully"
-                                echo "📁 Repository contents:"
-                                ls -la ${GITOPS_REPO_PATH}/ || echo "⚠️  Cannot list repo directory"
-                                echo ""
-                                echo "📁 Applications directory:"
-                                ls -la ${GITOPS_REPO_PATH}/applications/ || echo "⚠️  Applications directory not found"
-                                echo ""
-                                echo "📁 chatapp directory:"
-                                ls -la ${GITOPS_REPO_PATH}/applications/chatapp/ || echo "⚠️  chatapp directory not found"
-                                echo ""
-                                echo "📁 Environment directory (${environment}):"
-                                ls -la ${GITOPS_REPO_PATH}/applications/chatapp/${environment}/ || echo "⚠️  ${environment} directory not found"
-                                echo ""
-                                echo "🔍 Looking for deployment.yaml:"
-                                find ${GITOPS_REPO_PATH} -name "deployment.yaml" -type f || echo "⚠️  No deployment.yaml files found"
-                            """
-                        }
-                        
-                        deploymentFile = "${GITOPS_REPO_PATH}/applications/${APP_NAME}/${environment}/deployment.yaml"
-                        
-                        echo "🔍 Checking for deployment file: ${deploymentFile}"
-                        
-                        // Use shell to check and read file (fileExists() doesn't work well with absolute paths)
-                        def fileCheckResult = sh(
-                            script: """
-                                if [ -f "${deploymentFile}" ]; then
-                                    echo "FILE_EXISTS"
-                                    cat "${deploymentFile}"
-                                else
-                                    echo "FILE_NOT_FOUND"
-                                    exit 1
-                                fi
-                            """,
-                            returnStatus: true
-                        )
-                        
-                        if (fileCheckResult == 0) {
-                            // Read the file content using shell (more reliable than readFile for absolute paths)
-                            manifestContent = sh(
-                                script: "cat '${deploymentFile}'",
-                                returnStdout: true
-                            ).trim()
-                            
-                            useGitOps = true
-                            echo "✅ Successfully read deployment manifest from GitOps repo: ${deploymentFile}"
-                        } else {
-                            echo "⚠️  GitOps deployment file not found: ${deploymentFile}"
-                            throw new Exception("GitOps file not found")
-                        }
-                    } catch (Exception e) {
-                        echo "⚠️  Failed to read from GitOps repo: ${e.getMessage()}"
-                        echo "🔄 Falling back to legacy method..."
-                        
-                        // Method 2: Fallback to legacy (ChatApplication/deployments/)
-                        deploymentFile = "deployments/${environment}/deployment.yaml"
-                        
-                        if (!fileExists(deploymentFile)) {
-                            error("Deployment manifest not found in either GitOps repo or legacy location: ${deploymentFile}. Ensure CI has run and updated the manifest.")
-                        }
-                        
-                        manifestContent = readFile deploymentFile
-                        echo "✅ Using legacy deployment manifest: ${deploymentFile}"
+                    // Read deployment manifest from GitOps repository
+                    withCredentials([usernamePassword(
+                        credentialsId: GIT_CREDENTIALS_ID,
+                        usernameVariable: 'GIT_USERNAME',
+                        passwordVariable: 'GIT_PASSWORD'
+                    )]) {
+                        sh """
+                            rm -rf ${GITOPS_REPO_PATH}
+                            git clone -q https://\${GIT_USERNAME}:\${GIT_PASSWORD}@github.com/tomernos/CompanyGitOps.git ${GITOPS_REPO_PATH}
+                        """
                     }
                     
-                    // Parse deployment.yaml (same parsing logic for both methods)
+                    def deploymentFile = "${GITOPS_REPO_PATH}/applications/${APP_NAME}/${environment}/deployment.yaml"
+                    
+                    // Use shell to read file (fileExists() doesn't work with absolute paths)
+                    def manifestContent = sh(
+                        script: "cat '${deploymentFile}'",
+                        returnStdout: true
+                    ).trim()
+                    
+                    def manifest = [:]
+                    
+                    // Parse deployment.yaml
                     
                     // Simple YAML parsing (basic key: value format)
                     manifestContent.split('\n').each { line ->
@@ -375,32 +303,13 @@ promoted_at: "${timestamp}"
                         }
                     }
                     
-                    // Debug: Show parsed manifest
-                    echo "📋 Parsed manifest keys: ${manifest.keySet()}"
-                    echo "📋 Full manifest content: ${manifest}"
-                    if (manifest.ecr_registry) {
-                        echo "✅ Found ecr_registry in manifest: ${manifest.ecr_registry}"
-                    } else {
-                        echo "⚠️  ecr_registry not found in manifest"
-                    }
-                    if (manifest.backend_image) {
-                        echo "✅ Found backend_image in manifest: ${manifest.backend_image}"
-                    } else {
-                        echo "⚠️  backend_image not found in manifest"
-                    }
-                    if (manifest.frontend_image) {
-                        echo "✅ Found frontend_image in manifest: ${manifest.frontend_image}"
-                    } else {
-                        echo "⚠️  frontend_image not found in manifest"
-                    }
+                    // Parse manifest values
                     
                     // Set version and registry from manifest (or override from parameters)
                     if (params.IMAGE_VERSION && !params.IMAGE_VERSION.isEmpty()) {
                         env.DEPLOY_VERSION = params.IMAGE_VERSION
-                        echo "⚠️  Using override version: ${env.DEPLOY_VERSION}"
                     } else if (manifest.version && !manifest.version.isEmpty()) {
                         env.DEPLOY_VERSION = manifest.version
-                        echo "✅ Using version from manifest: ${env.DEPLOY_VERSION}"
                     } else {
                         error("No version found in deployment manifest and no override provided.")
                     }
@@ -412,28 +321,20 @@ promoted_at: "${timestamp}"
                         env.ECR_REGISTRY = manifest.ecr_registry.trim()
                     }
                     
-                    if (env.ECR_REGISTRY) {
-                        echo "✅ ECR_REGISTRY: ${env.ECR_REGISTRY}"
-                    }
-                    
                     // Get ECR repo
                     def ecrRepo = manifest.ecr_repo ?: ECR_REPO
                     
-                    // Use full image paths from manifest if available (preferred), otherwise construct
+                    // Use full image paths from manifest if available, otherwise construct
                     if (manifest.backend_image && !manifest.backend_image.isEmpty() && !manifest.backend_image.contains('null')) {
                         env.BACKEND_IMAGE = manifest.backend_image.trim()
-                        echo "✅ Using backend_image from manifest: ${env.BACKEND_IMAGE}"
                     } else {
                         env.BACKEND_IMAGE = "${env.ECR_REGISTRY}:backend-${env.DEPLOY_VERSION}"
-                        echo "⚠️  Constructed backend_image (manifest not available): ${env.BACKEND_IMAGE}"
                     }
                     
                     if (manifest.frontend_image && !manifest.frontend_image.isEmpty() && !manifest.frontend_image.contains('null')) {
                         env.FRONTEND_IMAGE = manifest.frontend_image.trim()
-                        echo "✅ Using frontend_image from manifest: ${env.FRONTEND_IMAGE}"
                     } else {
                         env.FRONTEND_IMAGE = "${env.ECR_REGISTRY}:frontend-${env.DEPLOY_VERSION}"
-                        echo "⚠️  Constructed frontend_image (manifest not available): ${env.FRONTEND_IMAGE}"
                     }
                     
                     echo """
@@ -540,58 +441,25 @@ promoted_at: "${timestamp}"
                         passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                     )]) {
                             sh """
-                                echo "📦 Deploying with Helm..."
-                                echo "Environment: ${env.DEPLOY_ENVIRONMENT}"
-                                echo "Namespace: ${namespace}"
-                                echo "Current directory: \$(pwd)"
-                                echo "Chart location: helm-chart/"
-                                ls -la helm-chart/ || echo "⚠️  helm-chart not found in current directory"
-                                echo ""
-                                echo "🔍 DEBUG - Image variables from Groovy:"
-                                echo "  BACKEND_IMAGE env var: ${env.BACKEND_IMAGE}"
-                                echo "  FRONTEND_IMAGE env var: ${env.FRONTEND_IMAGE}"
-                                echo ""
-                                
-                                # Verify variables are not empty
                                 BACKEND_IMG="${env.BACKEND_IMAGE}"
                                 FRONTEND_IMG="${env.FRONTEND_IMAGE}"
                                 
-                                echo "🔍 DEBUG - Image variables in shell:"
-                                echo "  BACKEND_IMG: \${BACKEND_IMG}"
-                                echo "  FRONTEND_IMG: \${FRONTEND_IMG}"
-                                echo ""
-                                
                                 if [ -z "\$BACKEND_IMG" ] || [ -z "\$FRONTEND_IMG" ]; then
-                                    echo "❌ BACKEND_IMAGE or FRONTEND_IMAGE is empty! Cannot deploy."
+                                    echo "❌ Image variables are empty"
                                     exit 1
                                 fi
                                 
-                                # Extract repository and tag from full image paths
-                                # Format: {registry}/{repo}:{component}-{version}
                                 BACKEND_REPO=\$(echo "\$BACKEND_IMG" | cut -d: -f1)
                                 BACKEND_TAG=\$(echo "\$BACKEND_IMG" | cut -d: -f2)
                                 FRONTEND_REPO=\$(echo "\$FRONTEND_IMG" | cut -d: -f1)
                                 FRONTEND_TAG=\$(echo "\$FRONTEND_IMG" | cut -d: -f2)
                                 
-                                echo "Backend:  \${BACKEND_REPO}:\${BACKEND_TAG}"
-                                echo "Frontend: \${FRONTEND_REPO}:\${FRONTEND_TAG}"
+                                # Use values file from GitOps repo
+                                VALUES_FILE="${GITOPS_REPO_PATH}/applications/${APP_NAME}/${environment}/values.yaml"
                                 
-                                # Use environment-specific values file (Helm best practice)
-                                # Try GitOps repo values.yaml first, fallback to local
-                                VALUES_FILE=""
-                                if [ -f "${GITOPS_REPO_PATH}/applications/${APP_NAME}/${environment}/values.yaml" ]; then
-                                    VALUES_FILE="${GITOPS_REPO_PATH}/applications/${APP_NAME}/${environment}/values.yaml"
-                                    echo "✅ Using values file from GitOps repo: \${VALUES_FILE}"
-                                else
-                                    VALUES_FILE="values-${env.DEPLOY_ENVIRONMENT}.yaml"
-                                    echo "📋 Using local values file: \${VALUES_FILE}"
-                                    
-                                    # Verify values file exists
-                                    if [ ! -f "./helm-chart/\${VALUES_FILE}" ]; then
-                                        echo "⚠️  Warning: Values file \${VALUES_FILE} not found, using base values.yaml"
-                                        VALUES_FILE="values.yaml"
-                                    fi
-                                    VALUES_FILE="./helm-chart/\${VALUES_FILE}"
+                                if [ ! -f "\${VALUES_FILE}" ]; then
+                                    echo "❌ Values file not found in GitOps repo: \${VALUES_FILE}"
+                                    exit 1
                                 fi
                                 
                                 helm upgrade --install chatapp ./helm-chart \\
@@ -607,8 +475,6 @@ promoted_at: "${timestamp}"
                                     --set backend.secretsProvider.className=chatapp-secrets \\
                                     --wait \\
                                     --timeout 10m
-                                
-                                echo "✅ Helm deployment completed"
                             """
                     }
                 }
@@ -635,7 +501,6 @@ promoted_at: "${timestamp}"
                             echo "Cluster: \$CLUSTER"
                             echo ""
                             
-                            echo "🔍 Checking deployment status..."
                             kubectl rollout status deployment/chatapp-backend -n ${namespace} --timeout=5m || true
                             kubectl rollout status deployment/chatapp-frontend -n ${namespace} --timeout=5m || true
                             
