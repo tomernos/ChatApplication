@@ -46,7 +46,7 @@ env:
   FLASK_APP: run.py
   FLASK_ENV: production
   # OpenTelemetry configuration for distributed tracing
-  OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.monitoring.svc.cluster.local:4317"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector-opentelemetry-collector.monitoring.svc.cluster.local:4317"
   OTEL_SERVICE_NAME: "chatapp-backend"
   OTEL_SERVICE_NAMESPACE: "chatapp-prod"  # Overridden per environment in values-{env}.yaml
   DB_HOST: postgres
