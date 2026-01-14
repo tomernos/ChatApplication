@@ -3,6 +3,23 @@
 # =========================================
 # This file overrides values.yaml for dev environment
 
+backend:
+  enabled: true
+  monitoring:
+    enabled: true  # Enable Prometheus scraping
+    scrapeInterval: 15s
+    scrapeTimeout: 10s
+  env:
+    # OpenTelemetry - override namespace for dev environment
+    OTEL_SERVICE_NAMESPACE: "chatapp-dev"
+
+frontend:
+  enabled: true
+  env:
+    # Frontend needs correct backend URL to connect
+    API_URL: http://chatapp-backend:5000
+    BACKEND_URL: http://chatapp-backend:5000  # For nginx.conf proxy_pass substitution
+
 ingress:
   enabled: true  # Ensure ingress is enabled for dev
   # Hosts array - supports multiple hosts (scalable, modular, reusable)

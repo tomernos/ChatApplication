@@ -7,7 +7,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "backend.labels" . | nindent 4 }}
-    release: kube-prometheus-stack  # Important: Prometheus Operator needs this label to discover the ServiceMonitor
+    release: monitoring  # Important: Prometheus Operator needs this label to discover the ServiceMonitor
 spec:
   selector:
     matchLabels:

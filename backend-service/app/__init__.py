@@ -12,6 +12,14 @@ from app.models import create_tables
 from app.services.redis_service import redis_service
 from app.services.queue_service import queue_service, handle_email_notification, handle_activity_log
 
+# OpenTelemetry imports for distributed tracing
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from opentelemetry.sdk.resources import Resource
+
 # Simple logging setup
 logging.basicConfig(
     level=logging.INFO,
@@ -19,14 +27,61 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+def _initialize_opentelemetry():
+    """Initialize OpenTelemetry for distributed tracing."""
+    try:
+        # Get configuration from environment variables
+        otel_endpoint = os.getenv(
+            "OTEL_EXPORTER_OTLP_ENDPOINT",
+            "http://otel-collector.monitoring.svc.cluster.local:4317"
+        )
+        service_name = os.getenv("OTEL_SERVICE_NAME", "chatapp-backend")
+        service_namespace = os.getenv("OTEL_SERVICE_NAMESPACE", "chatapp-dev")
+        
+        # Create resource with service information
+        resource = Resource.create({
+            "service.name": service_name,
+            "service.namespace": service_namespace,
+        })
+        
+        # Initialize TracerProvider with resource
+        trace.set_tracer_provider(TracerProvider(resource=resource))
+        
+        # Configure OTLP exporter (sends traces to OTEL Collector)
+        otlp_exporter = OTLPSpanExporter(
+            endpoint=otel_endpoint,
+            insecure=True  # For dev, use TLS in prod
+        )
+        
+        # Add span processor
+        span_processor = BatchSpanProcessor(otlp_exporter)
+        trace.get_tracer_provider().add_span_processor(span_processor)
+        
+        logger.info(f"✅ OpenTelemetry initialized: {service_name} -> {otel_endpoint}")
+        logger.info(f"   Service namespace: {service_namespace}")
+    except Exception as e:
+        logger.warning(f"⚠️  Failed to initialize OpenTelemetry: {e}. Tracing disabled.")
+        import traceback
+        logger.warning(f"   Error details: {traceback.format_exc()}")
+
 def create_app(config_name=None):
     """Application factory pattern for creating Flask app."""
     
     if config_name is None:
         config_name = os.environ.get('FLASK_ENV', 'development')
     
+    # Initialize OpenTelemetry before creating Flask app
+    _initialize_opentelemetry()
+    
     # Create Flask application (no templates needed - pure API)
     app = Flask(__name__)
+    
+    # Auto-instrument Flask with OpenTelemetry
+    try:
+        FlaskInstrumentor().instrument_app(app)
+        logger.info("✅ Flask OpenTelemetry instrumentation enabled")
+    except Exception as e:
+        logger.warning(f"⚠️  Failed to instrument Flask: {e}")
     
     # Load configuration
     app.config.from_object(config[config_name])
