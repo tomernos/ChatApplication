@@ -235,34 +235,16 @@ pipeline {
                         script {
                             logMessage('Building Frontend Docker Image', '🌐')
                             
-                            // Determine environment from branch for OTEL namespace
-                            def normalizedBranch = env.BRANCH_NAME?.replaceAll('origin/', '') ?: 'develop'
-                            def otelNamespace = 'chatapp-dev'
-                            if (normalizedBranch == 'main' || normalizedBranch =~ /^hotfix\//) {
-                                otelNamespace = 'chatapp-prod'
-                            } else if (normalizedBranch =~ /^release\//) {
-                                otelNamespace = 'chatapp-staging'
-                            }
-                            
-                            // Build frontend with OpenTelemetry build args
-                            // React apps need env vars at BUILD TIME (compiled into JS bundle)
-                            sh """
-                                docker build \\
-                                    --build-arg REACT_APP_OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector-opentelemetry-collector.monitoring.svc.cluster.local:4318 \\
-                                    --build-arg REACT_APP_OTEL_SERVICE_NAME=chatapp-frontend \\
-                                    --build-arg REACT_APP_OTEL_SERVICE_NAMESPACE=${otelNamespace} \\
-                                    --build-arg REACT_APP_API_URL=/api \\
-                                    -t connecthub-frontend:latest \\
-                                    -f ./frontend-service/Dockerfile \\
-                                    ./frontend-service
-                            """
-                            
-                            echo "✅ Frontend image built with OTEL namespace: ${otelNamespace}"
-                            
-                            // Save image for artifact storage
-                            saveDockerImage(
+                            def frontendImage = dockerBuild(
                                 imageName: 'connecthub-frontend',
                                 tag: 'latest',
+                                context: './frontend-service',
+                                dockerfile: './frontend-service/Dockerfile'
+                            )
+                            
+                            saveDockerImage(
+                                imageName: frontendImage.imageName,
+                                tag: frontendImage.tag,
                                 outputFile: 'frontend.tar.gz'
                             )
                         }

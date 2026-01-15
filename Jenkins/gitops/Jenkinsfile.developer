@@ -256,62 +256,60 @@ pipeline {
                     expression { !params.SKIP_BUILD }
                 }
             }
-            steps {
-                parallel {
-                    stage('Build Backend') {
-                        steps {
-                            script {
-                                logMessage('Building Backend Docker Image', '🔨')
-                                
-                                sh 'docker rmi connecthub-backend:latest tomernos/connecthub-backend:latest || true'
-                                sh 'docker rmi connecthub-frontend:latest tomernos/connecthub-frontend:latest || true'
+            parallel {
+                stage('Build Backend') {
+                    steps {
+                        script {
+                            logMessage('Building Backend Docker Image', '🔨')
+                            
+                            sh 'docker rmi connecthub-backend:latest tomernos/connecthub-backend:latest || true'
+                            sh 'docker rmi connecthub-frontend:latest tomernos/connecthub-frontend:latest || true'
 
-                                def backendImage = dockerBuild(
-                                    imageName: 'connecthub-backend',
-                                    tag: 'latest',
-                                    context: './backend-service',
-                                    dockerfile: './backend-service/Dockerfile'
-                                )
-                                
-                                saveDockerImage(
-                                    imageName: backendImage.imageName,
-                                    tag: backendImage.tag,
-                                    outputFile: 'backend.tar.gz'
-                                )
-                                
-                                echo "✅ Backend image built: ${backendImage.imageName}:${backendImage.tag}"
-                            }
+                            def backendImage = dockerBuild(
+                                imageName: 'connecthub-backend',
+                                tag: 'latest',
+                                context: './backend-service',
+                                dockerfile: './backend-service/Dockerfile'
+                            )
+                            
+                            saveDockerImage(
+                                imageName: backendImage.imageName,
+                                tag: backendImage.tag,
+                                outputFile: 'backend.tar.gz'
+                            )
+                            
+                            echo "✅ Backend image built: ${backendImage.imageName}:${backendImage.tag}"
                         }
                     }
-                    
-                    stage('Build Frontend') {
-                        steps {
-                            script {
-                                logMessage('Building Frontend Docker Image', '🌐')
-                                
-                                // Use developer namespace for OTEL
-                                def otelNamespace = env.DEVELOPER_NAMESPACE
-                                
-                                sh """
-                                    docker build \\
-                                        --build-arg REACT_APP_OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector-opentelemetry-collector.monitoring.svc.cluster.local:4318 \\
-                                        --build-arg REACT_APP_OTEL_SERVICE_NAME=chatapp-frontend \\
-                                        --build-arg REACT_APP_OTEL_SERVICE_NAMESPACE=${otelNamespace} \\
-                                        --build-arg REACT_APP_API_URL=/api \\
-                                        -t connecthub-frontend:latest \\
-                                        -f ./frontend-service/Dockerfile \\
-                                        ./frontend-service
-                                """
-                                
-                                echo "✅ Frontend image built with OTEL namespace: ${otelNamespace}"
-                                
-                                // Save image for artifact storage
-                                saveDockerImage(
-                                    imageName: 'connecthub-frontend',
-                                    tag: 'latest',
-                                    outputFile: 'frontend.tar.gz'
-                                )
-                            }
+                }
+                
+                stage('Build Frontend') {
+                    steps {
+                        script {
+                            logMessage('Building Frontend Docker Image', '🌐')
+                            
+                            // Use developer namespace for OTEL
+                            def otelNamespace = env.DEVELOPER_NAMESPACE
+                            
+                            sh """
+                                docker build \\
+                                    --build-arg REACT_APP_OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector-opentelemetry-collector.monitoring.svc.cluster.local:4318 \\
+                                    --build-arg REACT_APP_OTEL_SERVICE_NAME=chatapp-frontend \\
+                                    --build-arg REACT_APP_OTEL_SERVICE_NAMESPACE=${otelNamespace} \\
+                                    --build-arg REACT_APP_API_URL=/api \\
+                                    -t connecthub-frontend:latest \\
+                                    -f ./frontend-service/Dockerfile \\
+                                    ./frontend-service
+                            """
+                            
+                            echo "✅ Frontend image built with OTEL namespace: ${otelNamespace}"
+                            
+                            // Save image for artifact storage
+                            saveDockerImage(
+                                imageName: 'connecthub-frontend',
+                                tag: 'latest',
+                                outputFile: 'frontend.tar.gz'
+                            )
                         }
                     }
                 }
