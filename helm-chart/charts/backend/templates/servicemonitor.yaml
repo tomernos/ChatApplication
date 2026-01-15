@@ -7,7 +7,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "backend.labels" . | nindent 4 }}
-    release: monitoring  # Important: Prometheus Operator needs this label to discover the ServiceMonitor
+    release: prometheus  # Important: Prometheus Operator needs this label to discover the ServiceMonitor (must match Prometheus Helm release name)
 spec:
   selector:
     matchLabels:
