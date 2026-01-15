@@ -5,6 +5,10 @@
  * It "injects" the React App into the HTML div with id="root".
  */
 
+// Initialize OpenTelemetry BEFORE React (for tracing)
+import { initializeOpenTelemetry } from './instrumentation';
+initializeOpenTelemetry();
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';

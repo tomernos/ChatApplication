@@ -33,7 +33,7 @@ def _initialize_opentelemetry():
         # Get configuration from environment variables
         otel_endpoint = os.getenv(
             "OTEL_EXPORTER_OTLP_ENDPOINT",
-            "http://otel-collector.monitoring.svc.cluster.local:4317"
+            "http://otel-collector-opentelemetry-collector.monitoring.svc.cluster.local:4317"
         )
         service_name = os.getenv("OTEL_SERVICE_NAME", "chatapp-backend")
         service_namespace = os.getenv("OTEL_SERVICE_NAMESPACE", "chatapp-dev")

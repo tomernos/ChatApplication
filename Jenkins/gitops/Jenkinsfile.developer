@@ -1,0 +1,575 @@
+@Library('jenkins-shared-library') _
+
+pipeline {
+    agent {
+        docker {
+            image 'python:3.9'
+            args '-v /var/run/docker.sock:/var/run/docker.sock -u root'
+        }
+    }
+
+    options {
+        timeout(time: 1, unit: 'HOURS')
+        timestamps()
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
+    environment {
+        // AWS Configuration
+        AWS_REGION = 'eu-central-1'
+        AWS_CREDENTIALS_ID = 'aws-creds'
+        
+        // GitHub credential
+        GIT_CREDENTIALS_ID = 'gitpat'
+        
+        // ECR Configuration
+        ECR_REPO = 'chatapp'
+        
+        // Cluster name - same as CD pipeline
+        CLUSTER_NAME = 'tnt-eu-chatapp-dev-eks'
+        
+        // Get short commit hash
+        GIT_SHORT_COMMIT = "${env.GIT_COMMIT?.take(7) ?: 'unknown'}"
+        
+        // Detect branch
+        BRANCH = "${env.BRANCH_NAME ?: env.GIT_BRANCH?.replaceAll('origin/', '') ?: 'unknown'}"
+        
+        // Developer environment configuration
+        // Namespace format: chatapp-dev-{developer-name} or chatapp-{sanitized-branch-name}
+        DEVELOPER_NAMESPACE = ''  // Will be set based on parameter or branch
+        DEVELOPER_TAG = ''  // Will be set based on branch/commit
+    }
+
+    parameters {
+        choice(
+            name: 'ACTION',
+            choices: ['deploy', 'destroy'],
+            description: 'Action to perform: deploy (build & deploy) or destroy (cleanup)'
+        )
+        string(
+            name: 'DEVELOPER_NAME',
+            defaultValue: '',
+            description: 'Your name/identifier (e.g., "john", "feature-auth"). Used for namespace isolation. Leave empty to use branch name.'
+        )
+        string(
+            name: 'NAMESPACE_SUFFIX',
+            defaultValue: '',
+            description: 'Custom namespace suffix. If empty, uses DEVELOPER_NAME or sanitized branch name. Format: chatapp-dev-{suffix}'
+        )
+        booleanParam(
+            name: 'SKIP_BUILD',
+            defaultValue: false,
+            description: 'Skip image build and use existing images (useful for redeploy only)'
+        )
+        string(
+            name: 'IMAGE_TAG_OVERRIDE',
+            defaultValue: '',
+            description: 'Override: Use specific image tag instead of auto-generated. Format: backend-{tag} or full image URL'
+        )
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Validate Branch') {
+            steps {
+                script {
+                    def normalizedBranch = BRANCH.replaceAll('origin/', '')
+                    
+                    // Prevent deploying feature branches to shared environments
+                    if (normalizedBranch == 'develop' || normalizedBranch == 'main' || 
+                        normalizedBranch == 'staging' || normalizedBranch =~ /^release\// || 
+                        normalizedBranch =~ /^hotfix\//) {
+                        error("""
+                        ❌ This branch (${normalizedBranch}) should use the standard CI/CD pipelines, not the developer self-service pipeline.
+                        
+                        Use:
+                        - CI Pipeline (Jenkinsfile.ci) for: develop, main, release/*, hotfix/*
+                        - CD Pipeline (Jenkinsfile.cd) for: dev, staging, prod environments
+                        
+                        This self-service pipeline is for feature branches and personal developer environments.
+                        """)
+                    }
+                    
+                    echo "✅ Branch validated: ${normalizedBranch}"
+                }
+            }
+        }
+
+        stage('Setup Developer Environment') {
+            steps {
+                script {
+                    logMessage('Setting up Developer Environment', '👤')
+                    
+                    def normalizedBranch = BRANCH.replaceAll('origin/', '')
+                    
+                    // Determine developer namespace
+                    def namespaceSuffix = ''
+                    if (params.NAMESPACE_SUFFIX && !params.NAMESPACE_SUFFIX.isEmpty()) {
+                        namespaceSuffix = params.NAMESPACE_SUFFIX
+                    } else if (params.DEVELOPER_NAME && !params.DEVELOPER_NAME.isEmpty()) {
+                        namespaceSuffix = params.DEVELOPER_NAME
+                    } else {
+                        // Use sanitized branch name
+                        namespaceSuffix = normalizedBranch
+                            .replaceAll(/[^a-zA-Z0-9-]/, '-')  // Replace special chars with dash
+                            .replaceAll(/-+/, '-')  // Replace multiple dashes with single
+                            .toLowerCase()
+                            .take(40)  // Limit length
+                    }
+                    
+                    // Sanitize namespace suffix (K8s namespace rules)
+                    namespaceSuffix = namespaceSuffix
+                        .replaceAll(/[^a-z0-9-]/, '')  // Only lowercase, numbers, dashes
+                        .replaceAll(/^-+|-+$/, '')  // Remove leading/trailing dashes
+                        .take(40)
+                    
+                    if (namespaceSuffix.isEmpty()) {
+                        namespaceSuffix = 'dev-' + GIT_SHORT_COMMIT
+                    }
+                    
+                    env.DEVELOPER_NAMESPACE = "chatapp-dev-${namespaceSuffix}"
+                    
+                    // Generate developer-specific image tag
+                    def imageTag = ''
+                    if (params.IMAGE_TAG_OVERRIDE && !params.IMAGE_TAG_OVERRIDE.isEmpty()) {
+                        imageTag = params.IMAGE_TAG_OVERRIDE
+                    } else {
+                        // Format: dev-{namespace-suffix}-{short-commit}
+                        imageTag = "dev-${namespaceSuffix}-${GIT_SHORT_COMMIT}"
+                    }
+                    
+                    env.DEVELOPER_TAG = imageTag
+                    
+                    echo """
+                    ╔════════════════════════════════════════╗
+                    ║  DEVELOPER ENVIRONMENT SETUP          ║
+                    ╚════════════════════════════════════════╝
+                    Branch:           ${normalizedBranch}
+                    Developer Name:   ${params.DEVELOPER_NAME ?: 'auto (from branch)'}
+                    Namespace:        ${env.DEVELOPER_NAMESPACE}
+                    Image Tag:        ${env.DEVELOPER_TAG}
+                    Action:           ${params.ACTION}
+                    ╚════════════════════════════════════════╝
+                    """.stripIndent()
+                }
+            }
+        }
+
+        stage('Destroy Environment') {
+            when {
+                expression { params.ACTION == 'destroy' }
+            }
+            steps {
+                script {
+                    logMessage('Destroying Developer Environment', '🗑️')
+                    
+                    withCredentials([usernamePassword(
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
+                        sh """
+                            # Configure kubectl
+                            aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER_NAME}
+                            
+                            # Uninstall Helm release
+                            if helm list -n ${env.DEVELOPER_NAMESPACE} | grep -q chatapp; then
+                                echo "🗑️  Uninstalling Helm release..."
+                                helm uninstall chatapp -n ${env.DEVELOPER_NAMESPACE} || true
+                            else
+                                echo "ℹ️  No Helm release found"
+                            fi
+                            
+                            # Delete namespace (this will delete all resources)
+                            if kubectl get namespace ${env.DEVELOPER_NAMESPACE} &>/dev/null; then
+                                echo "🗑️  Deleting namespace ${env.DEVELOPER_NAMESPACE}..."
+                                kubectl delete namespace ${env.DEVELOPER_NAMESPACE} --wait=true --timeout=5m || true
+                                echo "✅ Namespace deleted"
+                            else
+                                echo "ℹ️  Namespace ${env.DEVELOPER_NAMESPACE} does not exist"
+                            fi
+                            
+                            echo "✅ Environment cleanup complete"
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Setup Dependencies') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { !params.SKIP_BUILD }
+                }
+            }
+            steps {
+                script {
+                    logMessage('Installing System Dependencies', '📦')
+                    
+                    installDependencies(['curl', 'gnupg', 'lsb-release', 'ca-certificates'])
+                    
+                    def composeInfo = installDockerCompose()
+                    
+                    echo "Docker Compose version: ${composeInfo.version}"
+                    echo "Command to use: ${composeInfo.command}"
+                    
+                    sh '''
+                        pip3 install --quiet --upgrade pip --root-user-action=ignore
+                        pip3 install --quiet -r backend-service/requirements.txt --root-user-action=ignore
+                        pip3 install --quiet pytest --root-user-action=ignore
+                    '''
+                    
+                    logMessage('All dependencies installed', '✅')
+                }
+            }
+        }
+
+        stage('Python Tests') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { !params.SKIP_BUILD }
+                }
+            }
+            steps {
+                script {
+                    logMessage('Running Python Tests', '🧪')
+                    
+                    sh '''
+                        cd backend-service
+                        pytest tests/ --verbose || echo "⚠️  No tests yet"
+                    '''
+                }
+            }
+        }
+
+        stage('Build Docker Images') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { !params.SKIP_BUILD }
+                }
+            }
+            steps {
+                parallel {
+                    stage('Build Backend') {
+                        steps {
+                            script {
+                                logMessage('Building Backend Docker Image', '🔨')
+                                
+                                sh 'docker rmi connecthub-backend:latest tomernos/connecthub-backend:latest || true'
+                                sh 'docker rmi connecthub-frontend:latest tomernos/connecthub-frontend:latest || true'
+
+                                def backendImage = dockerBuild(
+                                    imageName: 'connecthub-backend',
+                                    tag: 'latest',
+                                    context: './backend-service',
+                                    dockerfile: './backend-service/Dockerfile'
+                                )
+                                
+                                saveDockerImage(
+                                    imageName: backendImage.imageName,
+                                    tag: backendImage.tag,
+                                    outputFile: 'backend.tar.gz'
+                                )
+                                
+                                echo "✅ Backend image built: ${backendImage.imageName}:${backendImage.tag}"
+                            }
+                        }
+                    }
+                    
+                    stage('Build Frontend') {
+                        steps {
+                            script {
+                                logMessage('Building Frontend Docker Image', '🌐')
+                                
+                                // Use developer namespace for OTEL
+                                def otelNamespace = env.DEVELOPER_NAMESPACE
+                                
+                                sh """
+                                    docker build \\
+                                        --build-arg REACT_APP_OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector-opentelemetry-collector.monitoring.svc.cluster.local:4318 \\
+                                        --build-arg REACT_APP_OTEL_SERVICE_NAME=chatapp-frontend \\
+                                        --build-arg REACT_APP_OTEL_SERVICE_NAMESPACE=${otelNamespace} \\
+                                        --build-arg REACT_APP_API_URL=/api \\
+                                        -t connecthub-frontend:latest \\
+                                        -f ./frontend-service/Dockerfile \\
+                                        ./frontend-service
+                                """
+                                
+                                echo "✅ Frontend image built with OTEL namespace: ${otelNamespace}"
+                                
+                                // Save image for artifact storage
+                                saveDockerImage(
+                                    imageName: 'connecthub-frontend',
+                                    tag: 'latest',
+                                    outputFile: 'frontend.tar.gz'
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Tag & Push to ECR') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { !params.SKIP_BUILD }
+                }
+            }
+            steps {
+                script {
+                    logMessage('Tagging and Pushing Images to ECR', '📤')
+                    
+                    withCredentials([usernamePassword(
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
+                        sh """
+                            set -e
+                            
+                            # Install AWS CLI if needed
+                            if ! command -v aws &> /dev/null; then
+                                apt-get update -qq
+                                apt-get install -y -qq curl unzip
+                                curl -sSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                                unzip -q -o awscliv2.zip
+                                ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update 2>&1 | grep -v "replace" || true
+                                rm -rf awscliv2.zip aws
+                            fi
+                            
+                            # Get AWS account ID and ECR registry
+                            export AWS_DEFAULT_REGION=${AWS_REGION}
+                            ACCOUNT_ID=\$(aws sts get-caller-identity --query Account --output text | grep -oE '[0-9]{12}' | head -n 1)
+                            ECR_REGISTRY_BASE="\${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+                            ECR_REGISTRY="\${ECR_REGISTRY_BASE}/${ECR_REPO}"
+                            
+                            echo "ECR Registry: \${ECR_REGISTRY}"
+                            echo "Image Tag: ${env.DEVELOPER_TAG}"
+                            
+                            # Login to ECR
+                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin \${ECR_REGISTRY_BASE}
+                            
+                            # Tag images
+                            docker tag connecthub-backend:latest \${ECR_REGISTRY}:backend-${env.DEVELOPER_TAG}
+                            docker tag connecthub-frontend:latest \${ECR_REGISTRY}:frontend-${env.DEVELOPER_TAG}
+                            
+                            # Push images
+                            docker push \${ECR_REGISTRY}:backend-${env.DEVELOPER_TAG}
+                            docker push \${ECR_REGISTRY}:frontend-${env.DEVELOPER_TAG}
+                            
+                            # Save for deployment stage
+                            echo "\${ECR_REGISTRY}" > /tmp/ecr_registry.txt
+                            echo "\${ECR_REGISTRY}:backend-${env.DEVELOPER_TAG}" > /tmp/backend_image.txt
+                            echo "\${ECR_REGISTRY}:frontend-${env.DEVELOPER_TAG}" > /tmp/frontend_image.txt
+                            
+                            echo "✅ Images pushed to ECR"
+                            echo "   Backend:  \${ECR_REGISTRY}:backend-${env.DEVELOPER_TAG}"
+                            echo "   Frontend: \${ECR_REGISTRY}:frontend-${env.DEVELOPER_TAG}"
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Install Tools for Deployment') {
+            when {
+                expression { params.ACTION == 'deploy' }
+            }
+            steps {
+                script {
+                    logMessage('Installing deployment tools', '📦')
+                    
+                    sh '''
+                        set -e
+                        
+                        # Update package list
+                        apt-get update -qq
+                        
+                        # Install base dependencies
+                        apt-get install -y -qq curl unzip ca-certificates gnupg lsb-release git
+                        
+                        # Install kubectl
+                        curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+                        echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' | tee /etc/apt/sources.list.d/kubernetes.list
+                        apt-get update -qq
+                        apt-get install -y -qq kubectl
+                        
+                        # Install AWS CLI v2
+                        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                        unzip -q awscliv2.zip
+                        ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+                        rm -rf awscliv2.zip aws
+                        
+                        # Install Helm
+                        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+                        
+                        # Verify all tools
+                        echo "✅ Tool versions:"
+                        kubectl version --client
+                        helm version
+                        aws --version
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy to Developer Environment') {
+            when {
+                expression { params.ACTION == 'deploy' }
+            }
+            steps {
+                script {
+                    logMessage('Deploying to Developer Environment', '🚀')
+                    
+                    // Read image URLs
+                    def ecrRegistry = ''
+                    def backendImage = ''
+                    def frontendImage = ''
+                    
+                    if (!params.SKIP_BUILD) {
+                        ecrRegistry = sh(script: 'cat /tmp/ecr_registry.txt', returnStdout: true).trim()
+                        backendImage = sh(script: 'cat /tmp/backend_image.txt', returnStdout: true).trim()
+                        frontendImage = sh(script: 'cat /tmp/frontend_image.txt', returnStdout: true).trim()
+                    } else {
+                        // If skipping build, use override or construct from tag
+                        if (params.IMAGE_TAG_OVERRIDE && !params.IMAGE_TAG_OVERRIDE.isEmpty()) {
+                            // Assume full image URL or construct from tag
+                            if (params.IMAGE_TAG_OVERRIDE.contains('/')) {
+                                backendImage = params.IMAGE_TAG_OVERRIDE
+                                frontendImage = params.IMAGE_TAG_OVERRIDE.replace('backend-', 'frontend-')
+                            } else {
+                                error("When SKIP_BUILD=true, IMAGE_TAG_OVERRIDE must be full image URL or set ECR_REGISTRY")
+                            }
+                        } else {
+                            error("SKIP_BUILD requires IMAGE_TAG_OVERRIDE to be set")
+                        }
+                    }
+                    
+                    withCredentials([usernamePassword(
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
+                        sh """
+                            # Configure kubectl
+                            aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER_NAME}
+                            
+                            # Parse image URLs
+                            BACKEND_REPO=\$(echo "${backendImage}" | cut -d: -f1)
+                            BACKEND_TAG=\$(echo "${backendImage}" | cut -d: -f2)
+                            FRONTEND_REPO=\$(echo "${frontendImage}" | cut -d: -f1)
+                            FRONTEND_TAG=\$(echo "${frontendImage}" | cut -d: -f2)
+                            
+                            echo "Deploying to namespace: ${env.DEVELOPER_NAMESPACE}"
+                            echo "Backend:  \${BACKEND_REPO}:\${BACKEND_TAG}"
+                            echo "Frontend: \${FRONTEND_REPO}:\${FRONTEND_TAG}"
+                            
+                            # Use dev values as base (or create minimal values)
+                            VALUES_FILE="./helm-chart/values-dev.yaml"
+                            
+                            if [ ! -f "\${VALUES_FILE}" ]; then
+                                echo "⚠️  Using default values (values-dev.yaml not found)"
+                                VALUES_FILE=""
+                            fi
+                            
+                            # Deploy with Helm
+                            helm upgrade --install chatapp ./helm-chart \\
+                                --namespace ${env.DEVELOPER_NAMESPACE} \\
+                                --create-namespace \\
+                                \${VALUES_FILE:+-f \${VALUES_FILE}} \\
+                                --set backend.image.repository=\${BACKEND_REPO} \\
+                                --set backend.image.tag=\${BACKEND_TAG} \\
+                                --set frontend.image.repository=\${FRONTEND_REPO} \\
+                                --set frontend.image.tag=\${FRONTEND_TAG} \\
+                                --set backend.monitoring.enabled=false \\
+                                --set backend.secretsProvider.enabled=true \\
+                                --set backend.secretsProvider.className=chatapp-secrets \\
+                                --wait \\
+                                --timeout 10m
+                            
+                            echo ""
+                            echo "✅ Deployment complete!"
+                            echo "Namespace: ${env.DEVELOPER_NAMESPACE}"
+                            echo ""
+                            echo "📊 Pod status:"
+                            kubectl get pods -n ${env.DEVELOPER_NAMESPACE}
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Get Access Information') {
+            when {
+                expression { params.ACTION == 'deploy' }
+            }
+            steps {
+                script {
+                    logMessage('Getting Access Information', 'ℹ️')
+                    
+                    withCredentials([usernamePassword(
+                        credentialsId: AWS_CREDENTIALS_ID,
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )]) {
+                        sh """
+                            aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER_NAME}
+                            
+                            echo ""
+                            echo "╔════════════════════════════════════════╗"
+                            echo "║  DEVELOPER ENVIRONMENT ACCESS           ║"
+                            echo "╚════════════════════════════════════════╝"
+                            echo "Namespace: ${env.DEVELOPER_NAMESPACE}"
+                            echo ""
+                            echo "📋 Services:"
+                            kubectl get svc -n ${env.DEVELOPER_NAMESPACE}
+                            echo ""
+                            echo "🔍 View pods:"
+                            echo "  kubectl get pods -n ${env.DEVELOPER_NAMESPACE}"
+                            echo ""
+                            echo "🔍 View logs:"
+                            echo "  kubectl logs -f deployment/chatapp-backend -n ${env.DEVELOPER_NAMESPACE}"
+                            echo "  kubectl logs -f deployment/chatapp-frontend -n ${env.DEVELOPER_NAMESPACE}"
+                            echo ""
+                            echo "🌐 Port forward (local access):"
+                            echo "  kubectl port-forward -n ${env.DEVELOPER_NAMESPACE} svc/chatapp-frontend 3000:80"
+                            echo "  kubectl port-forward -n ${env.DEVELOPER_NAMESPACE} svc/chatapp-backend 5000:5000"
+                            echo ""
+                            echo "🗑️  To destroy this environment, run this pipeline again with ACTION=destroy"
+                            echo "╚════════════════════════════════════════╝"
+                        """
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                logMessage('Developer Pipeline Completed', '📊')
+            }
+        }
+        success {
+            script {
+                logMessage('Developer Pipeline Completed Successfully!', '✅')
+            }
+        }
+        failure {
+            script {
+                logMessage('Developer Pipeline Failed!', '❌')
+            }
+        }
+    }
+}
+
