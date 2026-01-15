@@ -154,35 +154,52 @@ pipeline {
                         echo "✅ Using Jenkins username: ${username}"
                     }
                     
+                    // Ensure username is not null or empty
+                    if (!username || username.isEmpty() || username == 'null') {
+                        username = 'developer'
+                    }
+                    
                     // Sanitize username (remove special chars, lowercase)
-                    username = username
+                    username = username.toString()
                         .replaceAll(/[^a-zA-Z0-9-]/, '-')  // Replace special chars with dash
                         .replaceAll(/-+/, '-')  // Replace multiple dashes with single
                         .toLowerCase()
                         .replaceAll(/^-+|-+$/, '')  // Remove leading/trailing dashes
                         .take(20)  // Limit length
                     
+                    // Ensure branch is not null or empty
+                    if (!normalizedBranch || normalizedBranch.isEmpty() || normalizedBranch == 'null') {
+                        normalizedBranch = 'feature-unknown'
+                    }
+                    
                     // Sanitize branch name for namespace
-                    def sanitizedBranch = normalizedBranch
+                    def sanitizedBranch = normalizedBranch.toString()
                         .replaceAll(/[^a-zA-Z0-9-]/, '-')  // Replace special chars with dash
                         .replaceAll(/-+/, '-')  // Replace multiple dashes with single
                         .toLowerCase()
                         .replaceAll(/^-+|-+$/, '')  // Remove leading/trailing dashes
                         .take(30)  // Limit length
                     
+                    // Ensure sanitizedBranch is not empty after sanitization
+                    if (!sanitizedBranch || sanitizedBranch.isEmpty()) {
+                        sanitizedBranch = 'branch'
+                    }
+                    
                     // Determine namespace suffix - always auto-generated from username and branch
                     def namespaceSuffix = "${username}-${sanitizedBranch}"
                     echo "✅ Auto-generated namespace: ${namespaceSuffix} (from username: ${username}, branch: ${sanitizedBranch})"
                     
                     // Final sanitization for K8s namespace rules
-                    namespaceSuffix = namespaceSuffix
+                    namespaceSuffix = namespaceSuffix.toString()
                         .replaceAll(/[^a-z0-9-]/, '')  // Only lowercase, numbers, dashes
                         .replaceAll(/-+/, '-')  // Replace multiple dashes with single
                         .replaceAll(/^-+|-+$/, '')  // Remove leading/trailing dashes
                         .take(50)  // K8s namespace max length is 63, but we use 50 for safety
                     
-                    if (namespaceSuffix.isEmpty()) {
-                        namespaceSuffix = 'dev-' + GIT_SHORT_COMMIT
+                    // Ensure namespaceSuffix is not empty
+                    if (!namespaceSuffix || namespaceSuffix.isEmpty()) {
+                        def fallbackCommit = GIT_SHORT_COMMIT ?: 'unknown'
+                        namespaceSuffix = "dev-${fallbackCommit}"
                     }
                     
                     env.DEVELOPER_NAMESPACE = "chatapp-dev-${namespaceSuffix}"
@@ -190,10 +207,22 @@ pipeline {
                     // Generate developer-specific image tag
                     def imageTag = ''
                     if (params.IMAGE_TAG_OVERRIDE && !params.IMAGE_TAG_OVERRIDE.isEmpty()) {
-                        imageTag = params.IMAGE_TAG_OVERRIDE
+                        imageTag = params.IMAGE_TAG_OVERRIDE.toString()
                     } else {
+                        // Ensure GIT_SHORT_COMMIT is not null
+                        def shortCommit = GIT_SHORT_COMMIT ?: 'unknown'
+                        if (shortCommit == 'null' || shortCommit.isEmpty()) {
+                            shortCommit = 'unknown'
+                        }
                         // Format: dev-{namespace-suffix}-{short-commit}
-                        imageTag = "dev-${namespaceSuffix}-${GIT_SHORT_COMMIT}"
+                        imageTag = "dev-${namespaceSuffix}-${shortCommit}"
+                    }
+                    
+                    // Final validation - ensure imageTag is not null or empty
+                    if (!imageTag || imageTag.isEmpty() || imageTag == 'null' || imageTag.contains('null')) {
+                        def timestamp = System.currentTimeMillis().toString().take(8)
+                        imageTag = "dev-${namespaceSuffix}-${timestamp}"
+                        echo "⚠️  Generated fallback image tag: ${imageTag}"
                     }
                     
                     env.DEVELOPER_TAG = imageTag
