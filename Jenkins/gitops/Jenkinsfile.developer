@@ -46,15 +46,25 @@ pipeline {
             choices: ['deploy', 'destroy'],
             description: 'Action to perform: deploy (build & deploy) or destroy (cleanup)'
         )
+        booleanParam(
+            name: 'USE_CUSTOM_DEVELOPER_NAME',
+            defaultValue: false,
+            description: 'Check to override developer name. If unchecked, uses Jenkins username automatically.'
+        )
         string(
             name: 'DEVELOPER_NAME',
             defaultValue: '',
-            description: 'Your name/identifier (e.g., "john", "feature-auth"). Used for namespace isolation. Leave empty to use branch name.'
+            description: 'Custom developer name/identifier (e.g., "john", "feature-auth"). Only used if USE_CUSTOM_DEVELOPER_NAME is checked. Otherwise uses Jenkins username.'
+        )
+        booleanParam(
+            name: 'USE_CUSTOM_NAMESPACE_SUFFIX',
+            defaultValue: false,
+            description: 'Check to override namespace suffix. If unchecked, uses developer name or branch name automatically.'
         )
         string(
             name: 'NAMESPACE_SUFFIX',
             defaultValue: '',
-            description: 'Custom namespace suffix. If empty, uses DEVELOPER_NAME or sanitized branch name. Format: chatapp-dev-{suffix}'
+            description: 'Custom namespace suffix. Only used if USE_CUSTOM_NAMESPACE_SUFFIX is checked. Format: chatapp-dev-{suffix}'
         )
         booleanParam(
             name: 'SKIP_BUILD',
@@ -107,19 +117,65 @@ pipeline {
                     
                     def normalizedBranch = BRANCH.replaceAll('origin/', '')
                     
-                    // Determine developer namespace
-                    def namespaceSuffix = ''
-                    if (params.NAMESPACE_SUFFIX && !params.NAMESPACE_SUFFIX.isEmpty()) {
-                        namespaceSuffix = params.NAMESPACE_SUFFIX
-                    } else if (params.DEVELOPER_NAME && !params.DEVELOPER_NAME.isEmpty()) {
-                        namespaceSuffix = params.DEVELOPER_NAME
+                    // Get Jenkins username (who triggered the build)
+                    def jenkinsUser = ''
+                    
+                    // Method 1: Try BUILD_USER (requires Build User Vars plugin)
+                    if (env.BUILD_USER && !env.BUILD_USER.isEmpty()) {
+                        jenkinsUser = env.BUILD_USER
+                    } else if (env.BUILD_USER_ID && !env.BUILD_USER_ID.isEmpty()) {
+                        jenkinsUser = env.BUILD_USER_ID
+                    }
+                    
+                    // Method 2: Try to get from build causes
+                    if (!jenkinsUser || jenkinsUser.isEmpty()) {
+                        try {
+                            def causes = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+                            if (causes && !causes.isEmpty() && causes[0].userId) {
+                                jenkinsUser = causes[0].userId
+                            }
+                        } catch (Exception e) {
+                            // Ignore - try next method
+                        }
+                    }
+                    
+                    // Method 3: Try whoami command
+                    if (!jenkinsUser || jenkinsUser.isEmpty()) {
+                        try {
+                            jenkinsUser = sh(script: 'whoami', returnStdout: true).trim()
+                        } catch (Exception e) {
+                            // Ignore - use default
+                        }
+                    }
+                    
+                    // Fallback: use default if still empty
+                    if (!jenkinsUser || jenkinsUser.isEmpty()) {
+                        jenkinsUser = 'developer'
+                    }
+                    
+                    // Determine developer name
+                    def developerName = ''
+                    if (params.USE_CUSTOM_DEVELOPER_NAME && params.DEVELOPER_NAME && !params.DEVELOPER_NAME.isEmpty()) {
+                        developerName = params.DEVELOPER_NAME
+                        echo "✅ Using custom developer name: ${developerName}"
                     } else {
-                        // Use sanitized branch name
-                        namespaceSuffix = normalizedBranch
+                        developerName = jenkinsUser
+                        echo "✅ Using Jenkins username: ${developerName}"
+                    }
+                    
+                    // Determine namespace suffix
+                    def namespaceSuffix = ''
+                    if (params.USE_CUSTOM_NAMESPACE_SUFFIX && params.NAMESPACE_SUFFIX && !params.NAMESPACE_SUFFIX.isEmpty()) {
+                        namespaceSuffix = params.NAMESPACE_SUFFIX
+                        echo "✅ Using custom namespace suffix: ${namespaceSuffix}"
+                    } else {
+                        // Use developer name (Jenkins username or custom)
+                        namespaceSuffix = developerName
                             .replaceAll(/[^a-zA-Z0-9-]/, '-')  // Replace special chars with dash
                             .replaceAll(/-+/, '-')  // Replace multiple dashes with single
                             .toLowerCase()
                             .take(40)  // Limit length
+                        echo "✅ Using developer name as namespace suffix: ${namespaceSuffix}"
                     }
                     
                     // Sanitize namespace suffix (K8s namespace rules)
@@ -149,8 +205,9 @@ pipeline {
                     ╔════════════════════════════════════════╗
                     ║  DEVELOPER ENVIRONMENT SETUP          ║
                     ╚════════════════════════════════════════╝
+                    Jenkins User:      ${jenkinsUser}
+                    Developer Name:   ${developerName}
                     Branch:           ${normalizedBranch}
-                    Developer Name:   ${params.DEVELOPER_NAME ?: 'auto (from branch)'}
                     Namespace:        ${env.DEVELOPER_NAMESPACE}
                     Image Tag:        ${env.DEVELOPER_TAG}
                     Action:           ${params.ACTION}
