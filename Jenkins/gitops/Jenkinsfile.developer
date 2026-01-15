@@ -111,50 +111,75 @@ pipeline {
                     
                     def normalizedBranch = BRANCH.replaceAll('origin/', '')
                     
-                    // Get user email and extract username (part before @)
-                    def userEmail = ''
+                    // Get user information from build causes
                     def username = ''
+                    def userEmail = ''
                     
-                    echo "🔍 Attempting to get user email..."
-                    echo "   BUILD_USER_EMAIL: ${env.BUILD_USER_EMAIL ?: 'not set'}"
-                    echo "   BUILD_USER: ${env.BUILD_USER ?: 'not set'}"
-                    echo "   BUILD_USER_ID: ${env.BUILD_USER_ID ?: 'not set'}"
+                    echo "🔍 Attempting to get user information from build causes..."
                     
-                    // Method 1: Try BUILD_USER_EMAIL (requires Build User Vars plugin)
-                    if (env.BUILD_USER_EMAIL && !env.BUILD_USER_EMAIL.isEmpty() && env.BUILD_USER_EMAIL != 'null') {
-                        userEmail = env.BUILD_USER_EMAIL.toString().trim()
-                        echo "✅ Found email from BUILD_USER_EMAIL: ${userEmail}"
+                    try {
+                        // Method 1: Use rawBuild.getCause() - most reliable method
+                        def userCause = currentBuild.rawBuild.getCause(hudson.model.Cause.UserIdCause.class)
+                        if (userCause != null) {
+                            def userId = userCause.getUserId()
+                            def userName = userCause.getUserName()
+                            
+                            echo "✅ Build started by User ID: ${userId}"
+                            echo "✅ Build started by User Name: ${userName}"
+                            
+                            // userId is typically the email (e.g., tomer@test.com)
+                            // userName might be the display name
+                            if (userId && !userId.isEmpty() && userId != 'null') {
+                                userEmail = userId.toString().trim()
+                                
+                                // Extract username from email (part before @) - split by '@' and take index 0
+                                if (userEmail.contains('@')) {
+                                    def emailParts = userEmail.split('@')
+                                    if (emailParts && emailParts.length > 0 && emailParts[0]) {
+                                        username = emailParts[0].trim()
+                                        echo "✅ Extracted username from userId email: ${userEmail} → ${username}"
+                                    }
+                                } else {
+                                    // userId is not an email, use it as username
+                                    username = userEmail
+                                    echo "✅ Using userId as username: ${username}"
+                                }
+                            } else if (userName && !userName.isEmpty() && userName != 'null') {
+                                // Fallback to userName if userId is not available
+                                username = userName.toString().trim()
+                                // Check if userName is an email
+                                if (username.contains('@')) {
+                                    def emailParts = username.split('@')
+                                    if (emailParts && emailParts.length > 0 && emailParts[0]) {
+                                        username = emailParts[0].trim()
+                                    }
+                                }
+                                echo "✅ Using userName: ${username}"
+                            }
+                        } else {
+                            echo "⚠️  Build not started by a user directly (e.g., SCM, timer, upstream project)"
+                            echo "   Build causes: ${currentBuild.rawBuild.getCauses()}"
+                        }
+                    } catch (Exception e) {
+                        echo "⚠️  Could not get user from rawBuild.getCause(): ${e.getMessage()}"
+                        echo "   Trying alternative methods..."
                     }
                     
-                    // Method 2: Try to get from build causes
-                    if (!userEmail || userEmail.isEmpty() || userEmail == 'null') {
-                        try {
-                            def causes = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
-                            if (causes && !causes.isEmpty() && causes[0].userId) {
-                                def userId = causes[0].userId.toString().trim()
-                                // Check if userId looks like an email
-                                if (userId.contains('@')) {
-                                    userEmail = userId
-                                    echo "✅ Found email from build causes: ${userEmail}"
+                    // Method 2: Fallback to BUILD_USER_EMAIL (requires Build User Vars plugin)
+                    if (!username || username.isEmpty() || username == 'null') {
+                        if (env.BUILD_USER_EMAIL && !env.BUILD_USER_EMAIL.isEmpty() && env.BUILD_USER_EMAIL != 'null') {
+                            userEmail = env.BUILD_USER_EMAIL.toString().trim()
+                            if (userEmail.contains('@')) {
+                                def emailParts = userEmail.split('@')
+                                if (emailParts && emailParts.length > 0 && emailParts[0]) {
+                                    username = emailParts[0].trim()
+                                    echo "✅ Extracted username from BUILD_USER_EMAIL: ${userEmail} → ${username}"
                                 }
                             }
-                        } catch (Exception e) {
-                            echo "⚠️  Could not get email from build causes: ${e.getMessage()}"
                         }
                     }
                     
-                    // Extract username from email (part before @) - split by '@' and take index 0
-                    if (userEmail && !userEmail.isEmpty() && userEmail != 'null' && userEmail.contains('@')) {
-                        def emailParts = userEmail.split('@')
-                        if (emailParts && emailParts.length > 0 && emailParts[0]) {
-                            username = emailParts[0].trim()
-                            echo "✅ Extracted username from email: ${userEmail} → ${username}"
-                        } else {
-                            echo "⚠️  Could not extract username from email: ${userEmail}"
-                        }
-                    }
-                    
-                    // Fallback: Try BUILD_USER or BUILD_USER_ID if email extraction failed
+                    // Method 3: Fallback to BUILD_USER or BUILD_USER_ID
                     if (!username || username.isEmpty() || username == 'null') {
                         if (env.BUILD_USER && !env.BUILD_USER.isEmpty() && env.BUILD_USER != 'null') {
                             username = env.BUILD_USER.toString().trim()
@@ -176,15 +201,17 @@ pipeline {
                                 }
                             }
                             echo "✅ Using BUILD_USER_ID: ${username}"
-                        } else {
-                            // Last resort: try whoami
-                            try {
-                                username = sh(script: 'whoami', returnStdout: true).trim()
-                                echo "✅ Using whoami: ${username}"
-                            } catch (Exception e) {
-                                username = 'developer'
-                                echo "⚠️  Using fallback username: ${username}"
-                            }
+                        }
+                    }
+                    
+                    // Method 4: Last resort - try whoami
+                    if (!username || username.isEmpty() || username == 'null') {
+                        try {
+                            username = sh(script: 'whoami', returnStdout: true).trim()
+                            echo "✅ Using whoami: ${username}"
+                        } catch (Exception e) {
+                            username = 'developer'
+                            echo "⚠️  Using fallback username: ${username}"
                         }
                     }
                     
