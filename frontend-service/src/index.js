@@ -19,23 +19,6 @@ root.render(
   </React.StrictMode>
 );
 
-// Initialize OpenTelemetry asynchronously after app renders (non-blocking)
-// Temporarily disabled to debug frontend loading issue
-// TODO: Re-enable once frontend loads properly
-/*
-setTimeout(() => {
-  import('./instrumentation').then(({ initializeOpenTelemetry }) => {
-    try {
-      initializeOpenTelemetry();
-    } catch (error) {
-      console.warn('OpenTelemetry initialization skipped:', error.message);
-    }
-  }).catch((error) => {
-    console.warn('OpenTelemetry not available:', error.message);
-  });
-}, 100);
-*/
-
 /**
  * React.StrictMode is a development tool that:
  * - Warns about deprecated features
