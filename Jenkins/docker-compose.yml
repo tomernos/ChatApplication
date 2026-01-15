@@ -30,7 +30,7 @@ services:
     image: jenkins/inbound-agent:latest
     container_name: jenkins-agent
     environment:
-      - JENKINS_URL=http://jenkins:8080
+      - JENKINS_URL=http://localhost:8080
       - JENKINS_AGENT_NAME=docker-agent
       - JENKINS_SECRET=${JENKINS_AGENT_SECRET:-changeme}
       - JENKINS_AGENT_WORKDIR=/home/jenkins/agent

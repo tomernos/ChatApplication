@@ -4,13 +4,13 @@
  * Developer Self-Service Pipeline
  * 
  * NOTE: This pipeline uses Active Choices Plugin for conditional parameter display.
- * If the plugin is not installed, you may see an error. To install:
+ * The CUSTOM_NAMESPACE field will be hidden when USE_CUSTOM_NAMESPACE is unchecked.
+ * 
+ * Plugin Requirement: Active Choices Plugin (uno-choice)
+ * To install:
  * 1. Go to Jenkins > Manage Jenkins > Manage Plugins
  * 2. Search for "Active Choices Plugin" (uno-choice)
  * 3. Install and restart Jenkins
- * 
- * Alternative: If you cannot install the plugin, the CUSTOM_NAMESPACE parameter
- * will always be visible but will only be used when USE_CUSTOM_NAMESPACE is checked.
  */
 
 // Properties block with conditional parameters
@@ -26,22 +26,11 @@ properties([
             defaultValue: false,
             description: 'Check to override namespace. If unchecked, automatically uses: {username}-{feature-branch}'
         ),
-        // Custom namespace parameter - only used when USE_CUSTOM_NAMESPACE is checked
-        // Note: Jenkins doesn't support hiding parameters natively. This field will always be visible
-        // but will be ignored unless USE_CUSTOM_NAMESPACE is checked.
-        // To hide it conditionally, install "Active Choices Plugin" and uncomment the block below.
-        string(
-            name: 'CUSTOM_NAMESPACE',
-            defaultValue: '',
-            description: '⚠️ ONLY USED IF "USE_CUSTOM_NAMESPACE" IS CHECKED ⚠️\n\nCustom namespace suffix. Leave empty if checkbox is unchecked.\nFormat: chatapp-dev-{your-custom-name}\nExample: my-test-env → creates namespace: chatapp-dev-my-test-env'
-        ),
-        
-        // Uncomment below and comment out the string() above to use Active Choices Plugin (hides field when unchecked)
+        // Active Choices Reactive Parameter - hides field when USE_CUSTOM_NAMESPACE is unchecked
         // Requires: Active Choices Plugin (https://plugins.jenkins.io/uno-choice/)
-        /*
         [$class: 'ActiveChoicesReactiveReferenceParameter',
             name: 'CUSTOM_NAMESPACE',
-            description: 'Custom namespace suffix (only visible when USE_CUSTOM_NAMESPACE is checked)',
+            description: 'Custom namespace suffix (only visible when USE_CUSTOM_NAMESPACE is checked). Format: chatapp-dev-{your-custom-name}',
             referencedParameters: 'USE_CUSTOM_NAMESPACE',
             choiceType: 'Formatted HTML',
             script: [
@@ -55,19 +44,25 @@ properties([
                     classpath: [],
                     sandbox: true,
                     script: '''
-                        if (USE_CUSTOM_NAMESPACE?.toString() == "true") {
+                        def showField = USE_CUSTOM_NAMESPACE?.toString() == "true"
+                        if (showField) {
                             return '''<div class="jenkins-form-item">
-                                <label>Custom Namespace Suffix:</label>
-                                <input name="value" type="text" placeholder="e.g., my-test-env" value="">
+                                <label for="CUSTOM_NAMESPACE" style="font-weight: bold; display: block; margin-bottom: 5px;">Custom Namespace Suffix:</label>
+                                <input name="value" type="text" id="CUSTOM_NAMESPACE" class="jenkins-input" 
+                                       placeholder="e.g., my-test-env" value="" style="width: 100%; max-width: 400px;">
+                                <div style="font-size: 0.9em; color: #666; margin-top: 4px;">
+                                    This will create namespace: <code>chatapp-dev-{your-input}</code>
+                                </div>
                             </div>'''
                         } else {
-                            return '''<div style="display: none;"><input name="value" type="hidden" value=""></div>'''
+                            return '''<div style="display: none;">
+                                <input name="value" type="hidden" value="">
+                            </div>'''
                         }
                     '''
                 ]
             ]
         ],
-        */
         booleanParam(
             name: 'SKIP_BUILD',
             defaultValue: false,
