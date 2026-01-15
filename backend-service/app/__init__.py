@@ -32,11 +32,20 @@ def _initialize_opentelemetry():
     """Initialize OpenTelemetry for distributed tracing."""
     try:
         # Get configuration from environment variables
-        otel_endpoint = os.getenv(
+        otel_endpoint_raw = os.getenv(
             "OTEL_EXPORTER_OTLP_ENDPOINT",
             "http://otel-collector-opentelemetry-collector.monitoring.svc.cluster.local:4317"
         )
         service_name = os.getenv("OTEL_SERVICE_NAME", "chatapp-backend")
+        
+        # OTLPSpanExporter for gRPC expects endpoint without http:// prefix
+        # Strip http:// or https:// if present
+        if otel_endpoint_raw.startswith("http://"):
+            otel_endpoint = otel_endpoint_raw.replace("http://", "", 1)
+        elif otel_endpoint_raw.startswith("https://"):
+            otel_endpoint = otel_endpoint_raw.replace("https://", "", 1)
+        else:
+            otel_endpoint = otel_endpoint_raw
         
         # Create resource with service information (matching example pattern)
         resource = Resource.create({
@@ -48,7 +57,7 @@ def _initialize_opentelemetry():
         trace.set_tracer_provider(trace_provider)
         
         # Configure OTLP exporter (sends traces to OTEL Collector)
-        # Note: endpoint can include http:// prefix, OTLPSpanExporter handles it
+        # gRPC endpoint should be host:port format (no http:// prefix)
         otlp_exporter = OTLPSpanExporter(
             endpoint=otel_endpoint,
             insecure=True  # For dev, use TLS in prod
