@@ -19,8 +19,6 @@ frontend:
     # Frontend needs correct backend URL to connect
     API_URL: http://chatapp-backend:5000
     BACKEND_URL: http://chatapp-backend:5000  # For nginx.conf proxy_pass substitution
-    # OpenTelemetry - override namespace for dev environment
-    REACT_APP_OTEL_SERVICE_NAMESPACE: "chatapp-dev"
 
 ingress:
   enabled: true  # Ensure ingress is enabled for dev

@@ -19,10 +19,6 @@ env:
   API_URL: http://chatapp-backend:5000
   BACKEND_URL: http://chatapp-backend:5000  # For nginx proxy_pass
   NODE_ENV: production
-  # OpenTelemetry configuration for distributed tracing (frontend uses HTTP endpoint)
-  REACT_APP_OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector-opentelemetry-collector.monitoring.svc.cluster.local:4318"
-  REACT_APP_OTEL_SERVICE_NAME: "chatapp-frontend"
-  REACT_APP_OTEL_SERVICE_NAMESPACE: "chatapp-prod"  # Overridden per environment in values-{env}.yaml
 
 resources:
   requests:

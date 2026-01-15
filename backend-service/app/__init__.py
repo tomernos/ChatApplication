@@ -29,7 +29,9 @@ logger = logging.getLogger(__name__)
 
 def _initialize_opentelemetry():
     """Initialize OpenTelemetry for distributed tracing."""
+    logger.info("🔍 [OTEL] Starting OpenTelemetry initialization...")
     try:
+        logger.info("🔍 [OTEL] Step 1: Reading environment variables...")
         # Get configuration from environment variables
         otel_endpoint = os.getenv(
             "OTEL_EXPORTER_OTLP_ENDPOINT",
@@ -37,32 +39,42 @@ def _initialize_opentelemetry():
         )
         service_name = os.getenv("OTEL_SERVICE_NAME", "chatapp-backend")
         service_namespace = os.getenv("OTEL_SERVICE_NAMESPACE", "chatapp-dev")
+        logger.info(f"🔍 [OTEL] Config: endpoint={otel_endpoint}, service={service_name}, namespace={service_namespace}")
         
+        logger.info("🔍 [OTEL] Step 2: Creating OTEL resource...")
         # Create resource with service information
         resource = Resource.create({
             "service.name": service_name,
             "service.namespace": service_namespace,
         })
         
+        logger.info("🔍 [OTEL] Step 3: Setting tracer provider...")
         # Initialize TracerProvider with resource
         trace.set_tracer_provider(TracerProvider(resource=resource))
         
+        logger.info(f"🔍 [OTEL] Step 4: Creating OTLP exporter for {otel_endpoint}...")
         # Configure OTLP exporter (sends traces to OTEL Collector)
         otlp_exporter = OTLPSpanExporter(
             endpoint=otel_endpoint,
             insecure=True  # For dev, use TLS in prod
         )
         
+        logger.info("🔍 [OTEL] Step 5: Adding span processor...")
         # Add span processor
         span_processor = BatchSpanProcessor(otlp_exporter)
         trace.get_tracer_provider().add_span_processor(span_processor)
         
-        logger.info(f"✅ OpenTelemetry initialized: {service_name} -> {otel_endpoint}")
+        logger.info(f"✅ [OTEL] OpenTelemetry initialized: {service_name} -> {otel_endpoint}")
         logger.info(f"   Service namespace: {service_namespace}")
-    except Exception as e:
-        logger.warning(f"⚠️  Failed to initialize OpenTelemetry: {e}. Tracing disabled.")
+    except ImportError as ie:
+        logger.error(f"❌ [OTEL] Import error - OpenTelemetry packages not installed: {ie}")
         import traceback
-        logger.warning(f"   Error details: {traceback.format_exc()}")
+        logger.error(f"   Traceback: {traceback.format_exc()}")
+    except Exception as e:
+        logger.error(f"❌ [OTEL] Failed to initialize OpenTelemetry: {e}")
+        logger.error(f"   Error type: {type(e).__name__}")
+        import traceback
+        logger.error(f"   Traceback: {traceback.format_exc()}")
 
 def create_app(config_name=None):
     """Application factory pattern for creating Flask app."""
