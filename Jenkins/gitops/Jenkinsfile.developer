@@ -115,49 +115,86 @@ pipeline {
                     def userEmail = ''
                     def username = ''
                     
+                    echo "🔍 Attempting to get user email..."
+                    echo "   BUILD_USER_EMAIL: ${env.BUILD_USER_EMAIL ?: 'not set'}"
+                    echo "   BUILD_USER: ${env.BUILD_USER ?: 'not set'}"
+                    echo "   BUILD_USER_ID: ${env.BUILD_USER_ID ?: 'not set'}"
+                    
                     // Method 1: Try BUILD_USER_EMAIL (requires Build User Vars plugin)
-                    if (env.BUILD_USER_EMAIL && !env.BUILD_USER_EMAIL.isEmpty()) {
-                        userEmail = env.BUILD_USER_EMAIL
+                    if (env.BUILD_USER_EMAIL && !env.BUILD_USER_EMAIL.isEmpty() && env.BUILD_USER_EMAIL != 'null') {
+                        userEmail = env.BUILD_USER_EMAIL.toString().trim()
+                        echo "✅ Found email from BUILD_USER_EMAIL: ${userEmail}"
                     }
                     
                     // Method 2: Try to get from build causes
-                    if (!userEmail || userEmail.isEmpty()) {
+                    if (!userEmail || userEmail.isEmpty() || userEmail == 'null') {
                         try {
                             def causes = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
                             if (causes && !causes.isEmpty() && causes[0].userId) {
-                                // Try to get email from user ID (may not work, but worth trying)
-                                userEmail = causes[0].userId
+                                def userId = causes[0].userId.toString().trim()
+                                // Check if userId looks like an email
+                                if (userId.contains('@')) {
+                                    userEmail = userId
+                                    echo "✅ Found email from build causes: ${userEmail}"
+                                }
                             }
                         } catch (Exception e) {
-                            // Ignore
+                            echo "⚠️  Could not get email from build causes: ${e.getMessage()}"
                         }
                     }
                     
-                    // Extract username from email (part before @)
-                    if (userEmail && userEmail.contains('@')) {
-                        username = userEmail.split('@')[0].trim()
-                        echo "✅ Extracted username from email: ${userEmail} → ${username}"
-                    } else {
-                        // Fallback: Try BUILD_USER or BUILD_USER_ID
-                        if (env.BUILD_USER && !env.BUILD_USER.isEmpty()) {
-                            username = env.BUILD_USER
-                        } else if (env.BUILD_USER_ID && !env.BUILD_USER_ID.isEmpty()) {
-                            username = env.BUILD_USER_ID
+                    // Extract username from email (part before @) - split by '@' and take index 0
+                    if (userEmail && !userEmail.isEmpty() && userEmail != 'null' && userEmail.contains('@')) {
+                        def emailParts = userEmail.split('@')
+                        if (emailParts && emailParts.length > 0 && emailParts[0]) {
+                            username = emailParts[0].trim()
+                            echo "✅ Extracted username from email: ${userEmail} → ${username}"
+                        } else {
+                            echo "⚠️  Could not extract username from email: ${userEmail}"
+                        }
+                    }
+                    
+                    // Fallback: Try BUILD_USER or BUILD_USER_ID if email extraction failed
+                    if (!username || username.isEmpty() || username == 'null') {
+                        if (env.BUILD_USER && !env.BUILD_USER.isEmpty() && env.BUILD_USER != 'null') {
+                            username = env.BUILD_USER.toString().trim()
+                            // If BUILD_USER is an email, extract username
+                            if (username.contains('@')) {
+                                def emailParts = username.split('@')
+                                if (emailParts && emailParts.length > 0 && emailParts[0]) {
+                                    username = emailParts[0].trim()
+                                }
+                            }
+                            echo "✅ Using BUILD_USER: ${username}"
+                        } else if (env.BUILD_USER_ID && !env.BUILD_USER_ID.isEmpty() && env.BUILD_USER_ID != 'null') {
+                            username = env.BUILD_USER_ID.toString().trim()
+                            // If BUILD_USER_ID is an email, extract username
+                            if (username.contains('@')) {
+                                def emailParts = username.split('@')
+                                if (emailParts && emailParts.length > 0 && emailParts[0]) {
+                                    username = emailParts[0].trim()
+                                }
+                            }
+                            echo "✅ Using BUILD_USER_ID: ${username}"
                         } else {
                             // Last resort: try whoami
                             try {
                                 username = sh(script: 'whoami', returnStdout: true).trim()
+                                echo "✅ Using whoami: ${username}"
                             } catch (Exception e) {
                                 username = 'developer'
+                                echo "⚠️  Using fallback username: ${username}"
                             }
                         }
-                        echo "✅ Using Jenkins username: ${username}"
                     }
                     
-                    // Ensure username is not null or empty
+                    // Final validation - ensure username is not null or empty
                     if (!username || username.isEmpty() || username == 'null') {
                         username = 'developer'
+                        echo "⚠️  Username was null/empty, using fallback: ${username}"
                     }
+                    
+                    echo "📋 Final username: ${username}"
                     
                     // Sanitize username (remove special chars, lowercase)
                     username = username.toString()
@@ -197,12 +234,28 @@ pipeline {
                         .take(50)  // K8s namespace max length is 63, but we use 50 for safety
                     
                     // Ensure namespaceSuffix is not empty
-                    if (!namespaceSuffix || namespaceSuffix.isEmpty()) {
+                    if (!namespaceSuffix || namespaceSuffix.isEmpty() || namespaceSuffix == 'null') {
                         def fallbackCommit = GIT_SHORT_COMMIT ?: 'unknown'
+                        if (fallbackCommit == 'null' || fallbackCommit.isEmpty()) {
+                            fallbackCommit = System.currentTimeMillis().toString().take(8)
+                        }
                         namespaceSuffix = "dev-${fallbackCommit}"
+                        echo "⚠️  Using fallback namespace suffix: ${namespaceSuffix}"
+                    }
+                    
+                    // Final validation before setting namespace
+                    if (!namespaceSuffix || namespaceSuffix.isEmpty() || namespaceSuffix == 'null') {
+                        error("❌ Cannot generate namespace suffix! Username: ${username}, Branch: ${sanitizedBranch}, Commit: ${GIT_SHORT_COMMIT}")
                     }
                     
                     env.DEVELOPER_NAMESPACE = "chatapp-dev-${namespaceSuffix}"
+                    
+                    // Validate namespace was set correctly
+                    if (!env.DEVELOPER_NAMESPACE || env.DEVELOPER_NAMESPACE.isEmpty() || env.DEVELOPER_NAMESPACE == 'null' || env.DEVELOPER_NAMESPACE.contains('null')) {
+                        error("❌ DEVELOPER_NAMESPACE is invalid: ${env.DEVELOPER_NAMESPACE}")
+                    }
+                    
+                    echo "✅ Developer namespace set: ${env.DEVELOPER_NAMESPACE}"
                     
                     // Generate developer-specific image tag
                     def imageTag = ''
@@ -441,22 +494,35 @@ pipeline {
                             # Login to ECR
                             aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin \${ECR_REGISTRY_BASE}
                             
-                            # Tag images
-                            docker tag connecthub-backend:latest \${ECR_REGISTRY}:backend-${env.DEVELOPER_TAG}
-                            docker tag connecthub-frontend:latest \${ECR_REGISTRY}:frontend-${env.DEVELOPER_TAG}
+                            # Validate DEVELOPER_TAG is set
+                            if [ -z "${env.DEVELOPER_TAG}" ] || [ "${env.DEVELOPER_TAG}" = "null" ]; then
+                                echo "❌ DEVELOPER_TAG is not set or is null"
+                                exit 1
+                            fi
+                            
+                            # Tag images with proper prefixes
+                            BACKEND_TAG="backend-${env.DEVELOPER_TAG}"
+                            FRONTEND_TAG="frontend-${env.DEVELOPER_TAG}"
+                            
+                            echo "Tagging images:"
+                            echo "  Backend:  \${ECR_REGISTRY}:\${BACKEND_TAG}"
+                            echo "  Frontend: \${ECR_REGISTRY}:\${FRONTEND_TAG}"
+                            
+                            docker tag connecthub-backend:latest \${ECR_REGISTRY}:\${BACKEND_TAG}
+                            docker tag connecthub-frontend:latest \${ECR_REGISTRY}:\${FRONTEND_TAG}
                             
                             # Push images
-                            docker push \${ECR_REGISTRY}:backend-${env.DEVELOPER_TAG}
-                            docker push \${ECR_REGISTRY}:frontend-${env.DEVELOPER_TAG}
+                            docker push \${ECR_REGISTRY}:\${BACKEND_TAG}
+                            docker push \${ECR_REGISTRY}:\${FRONTEND_TAG}
                             
                             # Save for deployment stage
                             echo "\${ECR_REGISTRY}" > /tmp/ecr_registry.txt
-                            echo "\${ECR_REGISTRY}:backend-${env.DEVELOPER_TAG}" > /tmp/backend_image.txt
-                            echo "\${ECR_REGISTRY}:frontend-${env.DEVELOPER_TAG}" > /tmp/frontend_image.txt
+                            echo "\${ECR_REGISTRY}:\${BACKEND_TAG}" > /tmp/backend_image.txt
+                            echo "\${ECR_REGISTRY}:\${FRONTEND_TAG}" > /tmp/frontend_image.txt
                             
                             echo "✅ Images pushed to ECR"
-                            echo "   Backend:  \${ECR_REGISTRY}:backend-${env.DEVELOPER_TAG}"
-                            echo "   Frontend: \${ECR_REGISTRY}:frontend-${env.DEVELOPER_TAG}"
+                            echo "   Backend:  \${ECR_REGISTRY}:\${BACKEND_TAG}"
+                            echo "   Frontend: \${ECR_REGISTRY}:\${FRONTEND_TAG}"
                         """
                     }
                 }
@@ -513,6 +579,18 @@ pipeline {
                 script {
                     logMessage('Deploying to Developer Environment', '🚀')
                     
+                    // Validate namespace is set
+                    if (!env.DEVELOPER_NAMESPACE || env.DEVELOPER_NAMESPACE.isEmpty() || env.DEVELOPER_NAMESPACE == 'null') {
+                        error("""
+                        ❌ DEVELOPER_NAMESPACE is not set or is null!
+                        
+                        This should have been set in the 'Setup Developer Environment' stage.
+                        Please check the pipeline logs for that stage.
+                        """)
+                    }
+                    
+                    echo "📋 Using namespace: ${env.DEVELOPER_NAMESPACE}"
+                    
                     // Read image URLs
                     def ecrRegistry = ''
                     def backendImage = ''
@@ -522,6 +600,11 @@ pipeline {
                         ecrRegistry = sh(script: 'cat /tmp/ecr_registry.txt', returnStdout: true).trim()
                         backendImage = sh(script: 'cat /tmp/backend_image.txt', returnStdout: true).trim()
                         frontendImage = sh(script: 'cat /tmp/frontend_image.txt', returnStdout: true).trim()
+                        
+                        // Validate images are set
+                        if (!backendImage || backendImage.isEmpty() || !frontendImage || frontendImage.isEmpty()) {
+                            error("❌ Image URLs are not set! Backend: ${backendImage}, Frontend: ${frontendImage}")
+                        }
                     } else {
                         // If skipping build, use override or construct from tag
                         if (params.IMAGE_TAG_OVERRIDE && !params.IMAGE_TAG_OVERRIDE.isEmpty()) {
