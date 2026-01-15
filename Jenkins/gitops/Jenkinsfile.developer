@@ -47,24 +47,14 @@ pipeline {
             description: 'Action to perform: deploy (build & deploy) or destroy (cleanup)'
         )
         booleanParam(
-            name: 'USE_CUSTOM_DEVELOPER_NAME',
+            name: 'USE_CUSTOM_NAMESPACE',
             defaultValue: false,
-            description: 'Check to override developer name. If unchecked, uses Jenkins username automatically.'
+            description: 'Check to override namespace. If unchecked, automatically uses: {username}-{feature-branch}'
         )
         string(
-            name: 'DEVELOPER_NAME',
+            name: 'CUSTOM_NAMESPACE',
             defaultValue: '',
-            description: 'Custom developer name/identifier (e.g., "john", "feature-auth"). Only used if USE_CUSTOM_DEVELOPER_NAME is checked. Otherwise uses Jenkins username.'
-        )
-        booleanParam(
-            name: 'USE_CUSTOM_NAMESPACE_SUFFIX',
-            defaultValue: false,
-            description: 'Check to override namespace suffix. If unchecked, uses developer name or branch name automatically.'
-        )
-        string(
-            name: 'NAMESPACE_SUFFIX',
-            defaultValue: '',
-            description: 'Custom namespace suffix. Only used if USE_CUSTOM_NAMESPACE_SUFFIX is checked. Format: chatapp-dev-{suffix}'
+            description: 'Custom namespace suffix (only used if USE_CUSTOM_NAMESPACE is checked). Format: chatapp-dev-{your-custom-name}'
         )
         booleanParam(
             name: 'SKIP_BUILD',
@@ -117,72 +107,82 @@ pipeline {
                     
                     def normalizedBranch = BRANCH.replaceAll('origin/', '')
                     
-                    // Get Jenkins username (who triggered the build)
-                    def jenkinsUser = ''
+                    // Get user email and extract username (part before @)
+                    def userEmail = ''
+                    def username = ''
                     
-                    // Method 1: Try BUILD_USER (requires Build User Vars plugin)
-                    if (env.BUILD_USER && !env.BUILD_USER.isEmpty()) {
-                        jenkinsUser = env.BUILD_USER
-                    } else if (env.BUILD_USER_ID && !env.BUILD_USER_ID.isEmpty()) {
-                        jenkinsUser = env.BUILD_USER_ID
+                    // Method 1: Try BUILD_USER_EMAIL (requires Build User Vars plugin)
+                    if (env.BUILD_USER_EMAIL && !env.BUILD_USER_EMAIL.isEmpty()) {
+                        userEmail = env.BUILD_USER_EMAIL
                     }
                     
                     // Method 2: Try to get from build causes
-                    if (!jenkinsUser || jenkinsUser.isEmpty()) {
+                    if (!userEmail || userEmail.isEmpty()) {
                         try {
                             def causes = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
                             if (causes && !causes.isEmpty() && causes[0].userId) {
-                                jenkinsUser = causes[0].userId
+                                // Try to get email from user ID (may not work, but worth trying)
+                                userEmail = causes[0].userId
                             }
                         } catch (Exception e) {
-                            // Ignore - try next method
+                            // Ignore
                         }
                     }
                     
-                    // Method 3: Try whoami command
-                    if (!jenkinsUser || jenkinsUser.isEmpty()) {
-                        try {
-                            jenkinsUser = sh(script: 'whoami', returnStdout: true).trim()
-                        } catch (Exception e) {
-                            // Ignore - use default
-                        }
-                    }
-                    
-                    // Fallback: use default if still empty
-                    if (!jenkinsUser || jenkinsUser.isEmpty()) {
-                        jenkinsUser = 'developer'
-                    }
-                    
-                    // Determine developer name
-                    def developerName = ''
-                    if (params.USE_CUSTOM_DEVELOPER_NAME && params.DEVELOPER_NAME && !params.DEVELOPER_NAME.isEmpty()) {
-                        developerName = params.DEVELOPER_NAME
-                        echo "✅ Using custom developer name: ${developerName}"
+                    // Extract username from email (part before @)
+                    if (userEmail && userEmail.contains('@')) {
+                        username = userEmail.split('@')[0].trim()
+                        echo "✅ Extracted username from email: ${userEmail} → ${username}"
                     } else {
-                        developerName = jenkinsUser
-                        echo "✅ Using Jenkins username: ${developerName}"
+                        // Fallback: Try BUILD_USER or BUILD_USER_ID
+                        if (env.BUILD_USER && !env.BUILD_USER.isEmpty()) {
+                            username = env.BUILD_USER
+                        } else if (env.BUILD_USER_ID && !env.BUILD_USER_ID.isEmpty()) {
+                            username = env.BUILD_USER_ID
+                        } else {
+                            // Last resort: try whoami
+                            try {
+                                username = sh(script: 'whoami', returnStdout: true).trim()
+                            } catch (Exception e) {
+                                username = 'developer'
+                            }
+                        }
+                        echo "✅ Using Jenkins username: ${username}"
                     }
+                    
+                    // Sanitize username (remove special chars, lowercase)
+                    username = username
+                        .replaceAll(/[^a-zA-Z0-9-]/, '-')  // Replace special chars with dash
+                        .replaceAll(/-+/, '-')  // Replace multiple dashes with single
+                        .toLowerCase()
+                        .replaceAll(/^-+|-+$/, '')  // Remove leading/trailing dashes
+                        .take(20)  // Limit length
+                    
+                    // Sanitize branch name for namespace
+                    def sanitizedBranch = normalizedBranch
+                        .replaceAll(/[^a-zA-Z0-9-]/, '-')  // Replace special chars with dash
+                        .replaceAll(/-+/, '-')  // Replace multiple dashes with single
+                        .toLowerCase()
+                        .replaceAll(/^-+|-+$/, '')  // Remove leading/trailing dashes
+                        .take(30)  // Limit length
                     
                     // Determine namespace suffix
                     def namespaceSuffix = ''
-                    if (params.USE_CUSTOM_NAMESPACE_SUFFIX && params.NAMESPACE_SUFFIX && !params.NAMESPACE_SUFFIX.isEmpty()) {
-                        namespaceSuffix = params.NAMESPACE_SUFFIX
-                        echo "✅ Using custom namespace suffix: ${namespaceSuffix}"
+                    if (params.USE_CUSTOM_NAMESPACE && params.CUSTOM_NAMESPACE && !params.CUSTOM_NAMESPACE.isEmpty()) {
+                        namespaceSuffix = params.CUSTOM_NAMESPACE
+                        echo "✅ Using custom namespace: ${namespaceSuffix}"
                     } else {
-                        // Use developer name (Jenkins username or custom)
-                        namespaceSuffix = developerName
-                            .replaceAll(/[^a-zA-Z0-9-]/, '-')  // Replace special chars with dash
-                            .replaceAll(/-+/, '-')  // Replace multiple dashes with single
-                            .toLowerCase()
-                            .take(40)  // Limit length
-                        echo "✅ Using developer name as namespace suffix: ${namespaceSuffix}"
+                        // Format: {username}-{feature-branch}
+                        namespaceSuffix = "${username}-${sanitizedBranch}"
+                        echo "✅ Auto-generated namespace: ${namespaceSuffix} (from username: ${username}, branch: ${sanitizedBranch})"
                     }
                     
-                    // Sanitize namespace suffix (K8s namespace rules)
+                    // Final sanitization for K8s namespace rules
                     namespaceSuffix = namespaceSuffix
                         .replaceAll(/[^a-z0-9-]/, '')  // Only lowercase, numbers, dashes
+                        .replaceAll(/-+/, '-')  // Replace multiple dashes with single
                         .replaceAll(/^-+|-+$/, '')  // Remove leading/trailing dashes
-                        .take(40)
+                        .take(50)  // K8s namespace max length is 63, but we use 50 for safety
                     
                     if (namespaceSuffix.isEmpty()) {
                         namespaceSuffix = 'dev-' + GIT_SHORT_COMMIT
@@ -205,9 +205,10 @@ pipeline {
                     ╔════════════════════════════════════════╗
                     ║  DEVELOPER ENVIRONMENT SETUP          ║
                     ╚════════════════════════════════════════╝
-                    Jenkins User:      ${jenkinsUser}
-                    Developer Name:   ${developerName}
+                    User Email:        ${userEmail ?: 'N/A'}
+                    Username:         ${username}
                     Branch:           ${normalizedBranch}
+                    Sanitized Branch: ${sanitizedBranch}
                     Namespace:        ${env.DEVELOPER_NAMESPACE}
                     Image Tag:        ${env.DEVELOPER_TAG}
                     Action:           ${params.ACTION}
