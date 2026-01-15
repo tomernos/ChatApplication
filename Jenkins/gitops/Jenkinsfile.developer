@@ -43,23 +43,21 @@ properties([
                 script: [
                     classpath: [],
                     sandbox: true,
-                    script: '''
+                    script: """
                         def showField = USE_CUSTOM_NAMESPACE?.toString() == "true"
                         if (showField) {
-                            return '''<div class="jenkins-form-item">
-                                <label for="CUSTOM_NAMESPACE" style="font-weight: bold; display: block; margin-bottom: 5px;">Custom Namespace Suffix:</label>
-                                <input name="value" type="text" id="CUSTOM_NAMESPACE" class="jenkins-input" 
-                                       placeholder="e.g., my-test-env" value="" style="width: 100%; max-width: 400px;">
-                                <div style="font-size: 0.9em; color: #666; margin-top: 4px;">
-                                    This will create namespace: <code>chatapp-dev-{your-input}</code>
-                                </div>
-                            </div>'''
+                            return '<div class="jenkins-form-item">' +
+                                '<label for="CUSTOM_NAMESPACE" style="font-weight: bold; display: block; margin-bottom: 5px;">Custom Namespace Suffix:</label>' +
+                                '<input name="value" type="text" id="CUSTOM_NAMESPACE" class="jenkins-input" ' +
+                                'placeholder="e.g., my-test-env" value="" style="width: 100%; max-width: 400px;">' +
+                                '<div style="font-size: 0.9em; color: #666; margin-top: 4px;">' +
+                                'This will create namespace: <code>chatapp-dev-{your-input}</code>' +
+                                '</div>' +
+                                '</div>'
                         } else {
-                            return '''<div style="display: none;">
-                                <input name="value" type="hidden" value="">
-                            </div>'''
+                            return '<div style="display: none;"><input name="value" type="hidden" value=""></div>'
                         }
-                    '''
+                    """
                 ]
             ]
         ],
