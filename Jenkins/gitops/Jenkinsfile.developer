@@ -26,16 +26,48 @@ properties([
             defaultValue: false,
             description: 'Check to override namespace. If unchecked, automatically uses: {username}-{feature-branch}'
         ),
-        // Active Choices Reactive Parameter - only shows when USE_CUSTOM_NAMESPACE is checked
-        // Requires "Active Choices Plugin" (https://plugins.jenkins.io/uno-choice/)
-        activeChoiceReactiveParam(
+        // Custom namespace parameter - only used when USE_CUSTOM_NAMESPACE is checked
+        // Note: Jenkins doesn't support hiding parameters natively. This field will always be visible
+        // but will be ignored unless USE_CUSTOM_NAMESPACE is checked.
+        // To hide it conditionally, install "Active Choices Plugin" and uncomment the block below.
+        string(
             name: 'CUSTOM_NAMESPACE',
-            description: 'Custom namespace suffix (only visible when USE_CUSTOM_NAMESPACE is checked). Format: chatapp-dev-{your-custom-name}',
-            choiceType: 'PT_TEXTBOX',
-            enabledCondition: 'USE_CUSTOM_NAMESPACE == true',
-            referencedParameters: 'USE_CUSTOM_NAMESPACE',
-            defaultValue: ''
+            defaultValue: '',
+            description: '⚠️ ONLY USED IF "USE_CUSTOM_NAMESPACE" IS CHECKED ⚠️\n\nCustom namespace suffix. Leave empty if checkbox is unchecked.\nFormat: chatapp-dev-{your-custom-name}\nExample: my-test-env → creates namespace: chatapp-dev-my-test-env'
         ),
+        
+        // Uncomment below and comment out the string() above to use Active Choices Plugin (hides field when unchecked)
+        // Requires: Active Choices Plugin (https://plugins.jenkins.io/uno-choice/)
+        /*
+        [$class: 'ActiveChoicesReactiveReferenceParameter',
+            name: 'CUSTOM_NAMESPACE',
+            description: 'Custom namespace suffix (only visible when USE_CUSTOM_NAMESPACE is checked)',
+            referencedParameters: 'USE_CUSTOM_NAMESPACE',
+            choiceType: 'Formatted HTML',
+            script: [
+                $class: 'GroovyScript',
+                fallbackScript: [
+                    classpath: [],
+                    sandbox: true,
+                    script: 'return [""]'
+                ],
+                script: [
+                    classpath: [],
+                    sandbox: true,
+                    script: '''
+                        if (USE_CUSTOM_NAMESPACE?.toString() == "true") {
+                            return '''<div class="jenkins-form-item">
+                                <label>Custom Namespace Suffix:</label>
+                                <input name="value" type="text" placeholder="e.g., my-test-env" value="">
+                            </div>'''
+                        } else {
+                            return '''<div style="display: none;"><input name="value" type="hidden" value=""></div>'''
+                        }
+                    '''
+                ]
+            ]
+        ],
+        */
         booleanParam(
             name: 'SKIP_BUILD',
             defaultValue: false,
