@@ -1,5 +1,54 @@
 @Library('jenkins-shared-library') _
 
+/**
+ * Developer Self-Service Pipeline
+ * 
+ * NOTE: This pipeline uses Active Choices Plugin for conditional parameter display.
+ * If the plugin is not installed, you may see an error. To install:
+ * 1. Go to Jenkins > Manage Jenkins > Manage Plugins
+ * 2. Search for "Active Choices Plugin" (uno-choice)
+ * 3. Install and restart Jenkins
+ * 
+ * Alternative: If you cannot install the plugin, the CUSTOM_NAMESPACE parameter
+ * will always be visible but will only be used when USE_CUSTOM_NAMESPACE is checked.
+ */
+
+// Properties block with conditional parameters
+properties([
+    parameters([
+        choice(
+            name: 'ACTION',
+            choices: ['deploy', 'destroy'],
+            description: 'Action to perform: deploy (build & deploy) or destroy (cleanup)'
+        ),
+        booleanParam(
+            name: 'USE_CUSTOM_NAMESPACE',
+            defaultValue: false,
+            description: 'Check to override namespace. If unchecked, automatically uses: {username}-{feature-branch}'
+        ),
+        // Active Choices Reactive Parameter - only shows when USE_CUSTOM_NAMESPACE is checked
+        // Requires "Active Choices Plugin" (https://plugins.jenkins.io/uno-choice/)
+        activeChoiceReactiveParam(
+            name: 'CUSTOM_NAMESPACE',
+            description: 'Custom namespace suffix (only visible when USE_CUSTOM_NAMESPACE is checked). Format: chatapp-dev-{your-custom-name}',
+            choiceType: 'PT_TEXTBOX',
+            enabledCondition: 'USE_CUSTOM_NAMESPACE == true',
+            referencedParameters: 'USE_CUSTOM_NAMESPACE',
+            defaultValue: ''
+        ),
+        booleanParam(
+            name: 'SKIP_BUILD',
+            defaultValue: false,
+            description: 'Skip image build and use existing images (useful for redeploy only)'
+        ),
+        string(
+            name: 'IMAGE_TAG_OVERRIDE',
+            defaultValue: '',
+            description: 'Override: Use specific image tag instead of auto-generated. Format: backend-{tag} or full image URL'
+        )
+    ])
+])
+
 pipeline {
     agent {
         docker {
@@ -40,34 +89,6 @@ pipeline {
         DEVELOPER_TAG = ''  // Will be set based on branch/commit
     }
 
-    parameters {
-        choice(
-            name: 'ACTION',
-            choices: ['deploy', 'destroy'],
-            description: 'Action to perform: deploy (build & deploy) or destroy (cleanup)'
-        )
-        booleanParam(
-            name: 'USE_CUSTOM_NAMESPACE',
-            defaultValue: false,
-            description: 'Check to override namespace. If unchecked, automatically uses: {username}-{feature-branch}'
-        )
-        string(
-            name: 'CUSTOM_NAMESPACE',
-            defaultValue: '',
-            description: 'Custom namespace suffix (only used if USE_CUSTOM_NAMESPACE is checked). Format: chatapp-dev-{your-custom-name}'
-        )
-        booleanParam(
-            name: 'SKIP_BUILD',
-            defaultValue: false,
-            description: 'Skip image build and use existing images (useful for redeploy only)'
-        )
-        string(
-            name: 'IMAGE_TAG_OVERRIDE',
-            defaultValue: '',
-            description: 'Override: Use specific image tag instead of auto-generated. Format: backend-{tag} or full image URL'
-        )
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -104,6 +125,16 @@ pipeline {
             steps {
                 script {
                     logMessage('Setting up Developer Environment', '👤')
+                    
+                    // Validate custom namespace parameter
+                    if (params.USE_CUSTOM_NAMESPACE && (!params.CUSTOM_NAMESPACE || params.CUSTOM_NAMESPACE.isEmpty())) {
+                        error("""
+                        ❌ USE_CUSTOM_NAMESPACE is checked but CUSTOM_NAMESPACE is empty.
+                        
+                        Please provide a custom namespace suffix when USE_CUSTOM_NAMESPACE is checked.
+                        Example: my-test-env (will create namespace: chatapp-dev-my-test-env)
+                        """)
+                    }
                     
                     def normalizedBranch = BRANCH.replaceAll('origin/', '')
                     
