@@ -111,75 +111,36 @@ pipeline {
                     
                     def normalizedBranch = BRANCH.replaceAll('origin/', '')
                     
-                    // Get user information from build causes
+                    // Get user information using Build User Vars plugin (primary method)
                     def username = ''
                     def userEmail = ''
                     
-                    echo "🔍 Attempting to get user information from build causes..."
+                    echo "🔍 Attempting to get user information from Build User Vars plugin..."
+                    echo "   BUILD_USER_EMAIL: ${env.BUILD_USER_EMAIL ?: 'not set'}"
+                    echo "   BUILD_USER: ${env.BUILD_USER ?: 'not set'}"
+                    echo "   BUILD_USER_ID: ${env.BUILD_USER_ID ?: 'not set'}"
                     
-                    try {
-                        // Method 1: Use rawBuild.getCause() - most reliable method
-                        def userCause = currentBuild.rawBuild.getCause(hudson.model.Cause.UserIdCause.class)
-                        if (userCause != null) {
-                            def userId = userCause.getUserId()
-                            def userName = userCause.getUserName()
-                            
-                            echo "✅ Build started by User ID: ${userId}"
-                            echo "✅ Build started by User Name: ${userName}"
-                            
-                            // userId is typically the email (e.g., tomer@test.com)
-                            // userName might be the display name
-                            if (userId && !userId.isEmpty() && userId != 'null') {
-                                userEmail = userId.toString().trim()
-                                
-                                // Extract username from email (part before @) - split by '@' and take index 0
-                                if (userEmail.contains('@')) {
-                                    def emailParts = userEmail.split('@')
-                                    if (emailParts && emailParts.length > 0 && emailParts[0]) {
-                                        username = emailParts[0].trim()
-                                        echo "✅ Extracted username from userId email: ${userEmail} → ${username}"
-                                    }
-                                } else {
-                                    // userId is not an email, use it as username
-                                    username = userEmail
-                                    echo "✅ Using userId as username: ${username}"
-                                }
-                            } else if (userName && !userName.isEmpty() && userName != 'null') {
-                                // Fallback to userName if userId is not available
-                                username = userName.toString().trim()
-                                // Check if userName is an email
-                                if (username.contains('@')) {
-                                    def emailParts = username.split('@')
-                                    if (emailParts && emailParts.length > 0 && emailParts[0]) {
-                                        username = emailParts[0].trim()
-                                    }
-                                }
-                                echo "✅ Using userName: ${username}"
+                    // Method 1: Use BUILD_USER_EMAIL from Build User Vars plugin (primary method)
+                    // This is the most reliable when the plugin is installed
+                    if (env.BUILD_USER_EMAIL && !env.BUILD_USER_EMAIL.isEmpty() && env.BUILD_USER_EMAIL != 'null') {
+                        userEmail = env.BUILD_USER_EMAIL.toString().trim()
+                        echo "✅ Found email from BUILD_USER_EMAIL: ${userEmail}"
+                        
+                        // Extract username from email (part before @) - split by '@' and take index 0
+                        if (userEmail.contains('@')) {
+                            def emailParts = userEmail.split('@')
+                            if (emailParts && emailParts.length > 0 && emailParts[0]) {
+                                username = emailParts[0].trim()
+                                echo "✅ Extracted username from BUILD_USER_EMAIL: ${userEmail} → ${username}"
                             }
                         } else {
-                            echo "⚠️  Build not started by a user directly (e.g., SCM, timer, upstream project)"
-                            echo "   Build causes: ${currentBuild.rawBuild.getCauses()}"
-                        }
-                    } catch (Exception e) {
-                        echo "⚠️  Could not get user from rawBuild.getCause(): ${e.getMessage()}"
-                        echo "   Trying alternative methods..."
-                    }
-                    
-                    // Method 2: Fallback to BUILD_USER_EMAIL (requires Build User Vars plugin)
-                    if (!username || username.isEmpty() || username == 'null') {
-                        if (env.BUILD_USER_EMAIL && !env.BUILD_USER_EMAIL.isEmpty() && env.BUILD_USER_EMAIL != 'null') {
-                            userEmail = env.BUILD_USER_EMAIL.toString().trim()
-                            if (userEmail.contains('@')) {
-                                def emailParts = userEmail.split('@')
-                                if (emailParts && emailParts.length > 0 && emailParts[0]) {
-                                    username = emailParts[0].trim()
-                                    echo "✅ Extracted username from BUILD_USER_EMAIL: ${userEmail} → ${username}"
-                                }
-                            }
+                            // BUILD_USER_EMAIL is not an email format, use it as username
+                            username = userEmail
+                            echo "✅ Using BUILD_USER_EMAIL as username: ${username}"
                         }
                     }
                     
-                    // Method 3: Fallback to BUILD_USER or BUILD_USER_ID
+                    // Method 2: Fallback to BUILD_USER from Build User Vars plugin
                     if (!username || username.isEmpty() || username == 'null') {
                         if (env.BUILD_USER && !env.BUILD_USER.isEmpty() && env.BUILD_USER != 'null') {
                             username = env.BUILD_USER.toString().trim()
@@ -191,7 +152,12 @@ pipeline {
                                 }
                             }
                             echo "✅ Using BUILD_USER: ${username}"
-                        } else if (env.BUILD_USER_ID && !env.BUILD_USER_ID.isEmpty() && env.BUILD_USER_ID != 'null') {
+                        }
+                    }
+                    
+                    // Method 3: Fallback to BUILD_USER_ID from Build User Vars plugin
+                    if (!username || username.isEmpty() || username == 'null') {
+                        if (env.BUILD_USER_ID && !env.BUILD_USER_ID.isEmpty() && env.BUILD_USER_ID != 'null') {
                             username = env.BUILD_USER_ID.toString().trim()
                             // If BUILD_USER_ID is an email, extract username
                             if (username.contains('@')) {
@@ -204,7 +170,55 @@ pipeline {
                         }
                     }
                     
-                    // Method 4: Last resort - try whoami
+                    // Method 4: Fallback to rawBuild.getCause() if plugin variables not available
+                    if (!username || username.isEmpty() || username == 'null') {
+                        try {
+                            echo "⚠️  Build User Vars plugin variables not available, trying rawBuild.getCause()..."
+                            def userCause = currentBuild.rawBuild.getCause(hudson.model.Cause.UserIdCause.class)
+                            if (userCause != null) {
+                                def userId = userCause.getUserId()
+                                def userName = userCause.getUserName()
+                                
+                                echo "   User ID from build cause: ${userId}"
+                                echo "   User Name from build cause: ${userName}"
+                                
+                                // userId is typically the email (e.g., tomer@test.com)
+                                if (userId && !userId.isEmpty() && userId != 'null') {
+                                    userEmail = userId.toString().trim()
+                                    
+                                    // Extract username from email (part before @) - split by '@' and take index 0
+                                    if (userEmail.contains('@')) {
+                                        def emailParts = userEmail.split('@')
+                                        if (emailParts && emailParts.length > 0 && emailParts[0]) {
+                                            username = emailParts[0].trim()
+                                            echo "✅ Extracted username from build cause userId: ${userEmail} → ${username}"
+                                        }
+                                    } else {
+                                        // userId is not an email, use it as username
+                                        username = userEmail
+                                        echo "✅ Using build cause userId as username: ${username}"
+                                    }
+                                } else if (userName && !userName.isEmpty() && userName != 'null') {
+                                    // Fallback to userName if userId is not available
+                                    username = userName.toString().trim()
+                                    // Check if userName is an email
+                                    if (username.contains('@')) {
+                                        def emailParts = username.split('@')
+                                        if (emailParts && emailParts.length > 0 && emailParts[0]) {
+                                            username = emailParts[0].trim()
+                                        }
+                                    }
+                                    echo "✅ Using build cause userName: ${username}"
+                                }
+                            } else {
+                                echo "⚠️  Build not started by a user directly (e.g., SCM, timer, upstream project)"
+                            }
+                        } catch (Exception e) {
+                            echo "⚠️  Could not get user from rawBuild.getCause(): ${e.getMessage()}"
+                        }
+                    }
+                    
+                    // Method 5: Last resort - try whoami
                     if (!username || username.isEmpty() || username == 'null') {
                         try {
                             username = sh(script: 'whoami', returnStdout: true).trim()
