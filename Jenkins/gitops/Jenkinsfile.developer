@@ -3,17 +3,15 @@
 /**
  * Developer Self-Service Pipeline
  * 
- * NOTE: This pipeline uses Active Choices Plugin for conditional parameter display.
- * The CUSTOM_NAMESPACE field will be hidden when USE_CUSTOM_NAMESPACE is unchecked.
+ * This pipeline automatically generates namespaces for developer environments
+ * using the format: chatapp-dev-{username}-{feature-branch}
  * 
- * Plugin Requirement: Active Choices Plugin (uno-choice)
- * To install:
- * 1. Go to Jenkins > Manage Jenkins > Manage Plugins
- * 2. Search for "Active Choices Plugin" (uno-choice)
- * 3. Install and restart Jenkins
+ * Namespace is automatically derived from:
+ * - Jenkins user email (username part before @)
+ * - Current feature branch name
  */
 
-// Properties block with conditional parameters
+// Properties block with pipeline parameters
 properties([
     parameters([
         choice(
@@ -21,46 +19,6 @@ properties([
             choices: ['deploy', 'destroy'],
             description: 'Action to perform: deploy (build & deploy) or destroy (cleanup)'
         ),
-        booleanParam(
-            name: 'USE_CUSTOM_NAMESPACE',
-            defaultValue: false,
-            description: 'Check to override namespace. If unchecked, automatically uses: {username}-{feature-branch}'
-        ),
-        // Active Choices Reactive Parameter - hides field when USE_CUSTOM_NAMESPACE is unchecked
-        // Requires: Active Choices Plugin (https://plugins.jenkins.io/uno-choice/)
-        [$class: 'ActiveChoicesReactiveReferenceParameter',
-            name: 'CUSTOM_NAMESPACE',
-            description: 'Custom namespace suffix (only visible when USE_CUSTOM_NAMESPACE is checked). Format: chatapp-dev-{your-custom-name}',
-            referencedParameters: 'USE_CUSTOM_NAMESPACE',
-            choiceType: 'Formatted HTML',
-            script: [
-                $class: 'GroovyScript',
-                fallbackScript: [
-                    classpath: [],
-                    sandbox: true,
-                    script: 'return [""]'
-                ],
-                script: [
-                    classpath: [],
-                    sandbox: true,
-                    script: """
-                        def showField = USE_CUSTOM_NAMESPACE?.toString() == "true"
-                        if (showField) {
-                            return '<div class="jenkins-form-item">' +
-                                '<label for="CUSTOM_NAMESPACE" style="font-weight: bold; display: block; margin-bottom: 5px;">Custom Namespace Suffix:</label>' +
-                                '<input name="value" type="text" id="CUSTOM_NAMESPACE" class="jenkins-input" ' +
-                                'placeholder="e.g., my-test-env" value="" style="width: 100%; max-width: 400px;">' +
-                                '<div style="font-size: 0.9em; color: #666; margin-top: 4px;">' +
-                                'This will create namespace: <code>chatapp-dev-{your-input}</code>' +
-                                '</div>' +
-                                '</div>'
-                        } else {
-                            return '<div style="display: none;"><input name="value" type="hidden" value=""></div>'
-                        }
-                    """
-                ]
-            ]
-        ],
         booleanParam(
             name: 'SKIP_BUILD',
             defaultValue: false,
@@ -151,16 +109,6 @@ pipeline {
                 script {
                     logMessage('Setting up Developer Environment', '👤')
                     
-                    // Validate custom namespace parameter
-                    if (params.USE_CUSTOM_NAMESPACE && (!params.CUSTOM_NAMESPACE || params.CUSTOM_NAMESPACE.isEmpty())) {
-                        error("""
-                        ❌ USE_CUSTOM_NAMESPACE is checked but CUSTOM_NAMESPACE is empty.
-                        
-                        Please provide a custom namespace suffix when USE_CUSTOM_NAMESPACE is checked.
-                        Example: my-test-env (will create namespace: chatapp-dev-my-test-env)
-                        """)
-                    }
-                    
                     def normalizedBranch = BRANCH.replaceAll('origin/', '')
                     
                     // Get user email and extract username (part before @)
@@ -222,16 +170,9 @@ pipeline {
                         .replaceAll(/^-+|-+$/, '')  // Remove leading/trailing dashes
                         .take(30)  // Limit length
                     
-                    // Determine namespace suffix
-                    def namespaceSuffix = ''
-                    if (params.USE_CUSTOM_NAMESPACE && params.CUSTOM_NAMESPACE && !params.CUSTOM_NAMESPACE.isEmpty()) {
-                        namespaceSuffix = params.CUSTOM_NAMESPACE
-                        echo "✅ Using custom namespace: ${namespaceSuffix}"
-                    } else {
-                        // Format: {username}-{feature-branch}
-                        namespaceSuffix = "${username}-${sanitizedBranch}"
-                        echo "✅ Auto-generated namespace: ${namespaceSuffix} (from username: ${username}, branch: ${sanitizedBranch})"
-                    }
+                    // Determine namespace suffix - always auto-generated from username and branch
+                    def namespaceSuffix = "${username}-${sanitizedBranch}"
+                    echo "✅ Auto-generated namespace: ${namespaceSuffix} (from username: ${username}, branch: ${sanitizedBranch})"
                     
                     // Final sanitization for K8s namespace rules
                     namespaceSuffix = namespaceSuffix
