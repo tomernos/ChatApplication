@@ -22,7 +22,7 @@ frontend:
 
 ingress:
   enabled: true  # Ensure ingress is enabled for dev
-  # Hosts array - supports multiple hosts (scalable, modular, reusable)
+  # Hosts array - supports multiple hosts
   hosts:
     - host: chatapp-dev.tomernos.xyz
       paths:

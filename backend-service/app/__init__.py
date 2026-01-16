@@ -18,7 +18,6 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
-from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.sdk.resources import Resource
 
 # Simple logging setup
@@ -32,41 +31,34 @@ def _initialize_opentelemetry():
     """Initialize OpenTelemetry for distributed tracing."""
     try:
         # Get configuration from environment variables
-        otel_endpoint_raw = os.getenv(
+        otel_endpoint = os.getenv(
             "OTEL_EXPORTER_OTLP_ENDPOINT",
             "http://otel-collector-opentelemetry-collector.monitoring.svc.cluster.local:4317"
         )
         service_name = os.getenv("OTEL_SERVICE_NAME", "chatapp-backend")
+        service_namespace = os.getenv("OTEL_SERVICE_NAMESPACE", "chatapp-dev")
         
-        # OTLPSpanExporter for gRPC expects endpoint without http:// prefix
-        # Strip http:// or https:// if present
-        if otel_endpoint_raw.startswith("http://"):
-            otel_endpoint = otel_endpoint_raw.replace("http://", "", 1)
-        elif otel_endpoint_raw.startswith("https://"):
-            otel_endpoint = otel_endpoint_raw.replace("https://", "", 1)
-        else:
-            otel_endpoint = otel_endpoint_raw
-        
-        # Create resource with service information (matching example pattern)
+        # Create resource with service information
         resource = Resource.create({
             "service.name": service_name,
+            # "service.namespace": service_namespace,
         })
         
-        # Create and set tracer provider (matching example pattern)
-        trace_provider = TracerProvider(resource=resource)
-        trace.set_tracer_provider(trace_provider)
+        # Initialize TracerProvider with resource
+        trace.set_tracer_provider(TracerProvider(resource=resource))
         
         # Configure OTLP exporter (sends traces to OTEL Collector)
-        # gRPC endpoint should be host:port format (no http:// prefix)
         otlp_exporter = OTLPSpanExporter(
             endpoint=otel_endpoint,
             insecure=True  # For dev, use TLS in prod
         )
         
-        # Add the exporter to the tracer provider (matching example pattern)
-        trace_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
+        # Add span processor
+        span_processor = BatchSpanProcessor(otlp_exporter)
+        trace.get_tracer_provider().add_span_processor(span_processor)
         
         logger.info(f"✅ OpenTelemetry initialized: {service_name} -> {otel_endpoint}")
+        logger.info(f"   Service namespace: {service_namespace}")
     except Exception as e:
         logger.warning(f"⚠️  Failed to initialize OpenTelemetry: {e}. Tracing disabled.")
         import traceback
@@ -84,13 +76,12 @@ def create_app(config_name=None):
     # Create Flask application (no templates needed - pure API)
     app = Flask(__name__)
     
-    # Auto-instrument Flask and requests with OpenTelemetry (matching example pattern)
+    # Auto-instrument Flask with OpenTelemetry
     try:
         FlaskInstrumentor().instrument_app(app)
-        RequestsInstrumentor().instrument()
-        logger.info("✅ Flask and Requests OpenTelemetry instrumentation enabled")
+        logger.info("✅ Flask OpenTelemetry instrumentation enabled")
     except Exception as e:
-        logger.warning(f"⚠️  Failed to instrument Flask/Requests: {e}")
+        logger.warning(f"⚠️  Failed to instrument Flask: {e}")
     
     # Load configuration
     app.config.from_object(config[config_name])

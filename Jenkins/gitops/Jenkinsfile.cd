@@ -470,7 +470,6 @@ promoted_at: "${timestamp}"
                                     --set backend.image.tag=\${BACKEND_TAG} \\
                                     --set frontend.image.repository=\${FRONTEND_REPO} \\
                                     --set frontend.image.tag=\${FRONTEND_TAG} \\
-                                    --set backend.monitoring.enabled=false \\
                                     --set backend.secretsProvider.enabled=true \\
                                     --set backend.secretsProvider.className=chatapp-secrets \\
                                     --wait \\
