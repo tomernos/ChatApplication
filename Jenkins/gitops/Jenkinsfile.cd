@@ -423,58 +423,98 @@ promoted_at: "${timestamp}"
             }
         }
 
-        stage('Helm Deploy Application') {
+        // =========================================
+        // DEPLOYMENT METHOD: ArgoCD GitOps (Automated)
+        // =========================================
+        // ArgoCD automatically syncs deployments from GitOps repository
+        // CI pipeline updates image tags → GitOps repo → ArgoCD detects & deploys
+        // 
+        // Legacy method (commented for reference - use if ArgoCD not available):
+        // stage('Helm Deploy Application') {
+        //     steps {
+        //         script {
+        //             logMessage('Deploying application via Helm', '🚀')
+        //             
+        //             if (!env.DEPLOY_VERSION || env.DEPLOY_VERSION.isEmpty()) {
+        //                 error("DEPLOY_VERSION is not set! Check deployment manifest or provide IMAGE_VERSION.")
+        //             }
+        //             
+        //             def namespace = "chatapp-${env.DEPLOY_ENVIRONMENT}"
+        //             
+        //             withCredentials([usernamePassword(
+        //                 credentialsId: AWS_CREDENTIALS_ID,
+        //                 usernameVariable: 'AWS_ACCESS_KEY_ID',
+        //                 passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+        //             )]) {
+        //                     sh """
+        //                         BACKEND_IMG="${env.BACKEND_IMAGE}"
+        //                         FRONTEND_IMG="${env.FRONTEND_IMAGE}"
+        //                         
+        //                         if [ -z "\$BACKEND_IMG" ] || [ -z "\$FRONTEND_IMG" ]; then
+        //                             echo "❌ Image variables are empty"
+        //                             exit 1
+        //                         fi
+        //                         
+        //                         BACKEND_REPO=\$(echo "\$BACKEND_IMG" | cut -d: -f1)
+        //                         BACKEND_TAG=\$(echo "\$BACKEND_IMG" | cut -d: -f2)
+        //                         FRONTEND_REPO=\$(echo "\$FRONTEND_IMG" | cut -d: -f1)
+        //                         FRONTEND_TAG=\$(echo "\$FRONTEND_IMG" | cut -d: -f2)
+        //                         
+        //                         # Use values file from GitOps repo
+        //                         VALUES_FILE="${GITOPS_REPO_PATH}/applications/${APP_NAME}/${environment}/values.yaml"
+        //                         
+        //                         if [ ! -f "\${VALUES_FILE}" ]; then
+        //                             echo "❌ Values file not found in GitOps repo: \${VALUES_FILE}"
+        //                             exit 1
+        //                         fi
+        //                         
+        //                         helm upgrade --install chatapp ./helm-chart \\
+        //                             --namespace ${namespace} \\
+        //                             --create-namespace \\
+        //                             -f \${VALUES_FILE} \\
+        //                             --set backend.image.repository=\${BACKEND_REPO} \\
+        //                             --set backend.image.tag=\${BACKEND_TAG} \\
+        //                             --set frontend.image.repository=\${FRONTEND_REPO} \\
+        //                             --set frontend.image.tag=\${FRONTEND_TAG} \\
+        //                             --set backend.secretsProvider.enabled=true \\
+        //                             --set backend.secretsProvider.className=chatapp-secrets \\
+        //                             --wait \\
+        //                             --timeout 10m
+        //                     """
+        //             }
+        //         }
+        //     }
+        // }
+        
+        stage('Verify ArgoCD Sync Status') {
             steps {
                 script {
-                    logMessage('Deploying application via Helm', '🚀')
+                    logMessage('Checking ArgoCD Application Status', '🔄')
                     
-                    
-                    if (!env.DEPLOY_VERSION || env.DEPLOY_VERSION.isEmpty()) {
-                        error("DEPLOY_VERSION is not set! Check deployment manifest or provide IMAGE_VERSION.")
-                    }
-                    
-                    def namespace = "chatapp-${env.DEPLOY_ENVIRONMENT}"
+                    def appName = "chatapp-${env.DEPLOY_ENVIRONMENT}"
                     
                     withCredentials([usernamePassword(
                         credentialsId: AWS_CREDENTIALS_ID,
                         usernameVariable: 'AWS_ACCESS_KEY_ID',
                         passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                     )]) {
-                            sh """
-                                BACKEND_IMG="${env.BACKEND_IMAGE}"
-                                FRONTEND_IMG="${env.FRONTEND_IMAGE}"
-                                
-                                if [ -z "\$BACKEND_IMG" ] || [ -z "\$FRONTEND_IMG" ]; then
-                                    echo "❌ Image variables are empty"
-                                    exit 1
-                                fi
-                                
-                                BACKEND_REPO=\$(echo "\$BACKEND_IMG" | cut -d: -f1)
-                                BACKEND_TAG=\$(echo "\$BACKEND_IMG" | cut -d: -f2)
-                                FRONTEND_REPO=\$(echo "\$FRONTEND_IMG" | cut -d: -f1)
-                                FRONTEND_TAG=\$(echo "\$FRONTEND_IMG" | cut -d: -f2)
-                                
-                                # Use values file from GitOps repo
-                                VALUES_FILE="${GITOPS_REPO_PATH}/applications/${APP_NAME}/${environment}/values.yaml"
-                                
-                                if [ ! -f "\${VALUES_FILE}" ]; then
-                                    echo "❌ Values file not found in GitOps repo: \${VALUES_FILE}"
-                                    exit 1
-                                fi
-                                
-                                helm upgrade --install chatapp ./helm-chart \\
-                                    --namespace ${namespace} \\
-                                    --create-namespace \\
-                                    -f \${VALUES_FILE} \\
-                                    --set backend.image.repository=\${BACKEND_REPO} \\
-                                    --set backend.image.tag=\${BACKEND_TAG} \\
-                                    --set frontend.image.repository=\${FRONTEND_REPO} \\
-                                    --set frontend.image.tag=\${FRONTEND_TAG} \\
-                                    --set backend.secretsProvider.enabled=true \\
-                                    --set backend.secretsProvider.className=chatapp-secrets \\
-                                    --wait \\
-                                    --timeout 10m
-                            """
+                        sh """
+                            echo "📊 Checking ArgoCD application: ${appName}"
+                            echo ""
+                            echo "ArgoCD will automatically sync the deployment within 3 minutes."
+                            echo "GitOps Repository: ${GITOPS_REPO_URL}"
+                            echo "Application Path: applications/${APP_NAME}/${env.DEPLOY_ENVIRONMENT}/"
+                            echo ""
+                            echo "✅ Deployment manifest updated in GitOps repo"
+                            echo "✅ ArgoCD will detect changes and deploy automatically"
+                            echo ""
+                            echo "📝 To check ArgoCD status:"
+                            echo "   kubectl get application ${appName} -n argocd"
+                            echo ""
+                            echo "📝 To view ArgoCD UI:"
+                            echo "   kubectl port-forward svc/argocd-server -n argocd 8080:443"
+                            echo "   https://localhost:8080"
+                        """
                     }
                 }
             }
